@@ -1,17 +1,24 @@
 package com.kekadoc.project.capybara.server.common.http
 
-sealed class Header {
+import io.ktor.http.*
+
+sealed class Header(
+    private val identity: Identity<*>
+) {
+
+    val name: String
+        get() = identity.name
     
-    class Authorization(val value: String) : Header() {
-        companion object : Identity<Authorization>("Authorization") {
+    data class Authorization(val value: String) : Header(Key) {
+        companion object Key : Identity<Authorization>("Authorization") {
             override fun newInstance(value: String): Authorization {
                 return Authorization(value)
             }
         }
     }
     
-    class ApiKey(val value: String) : Header() {
-        companion object : Identity<ApiKey>("ApiKey") {
+    data class ApiKey(val value: String) : Header(Key) {
+        companion object Key : Identity<ApiKey>("ApiKey") {
             override fun newInstance(value: String): ApiKey {
                 return ApiKey(value)
             }
@@ -39,4 +46,8 @@ sealed class Header {
         }
     }
     
+}
+
+fun <T : Header> Headers.get(identity: Header.Identity<T>): T? {
+    return this[identity.name]?.let(identity::newInstance)
 }

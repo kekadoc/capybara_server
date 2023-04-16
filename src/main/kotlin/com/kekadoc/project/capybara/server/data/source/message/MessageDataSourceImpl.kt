@@ -4,40 +4,96 @@ import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.extensions.*
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Message
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
+import com.kekadoc.project.capybara.server.data.model.MessageContent
+import kotlinx.coroutines.flow.*
 
-@OptIn(FlowPreview::class)
-class MessageDataSourceImpl : MessageDataSource {
-    
-    private val database = FirebaseDatabase.getInstance()
+class MessageDataSourceImpl(
+    database: FirebaseDatabase,
+) : MessagesDataSource {
+
     private val messages = database.getReference("/messages")
-    
-    override fun addMessage(message: Message): Flow<Unit> {
-        return flowOf {
-            messages.child(message.id).set(message)
+
+    override fun getAll(): Flow<List<Message>> = flowOf {
+        messages
+            .getAll<Message>()
+            .values.toList()
+            .filterNotNull()
+    }
+
+    override fun createMessage(
+        authorId: Identifier,
+        addresseeGroups: Set<Identifier>,
+        addresseeUsers: Set<Identifier>,
+        content: MessageContent,
+    ): Flow<Message> {
+        return flow {
+            val newMessageDocument = messages.push()
+            val message = Message(
+                id = newMessageDocument.key,
+                authorId = authorId,
+                addresseeGroups = addresseeGroups.toList(),
+                addresseeUsers = addresseeUsers.toList(),
+                content = content,
+                state = Message.State(
+                    status = Message.State.Status.SENT, // TODO:
+                )
+            )
+            newMessageDocument.set(message)
+            emit(message)
         }
     }
-    
-    override fun removeMessage(messageId: Identifier): Flow<Unit> {
+
+    override fun updateMessage(
+        messageId: Identifier,
+        content: MessageContent,
+    ): Flow<Message> {
+        return getMessage(messageId)
+            .map { message -> message ?: throw IllegalStateException("Message not found") }
+            .map { currentMessage ->
+                currentMessage.copy(
+                    content = content,
+                )
+            }
+            .onEach { newMessage -> messages.child(messageId).set(newMessage) }
+    }
+
+    override fun updateMessageState(
+        messageId: Identifier,
+        state: Message.State,
+    ): Flow<Message> {
+        return getMessage(messageId)
+            .map { message -> message ?: throw IllegalStateException("Message not found") }
+            .map { currentMessage ->
+                currentMessage.copy(
+                    state = state,
+                )
+            }
+            .onEach { newMessage -> messages.child(messageId).set(newMessage) }
+    }
+
+    override fun removeMessage(
+        messageId: Identifier,
+    ): Flow<Unit> {
         return flowOf {
             messages.child(messageId).remove()
         }
     }
     
-    override fun getMessage(messageId: Identifier): Flow<Message> {
+    override fun getMessage(
+        messageId: Identifier,
+    ): Flow<Message?> {
         return flow {
-            val message = messages.child(messageId).get<Message>()
-            if (message != null) emit(message)
+            val message = messages.child(messageId).get<Message?>()
+            emit(message)
         }
     }
     
-    override fun getMessagesByAuthorId(authorId: Identifier): Flow<List<Message>> {
+    override fun getMessagesByAuthorId(
+        authorId: Identifier,
+    ): Flow<List<Message>> {
         return flowOf {
             messages
-                .orderByChild("author/id")
+                .orderByChild("authorId")
                 .equalTo(authorId)
                 .getAll<Message>()
                 .values
@@ -45,8 +101,34 @@ class MessageDataSourceImpl : MessageDataSource {
                 .toList()
         }
     }
-    
-    override fun observeMessage(messageId: Identifier): Flow<Message> {
+
+    override fun getMessagesByAddresseeUserId(id: Identifier): Flow<List<Message>> = flowOf {
+        messages
+            .getAll<Message>()
+            .values.toList()
+            .filterNotNull()
+            .filter { message ->
+                message.addresseeUsers.any { userId ->
+                    id == userId
+                }
+            }
+    }
+
+    override fun getMessagesByAddresseeGroupIds(ids: Set<Identifier>): Flow<List<Message>> = flowOf {
+        messages
+            .getAll<Message>()
+            .values.toList()
+            .filterNotNull()
+            .filter { message ->
+                message.addresseeGroups.any { userId ->
+                    ids.any { it == userId }
+                }
+            }
+    }
+
+    override fun observeMessage(
+        messageId: Identifier,
+    ): Flow<Message> {
         return messages.child(messageId).observeValue<Message>().filterNotNull()
     }
     

@@ -1,12 +1,10 @@
 package com.kekadoc.project.capybara.server.common.extensions
 
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.Query
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -51,10 +49,14 @@ suspend inline fun <reified T> Query.getAll(): Map<String, T?> {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     try {
-                        continuation.resume(snapshot.children.associate { it.key to it.getValue(T::class.java) })
+                        continuation.resume(
+                            snapshot.children.associate {
+                                it.key to it.getValue(T::class.java)
+                            }
+                        )
                     } catch (e: Throwable) {
                         e.printStackTrace()
-                        continuation.resume(emptyMap())
+                        continuation.resumeWithException(e)
                     }
                 } else {
                     continuation.resume(emptyMap())
@@ -88,7 +90,7 @@ suspend inline fun Query.getKey(): String? {
     }
 }
 
-suspend inline fun <reified T> com.google.firebase.database.DatabaseReference.set(value: T) {
+suspend inline fun <reified T> DatabaseReference.set(value: T) {
     return suspendCancellableCoroutine { continuation ->
         try {
             this.setValue(value) { error, _ ->
@@ -104,7 +106,7 @@ suspend inline fun <reified T> com.google.firebase.database.DatabaseReference.se
     }
 }
 
-suspend inline fun com.google.firebase.database.DatabaseReference.remove() {
+suspend inline fun DatabaseReference.remove() {
     return suspendCancellableCoroutine { continuation ->
         try {
             this.removeValue { error, ref ->
@@ -120,6 +122,30 @@ suspend inline fun com.google.firebase.database.DatabaseReference.remove() {
     }
 }
 
+suspend inline fun <reified T> DatabaseReference.runTransaction(noinline block: suspend (T?) -> T?): T? {
+    return suspendCancellableCoroutine { continuation ->
+        try {
+            runTransaction(object : Transaction.Handler {
+
+                override fun doTransaction(currentData: MutableData?): Transaction.Result = runBlocking {
+                    val result = block.invoke(currentData?.getValue(T::class.java))
+                    currentData?.value = result
+                    Transaction.success(currentData)
+                }
+
+                override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                    when {
+                        error != null -> continuation.resumeWithException(error.toException())
+                        else -> continuation.resume(currentData?.getValue(T::class.java))
+                    }
+                }
+
+            })
+        } catch (e: Throwable) {
+            continuation.resumeWithException(e)
+        }
+    }
+}
 
 inline fun <reified T> Query.observeValue(): Flow<T?> {
     return callbackFlow {

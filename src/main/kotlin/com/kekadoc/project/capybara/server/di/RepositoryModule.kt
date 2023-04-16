@@ -1,21 +1,42 @@
 package com.kekadoc.project.capybara.server.di
 
-import com.kekadoc.project.capybara.server.data.repository.api_key.ApiKeyRepository
-import com.kekadoc.project.capybara.server.data.repository.api_key.ApiKeyRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.auth.AuthRepository
-import com.kekadoc.project.capybara.server.data.repository.auth.AuthRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.message.MessageRepository
-import com.kekadoc.project.capybara.server.data.repository.message.MessageRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepository
-import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.user.UserRepository
-import com.kekadoc.project.capybara.server.data.repository.user.UserRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.api_key.ApiKeysRepository
+import com.kekadoc.project.capybara.server.data.repository.api_key.ApiKeysRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.contacts.ContactsRepository
+import com.kekadoc.project.capybara.server.data.repository.contacts.ContactsRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.group.GroupRepository
+import com.kekadoc.project.capybara.server.data.repository.group.GroupRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
+import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.repository.user.UsersRepositoryImpl
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<AuthRepository> { AuthRepositoryImpl(userDataSource = get()) }
-    single<NotificationRepository> { NotificationRepositoryImpl(userDataSource = get()) }
-    single<UserRepository> { UserRepositoryImpl(userDataSource = get()) }
-    single<ApiKeyRepository> { ApiKeyRepositoryImpl(apiKeyDataSource = get()) }
-    single<MessageRepository> { MessageRepositoryImpl(messageDataSource = get()) }
+    single<ApiKeysRepository> {
+        ApiKeysRepositoryImpl(
+            apiKeyDataSource = get(),
+        )
+    }
+    single<UsersRepository> {
+        UsersRepositoryImpl(
+            usersDataSource = get(),
+        )
+    }
+    single<MessagesRepository> {
+        MessagesRepositoryImpl(
+            messagesDataSource = get(),
+            notificationsDataSource = get(),
+        )
+    }
+    single<ContactsRepository> {
+        ContactsRepositoryImpl(
+            contactsDataSource = get(),
+        )
+    }
+    single<GroupRepository> {
+        GroupRepositoryImpl(
+            dataSource = get(),
+        )
+    }
 }

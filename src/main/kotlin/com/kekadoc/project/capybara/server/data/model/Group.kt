@@ -1,15 +1,15 @@
 package com.kekadoc.project.capybara.server.data.model
 
+import com.kekadoc.project.capybara.server.common.extensions.emptyString
 import kotlinx.serialization.Serializable
 
 /**
  * @param id Идентификатор
  * @param members Идентификаторы участников
- * @param messages Идентификатор хранилища сообщений
  */
 @Serializable
 data class Group(
-    val id: Identifier,
-    val members: Set<Identifier>,
-    val messages: Identifier
+    val id: Identifier = emptyString(),
+    val name: String = emptyString(),
+    val members: List<Identifier> = emptyList(),
 )
