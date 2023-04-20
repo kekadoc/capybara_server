@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.group
+package com.kekadoc.project.capybara.server.data.source.api.group
 
 import com.kekadoc.project.capybara.server.data.model.Group
 import com.kekadoc.project.capybara.server.data.model.Identifier

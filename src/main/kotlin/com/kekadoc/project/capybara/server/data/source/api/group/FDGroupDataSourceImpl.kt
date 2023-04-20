@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.group
+package com.kekadoc.project.capybara.server.data.source.api.group
 
 import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.exception.EntityNotFoundException
@@ -8,7 +8,7 @@ import com.kekadoc.project.capybara.server.data.model.Identifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 
-class GroupDataSourceImpl(
+class FDGroupDataSourceImpl(
     database: FirebaseDatabase,
 ) : GroupDataSource {
 

@@ -1,8 +1,8 @@
-package com.kekadoc.project.capybara.server.data.source.notification
+package com.kekadoc.project.capybara.server.data.source.api.notification
 
 import kotlinx.coroutines.flow.Flow
 
-interface NotificationsDataSource {
+interface MobileNotificationsDataSource {
 
     fun sendNotification(
         pushToken: String,

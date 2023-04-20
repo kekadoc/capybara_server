@@ -1,24 +1,24 @@
 package com.kekadoc.project.capybara.server.di
 
-import com.kekadoc.project.capybara.server.data.source.api_key.ApiKeyDataSource
-import com.kekadoc.project.capybara.server.data.source.api_key.ApiKeyDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.contacts.ContactsDataSource
-import com.kekadoc.project.capybara.server.data.source.contacts.ContactsDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.group.GroupDataSource
-import com.kekadoc.project.capybara.server.data.source.group.GroupDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.message.MessageDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.message.MessagesDataSource
-import com.kekadoc.project.capybara.server.data.source.notification.NotificationsDataSource
-import com.kekadoc.project.capybara.server.data.source.notification.NotificationsDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.user.UsersDataSource
-import com.kekadoc.project.capybara.server.data.source.user.UsersDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.api_key.ApiKeyDataSource
+import com.kekadoc.project.capybara.server.data.source.api.api_key.ApiKeyDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.contacts.ContactsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.contacts.FDContactsDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.group.FDGroupDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notification.FDNotificationsDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notification.FMMobileNotificationsDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notification.MobileNotificationsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notification.NotificationsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.user.FDUsersDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import org.koin.dsl.module
 
 val dataSourceModule = module {
     single<ApiKeyDataSource> { ApiKeyDataSourceImpl(database = get()) }
-    single<ContactsDataSource> { ContactsDataSourceImpl(database = get()) }
-    single<GroupDataSource> { GroupDataSourceImpl(database = get()) }
-    single<MessagesDataSource> { MessageDataSourceImpl(database = get()) }
-    single<NotificationsDataSource> { NotificationsDataSourceImpl(firebaseMessaging = get()) }
-    single<UsersDataSource> { UsersDataSourceImpl(database = get()) }
+    single<ContactsDataSource> { FDContactsDataSourceImpl(database = get()) }
+    single<GroupDataSource> { FDGroupDataSourceImpl(database = get()) }
+    single<NotificationsDataSource> { FDNotificationsDataSourceImpl(database = get()) }
+    single<MobileNotificationsDataSource> { FMMobileNotificationsDataSourceImpl(firebaseMessaging = get()) }
+    single<UsersDataSource> { FDUsersDataSourceImpl(database = get()) }
 }

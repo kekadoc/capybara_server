@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.data.repository.contacts
 import com.kekadoc.project.capybara.server.data.model.CommunicationType
 import com.kekadoc.project.capybara.server.data.model.Contact
 import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.source.contacts.ContactsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.contacts.ContactsDataSource
 import kotlinx.coroutines.flow.Flow
 
 class ContactsRepositoryImpl(

@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.user
+package com.kekadoc.project.capybara.server.data.source.api.user
 
 import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.Token
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
 
-class UsersDataSourceImpl(
+class FDUsersDataSourceImpl(
     database: FirebaseDatabase,
 ) : UsersDataSource {
 

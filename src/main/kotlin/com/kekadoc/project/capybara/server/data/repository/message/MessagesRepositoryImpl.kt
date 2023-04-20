@@ -3,12 +3,11 @@ package com.kekadoc.project.capybara.server.data.repository.message
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Message
 import com.kekadoc.project.capybara.server.data.model.MessageContent
-import com.kekadoc.project.capybara.server.data.source.message.MessagesDataSource
-import com.kekadoc.project.capybara.server.data.source.notification.NotificationsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notification.NotificationsDataSource
 import kotlinx.coroutines.flow.Flow
 
 class MessagesRepositoryImpl(
-    private val messagesDataSource: MessagesDataSource,
+    private val messagesDataSource: NotificationsDataSource,
     private val notificationsDataSource: NotificationsDataSource,
 ) : MessagesRepository {
 

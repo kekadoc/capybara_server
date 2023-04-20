@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.user
+package com.kekadoc.project.capybara.server.data.source.api.user
 
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.user.Communications

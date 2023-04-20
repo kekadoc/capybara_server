@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.api_key
+package com.kekadoc.project.capybara.server.data.source.api.api_key
 
 interface ApiKeyDataSource {
     

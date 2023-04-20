@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.contacts
+package com.kekadoc.project.capybara.server.data.source.api.contacts
 
 import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.exception.EntityNotFoundException
@@ -8,7 +8,7 @@ import com.kekadoc.project.capybara.server.data.model.Contact
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import kotlinx.coroutines.flow.Flow
 
-class ContactsDataSourceImpl(
+class FDContactsDataSourceImpl(
     database: FirebaseDatabase,
 ) : ContactsDataSource {
 

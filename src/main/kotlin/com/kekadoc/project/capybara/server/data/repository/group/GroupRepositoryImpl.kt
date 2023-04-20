@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.data.repository.group
 
 import com.kekadoc.project.capybara.server.data.model.Group
 import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.source.group.GroupDataSource
+import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import kotlinx.coroutines.flow.Flow
 
 class GroupRepositoryImpl(

@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.message
+package com.kekadoc.project.capybara.server.data.source.api.notification
 
 import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.extensions.*
@@ -7,9 +7,9 @@ import com.kekadoc.project.capybara.server.data.model.Message
 import com.kekadoc.project.capybara.server.data.model.MessageContent
 import kotlinx.coroutines.flow.*
 
-class MessageDataSourceImpl(
+class FDNotificationsDataSourceImpl(
     database: FirebaseDatabase,
-) : MessagesDataSource {
+) : NotificationsDataSource {
 
     private val messages = database.getReference("/messages")
 

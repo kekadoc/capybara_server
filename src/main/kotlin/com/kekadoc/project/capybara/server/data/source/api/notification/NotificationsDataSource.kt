@@ -1,11 +1,11 @@
-package com.kekadoc.project.capybara.server.data.source.message
+package com.kekadoc.project.capybara.server.data.source.api.notification
 
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Message
 import com.kekadoc.project.capybara.server.data.model.MessageContent
 import kotlinx.coroutines.flow.Flow
 
-interface MessagesDataSource {
+interface NotificationsDataSource {
 
     fun getAll(): Flow<List<Message>>
 

@@ -5,7 +5,7 @@ import com.kekadoc.project.capybara.server.data.model.user.Communications
 import com.kekadoc.project.capybara.server.data.model.user.Person
 import com.kekadoc.project.capybara.server.data.model.user.ProfileType
 import com.kekadoc.project.capybara.server.data.model.user.User
-import com.kekadoc.project.capybara.server.data.source.user.UsersDataSource
+import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import kotlinx.coroutines.flow.Flow
 
 class UsersRepositoryImpl(

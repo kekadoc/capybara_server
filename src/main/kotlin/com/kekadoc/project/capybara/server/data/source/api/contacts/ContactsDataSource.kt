@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.contacts
+package com.kekadoc.project.capybara.server.data.source.api.contacts
 
 import com.kekadoc.project.capybara.server.data.model.CommunicationType
 import com.kekadoc.project.capybara.server.data.model.Contact

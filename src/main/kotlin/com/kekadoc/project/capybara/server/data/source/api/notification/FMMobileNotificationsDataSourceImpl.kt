@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.notification
+package com.kekadoc.project.capybara.server.data.source.api.notification
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
@@ -6,9 +6,9 @@ import com.google.firebase.messaging.Notification
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class NotificationsDataSourceImpl(
+class FMMobileNotificationsDataSourceImpl(
     private val firebaseMessaging: FirebaseMessaging,
-) : NotificationsDataSource {
+) : MobileNotificationsDataSource {
 
     override fun sendNotification(
         pushToken: String,

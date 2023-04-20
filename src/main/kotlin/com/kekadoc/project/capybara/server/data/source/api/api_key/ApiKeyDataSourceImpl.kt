@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.api_key
+package com.kekadoc.project.capybara.server.data.source.api.api_key
 
 import com.google.firebase.database.FirebaseDatabase
 import com.kekadoc.project.capybara.server.common.extensions.getAll
