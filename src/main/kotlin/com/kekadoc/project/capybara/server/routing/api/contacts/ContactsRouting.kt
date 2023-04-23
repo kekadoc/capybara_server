@@ -15,7 +15,7 @@ import org.koin.core.component.get
 
 fun Route.contacts() = route("/contacts") {
 
-    //Получить список преподаватлей и их возможные контакты
+    //Получить список доступных контактов
     get { getAllContacts() }
 
     //Создание контакта

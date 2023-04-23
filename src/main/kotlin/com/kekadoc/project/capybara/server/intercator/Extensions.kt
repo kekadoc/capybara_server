@@ -1,20 +1,24 @@
 package com.kekadoc.project.capybara.server.intercator
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.data.model.Message
-import com.kekadoc.project.capybara.server.data.model.user.ProfileType
-import com.kekadoc.project.capybara.server.data.model.user.User
+import com.kekadoc.project.capybara.server.data.model.Notification
+import com.kekadoc.project.capybara.server.data.model.Profile
+import com.kekadoc.project.capybara.server.data.model.User
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-fun Flow<Message>.requireAuthor(user: User): Flow<Message> {
+fun Flow<Notification>.requireAuthor(user: User): Flow<Notification> {
     return onEach { message ->
-        if (message.authorId != user.id) {
+        if (message.author.id != user.id) {
             throw HttpException(HttpStatusCode.Forbidden)
         }
     }
+}
+
+fun Flow<User?>.requireUser(): Flow<User> = map { user ->
+    user ?: throw HttpException(HttpStatusCode.NotFound)
 }
 
 fun Flow<User?>.requireAuthorizedUser(): Flow<User> = map { user ->
@@ -22,10 +26,10 @@ fun Flow<User?>.requireAuthorizedUser(): Flow<User> = map { user ->
 }
 
 fun Flow<User>.requireAdminUser(): Flow<User> = onEach { user ->
-    if (user.profile.type != ProfileType.ADMIN)
+    if (user.profile.type != Profile.Type.ADMIN)
         throw HttpException(HttpStatusCode.Forbidden)
 }
 
-fun Flow<Message?>.orNotFoundError(): Flow<Message> = map { message ->
+fun Flow<Notification?>.orNotFoundError(): Flow<Notification> = map { message ->
     message ?: throw HttpException(HttpStatusCode.NotFound)
 }

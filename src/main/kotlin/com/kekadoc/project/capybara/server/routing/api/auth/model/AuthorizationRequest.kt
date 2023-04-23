@@ -6,5 +6,4 @@ import kotlinx.serialization.Serializable
 data class AuthorizationRequest(
     val login: String,
     val password: String,
-    val pushToken: String,
 )

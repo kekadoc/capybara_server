@@ -3,7 +3,10 @@ package com.kekadoc.project.capybara.server.routing.api.profile
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.intercator.profile.ProfileInteractor
-import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.api.profile.model.CreateProfileRequest
+import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateProfileRequest
+import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateProfileTypeRequest
+import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateUserCommunicationsRequest
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
@@ -20,9 +23,6 @@ import org.koin.core.component.get
 fun Route.profile() = route("/profile") {
 
     //Создание профиля через токен авторизации
-    post<CreateAdminRequest>("/admin") { request -> createAdmin(request) }
-
-    //Создание профиля через токен авторизации
     post<CreateProfileRequest> { request -> createProfile(request) }
 
     //Получение профиля через токен авторизации
@@ -31,16 +31,7 @@ fun Route.profile() = route("/profile") {
     //Обновление профиля через токен авторизации
     patch<UpdateProfileRequest> { request -> updateProfileByAuthToken(request) }
 
-    //Работа с пушами
-    route("/push") {
 
-        //Обновление пуш токена через токен авторизации
-        post<UpdatePushTokenRequest> { request -> updatePushTokenByAuthToken(request) }
-
-        //Удаление пуш токена через токен авторизации
-        delete { deletePushTokenByAuthToken() }
-
-    }
 
     route("/{id}") {
 
@@ -123,53 +114,11 @@ fun Route.profile() = route("/profile") {
 
         }
 
-        route("/groups") {
-
-            patch<UpdateUserGroupsRequest>(
-                "/add",
-                ApiKeyVerifier, AuthorizationVerifier,
-            ) { request ->
-                updateUserGroupAdd(
-                    profileId = requirePathId(),
-                    request = request,
-                )
-            }
-
-            patch<UpdateUserGroupsRequest>(
-                "/remove",
-                ApiKeyVerifier, AuthorizationVerifier,
-            ) { request ->
-                updateUserGroupRemove(
-                    profileId = requirePathId(),
-                    request = request,
-                )
-            }
-
-        }
-
         //Удаление профиля по идентификатору
         delete { deleteProfileById(requirePathId()) }
 
-        //Пуши
-        route("/push") {
-
-            //Удаление пуштокена по идентификатору
-            delete { deletePushTokenById(requirePathId()) }
-
-        }
-
     }
 
-}
-
-private suspend fun PipelineContext.createAdmin(
-    request: CreateAdminRequest,
-) = execute {
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.createAdmin(
-        request = request,
-    )
-    call.respond(result)
 }
 
 private suspend fun PipelineContext.createProfile(
@@ -203,29 +152,6 @@ private suspend fun PipelineContext.updateProfileByAuthToken(
     val result = interactor.updateProfileByAuthToken(
         authToken = authToken,
         request = request,
-    )
-    call.respond(result)
-}
-
-private suspend fun PipelineContext.updatePushTokenByAuthToken(
-    request: UpdatePushTokenRequest,
-) = execute(ApiKeyVerifier, AuthorizationVerifier) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updatePushTokenByAuthToken(
-        authToken = authToken,
-        request = request,
-    )
-    call.respond(result)
-}
-
-private suspend fun PipelineContext.deletePushTokenByAuthToken(
-
-) = execute(ApiKeyVerifier, AuthorizationVerifier) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.deletePushTokenByAuthToken(
-        authToken = authToken,
     )
     call.respond(result)
 }
@@ -282,53 +208,13 @@ private suspend fun PipelineContext.deleteProfileById(
     call.respond(result)
 }
 
-private suspend fun PipelineContext.deletePushTokenById(
-    profileId: String,
-) = execute(ApiKeyVerifier, AuthorizationVerifier) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.deletePushTokenById(
-        authToken = authToken,
-        profileId = profileId,
-    )
-    call.respond(result)
-}
-
-private suspend fun PipelineContext.updateUserGroupAdd(
-    profileId: String,
-    request: UpdateUserGroupsRequest,
-) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserGroupAdd(
-        authToken = authToken,
-        profileId = profileId,
-        request = request,
-    )
-    call.respond(result)
-}
-
-private suspend fun PipelineContext.updateUserGroupRemove(
-    profileId: String,
-    request: UpdateUserGroupsRequest,
-) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserGroupRemove(
-        authToken = authToken,
-        profileId = profileId,
-        request = request,
-    )
-    call.respond(result)
-}
-
 private suspend fun PipelineContext.updateUserCommunicationsAddresseesGroupAdd(
     profileId: String,
     request: UpdateUserCommunicationsRequest,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsAddresseesGroupAdd(
+    val result = interactor.updateUserAvailabilityGroupAdd(
         authToken = authToken,
         profileId = profileId,
         request = request,
@@ -341,7 +227,7 @@ private suspend fun PipelineContext.updateUserCommunicationsAddresseesGroupRemov
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsAddresseesGroupRemove(
+    val result = interactor.updateUserAvailabilityGroupRemove(
         authToken = authToken,
         profileId = profileId,
         request = request,
@@ -355,7 +241,7 @@ private suspend fun PipelineContext.updateUserCommunicationsAddresseesUserAdd(
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsAddresseesUserAdd(
+    val result = interactor.updateUserAvailabilityUserAdd(
         authToken = authToken,
         profileId = profileId,
         request = request,
@@ -368,7 +254,7 @@ private suspend fun PipelineContext.updateUserCommunicationsAddresseesUserRemove
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsAddresseesUserRemove(
+    val result = interactor.updateUserAvailabilityRemove(
         authToken = authToken,
         profileId = profileId,
         request = request,
@@ -382,7 +268,7 @@ private suspend fun PipelineContext.updateUserCommunicationsContactsAdd(
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsContactsAdd(
+    val result = interactor.updateUserAvailabilityContactsAdd(
         authToken = authToken,
         profileId = profileId,
         request = request,
@@ -395,7 +281,7 @@ private suspend fun PipelineContext.updateUserCommunicationsContactsRemove(
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserCommunicationsContactsRemove(
+    val result = interactor.updateUserAvailabilityContactsRemove(
         authToken = authToken,
         profileId = profileId,
         request = request,

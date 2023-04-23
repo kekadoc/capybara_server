@@ -3,11 +3,14 @@
 package com.kekadoc.project.capybara.server.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.common.extensions.emptyString
-import com.kekadoc.project.capybara.server.data.model.user.ProfileType
+import com.kekadoc.project.capybara.server.data.model.Profile
+import com.kekadoc.project.capybara.server.data.repository.notification.mobile.MobileNotificationsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.source.converter.ProfileDtoConverter
+import com.kekadoc.project.capybara.server.data.source.network.model.ProfileDto
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
+import com.kekadoc.project.capybara.server.intercator.requireUser
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,34 +21,8 @@ import kotlinx.coroutines.flow.single
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileInteractorImpl(
     private val userRepository: UsersRepository,
+    private val mobileNotificationsRepository: MobileNotificationsRepository,
 ) : ProfileInteractor {
-
-    override suspend fun createAdmin(
-        request: CreateAdminRequest,
-    ): CreateProfileResponse {
-        return userRepository.getUserByLogin(request.login)
-            .flatMapLatest { userByLogin ->
-                if (userByLogin != null) {
-                    throw HttpException(
-                        statusCode = HttpStatusCode.BadRequest,
-                        message = "User by this login already exist",
-                    )
-                } else {
-                    userRepository.createUser(
-                        login = request.login,
-                        person = request.person,
-                        type = ProfileType.ADMIN,
-                    )
-                }
-            }
-            .map { newUser ->
-                CreateProfileResponse(
-                    profile = newUser.profile,
-                    password = newUser.password
-                )
-            }
-            .single()
-    }
 
     override suspend fun createProfile(
         authToken: String,
@@ -63,15 +40,22 @@ class ProfileInteractorImpl(
                 } else {
                     userRepository.createUser(
                         login = request.login,
-                        person = request.person,
-                        type = request.type,
+                        profile = Profile(
+                            type = ProfileDtoConverter.TypeConverter.revert(request.type),
+                            name = request.name,
+                            surname = request.surname,
+                            patronymic = request.patronymic,
+                            avatar = request.avatar,
+                            role = request.role,
+                            about = request.about,
+                        ),
                     )
                 }
             }
         }
         .map { newUser ->
             CreateProfileResponse(
-                profile = newUser.profile,
+                profile = newUser.profile.let { ProfileDtoConverter.revert(it) },
                 password = newUser.password
             )
         }
@@ -81,7 +65,7 @@ class ProfileInteractorImpl(
         authToken: String,
     ): GetProfileResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
-        .map { user -> user.profile }
+        .map { user -> user.profile.let { ProfileDtoConverter.revert(it) } }
         .map(::GetProfileResponse)
         .single()
 
@@ -91,39 +75,19 @@ class ProfileInteractorImpl(
     ): UpdateProfileResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .flatMapLatest { user ->
-            userRepository.updateUserPersonal(
-                id = user.id,
-                person = request.person,
+            userRepository.updateUserProfile(
+                userId = user.id,
+                profile = user.profile.copy(
+                    name = request.name,
+                    surname = request.surname,
+                    patronymic = request.patronymic,
+                    avatar = request.avatar,
+                    role = request.role,
+                    about = request.about,
+                ),
             )
         }
-        .map { newUser -> UpdateProfileResponse(newUser.profile) }
-        .single()
-
-    override suspend fun updatePushTokenByAuthToken(
-        authToken: String,
-        request: UpdatePushTokenRequest,
-    ) = userRepository.getUserByToken(authToken)
-        .requireAuthorizedUser()
-        .flatMapLatest { user ->
-            userRepository.updateUserPushToken(
-                id = user.id,
-                pushToken = request.token,
-            )
-        }
-        .map { }
-        .single()
-
-    override suspend fun deletePushTokenByAuthToken(
-        authToken: String,
-    ) = userRepository.getUserByToken(authToken)
-        .requireAuthorizedUser()
-        .flatMapLatest { user ->
-            userRepository.updateUserPushToken(
-                id = user.id,
-                pushToken = emptyString(),
-            )
-        }
-        .map { }
+        .map { newUser -> UpdateProfileResponse(newUser.profile.let { ProfileDtoConverter.revert(it) }) }
         .single()
 
 
@@ -131,7 +95,6 @@ class ProfileInteractorImpl(
         authToken: String,
         profileId: String,
     ): GetProfileResponse {
-        println("getProfileById $authToken $profileId")
         return userRepository.getUserByToken(authToken)
             .requireAuthorizedUser()
             .requireAdminUser()
@@ -140,6 +103,7 @@ class ProfileInteractorImpl(
                     .map { user ->
                         user?.profile ?: throw HttpException(HttpStatusCode.NotFound)
                     }
+                    .map { ProfileDtoConverter.revert(it) }
         }.map(::GetProfileResponse).single()
     }
 
@@ -150,13 +114,20 @@ class ProfileInteractorImpl(
     ): UpdateProfileResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
-        .flatMapLatest {
-            userRepository.updateUserPersonal(
-                id = profileId,
-                person = request.person,
+        .flatMapLatest { user ->
+            userRepository.updateUserProfile(
+                userId = profileId,
+                profile = user.profile.copy(
+                    name = request.name,
+                    surname = request.surname,
+                    patronymic = request.patronymic,
+                    avatar = request.avatar,
+                    role = request.role,
+                    about = request.about,
+                ),
             )
         }
-        .map { newUser -> newUser.profile }
+        .map { newUser -> newUser.profile.let { ProfileDtoConverter.revert(it) } }
         .map(::UpdateProfileResponse)
         .single()
 
@@ -167,13 +138,20 @@ class ProfileInteractorImpl(
     ): UpdateProfileTypeResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
-        .flatMapLatest {
-            userRepository.updateUserProfileType(
-                id = profileId,
-                type = request.type,
+        .flatMapLatest { user ->
+            userRepository.updateUserProfile(
+                userId = profileId,
+                profile = user.profile.copy(
+                    type = when (request.type) {
+                        ProfileDto.Type.USER -> Profile.Type.USER
+                        ProfileDto.Type.SPEAKER -> Profile.Type.SPEAKER
+                        ProfileDto.Type.ADMIN -> Profile.Type.ADMIN
+                        ProfileDto.Type.DEFAULT -> Profile.Type.DEFAULT
+                    }
+                )
             )
         }
-        .map { newUser -> newUser.profile }
+        .map { newUser -> newUser.profile.let { ProfileDtoConverter.revert(it) } }
         .map(::UpdateProfileTypeResponse)
         .single()
 
@@ -186,59 +164,7 @@ class ProfileInteractorImpl(
         .flatMapLatest { userRepository.deleteUser(profileId) }
         .single()
 
-    override suspend fun deletePushTokenById(
-        authToken: String,
-        profileId: String,
-    ) {
-        userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .requireAdminUser()
-            .flatMapLatest {
-                userRepository.updateUserPushToken(
-                    id = profileId,
-                    pushToken = emptyString(),
-                )
-            }
-            .map { }
-            .single()
-    }
-
-    override suspend fun updateUserGroupAdd(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserGroupsRequest,
-    ) {
-        userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .requireAdminUser()
-            .flatMapLatest {
-                userRepository.updateUserGroupAdd(
-                    id = profileId,
-                    groups = request.ids,
-                )
-            }
-            .single()
-    }
-
-    override suspend fun updateUserGroupRemove(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserGroupsRequest,
-    ) {
-        userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .requireAdminUser()
-            .flatMapLatest {
-                userRepository.updateUserGroupRemove(
-                    id = profileId,
-                    groups = request.ids,
-                )
-            }
-            .single()
-    }
-
-
-    override suspend fun updateUserCommunicationsAddresseesGroupAdd(
+    override suspend fun updateUserAvailabilityGroupAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -248,15 +174,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableAddressGroups = (communications.availableAddressGroups + request.ids).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityGroupsAdd(
+                            userId = profileId,
+                            groupIds = request.ids.toSet(),
                         )
                     }
 
@@ -264,7 +186,7 @@ class ProfileInteractorImpl(
             .single()
     }
 
-    override suspend fun updateUserCommunicationsAddresseesGroupRemove(
+    override suspend fun updateUserAvailabilityGroupRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -274,15 +196,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableAddressGroups = (communications.availableAddressGroups - request.ids.toSet()).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityGroupsRemove(
+                            userId = profileId,
+                            groupIds = request.ids.toSet(),
                         )
                     }
 
@@ -290,7 +208,7 @@ class ProfileInteractorImpl(
             .single()
     }
 
-    override suspend fun updateUserCommunicationsAddresseesUserAdd(
+    override suspend fun updateUserAvailabilityUserAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -300,15 +218,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableAddressUsers = (communications.availableAddressUsers + request.ids).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityUsersAdd(
+                            userId = profileId,
+                            userIds = request.ids.toSet(),
                         )
                     }
 
@@ -316,7 +230,7 @@ class ProfileInteractorImpl(
             .single()
     }
 
-    override suspend fun updateUserCommunicationsAddresseesUserRemove(
+    override suspend fun updateUserAvailabilityRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -326,15 +240,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableAddressUsers = (communications.availableAddressUsers - request.ids.toSet()).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityUsersRemove(
+                            userId = profileId,
+                            userIds = request.ids.toSet(),
                         )
                     }
 
@@ -342,7 +252,7 @@ class ProfileInteractorImpl(
             .single()
     }
 
-    override suspend fun updateUserCommunicationsContactsAdd(
+    override suspend fun updateUserAvailabilityContactsAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -352,15 +262,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableContacts = (communications.availableContacts + request.ids).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityContactsAdd(
+                            userId = profileId,
+                            contactIds = request.ids.toSet(),
                         )
                     }
 
@@ -368,7 +274,7 @@ class ProfileInteractorImpl(
             .single()
     }
 
-    override suspend fun updateUserCommunicationsContactsRemove(
+    override suspend fun updateUserAvailabilityContactsRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
@@ -378,15 +284,11 @@ class ProfileInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 userRepository.getUserById(profileId)
-                    .map { targetUser ->
-                        targetUser?.communications ?: throw HttpException(HttpStatusCode.NotFound)
-                    }
-                    .flatMapLatest { communications ->
-                        userRepository.updateUserCommunications(
-                            id = profileId,
-                            communications = communications.copy(
-                                availableContacts = (communications.availableContacts - request.ids.toSet()).distinct(),
-                            )
+                    .requireUser()
+                    .flatMapLatest {
+                        userRepository.updateUserAvailabilityContactsRemove(
+                            userId = profileId,
+                            contactIds = request.ids.toSet(),
                         )
                     }
 

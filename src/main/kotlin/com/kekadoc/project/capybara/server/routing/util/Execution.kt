@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.util
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.common.extensions.requireNotNull
-import com.kekadoc.project.capybara.server.data.model.user.User
+import com.kekadoc.project.capybara.server.data.model.User
 import com.kekadoc.project.capybara.server.routing.errors.handleError
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier

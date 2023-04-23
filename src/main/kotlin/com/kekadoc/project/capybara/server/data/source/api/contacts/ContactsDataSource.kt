@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.data.source.api.contacts
 
-import com.kekadoc.project.capybara.server.data.model.CommunicationType
+import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Contact
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import kotlinx.coroutines.flow.Flow
@@ -13,12 +13,12 @@ interface ContactsDataSource {
 
     fun createContact(
         userContactId: Identifier,
-        communications: Map<CommunicationType, String>,
+        communications: Communications,
     ): Flow<Contact>
 
     fun updateContact(
         contactId: Identifier,
-        communications: Map<CommunicationType, String>,
+        communications: Communications,
     ): Flow<Contact>
 
     fun deleteContact(

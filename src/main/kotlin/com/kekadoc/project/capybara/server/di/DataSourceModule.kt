@@ -7,9 +7,9 @@ import com.kekadoc.project.capybara.server.data.source.api.contacts.FDContactsDa
 import com.kekadoc.project.capybara.server.data.source.api.group.FDGroupDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import com.kekadoc.project.capybara.server.data.source.api.notification.FDNotificationsDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notification.FMMobileNotificationsDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notification.MobileNotificationsDataSource
 import com.kekadoc.project.capybara.server.data.source.api.notification.NotificationsDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.FMMobileNotificationsDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.MobileNotificationsDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.FDUsersDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import org.koin.dsl.module

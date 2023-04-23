@@ -1,9 +1,20 @@
 package com.kekadoc.project.capybara.server.routing.api.profile.model
 
-import com.kekadoc.project.capybara.server.data.model.user.Person
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class UpdateProfileRequest(
-    val person: Person,
+    @SerialName("name")
+    val name: String,
+    @SerialName("surname")
+    val surname: String,
+    @SerialName("patronymic")
+    val patronymic: String,
+    @SerialName("avatar")
+    val avatar: String,
+    @SerialName("role")
+    val role: String,
+    @SerialName("about")
+    val about: String,
 )

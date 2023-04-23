@@ -8,8 +8,8 @@ import com.kekadoc.project.capybara.server.intercator.contacts.ContactsInteracto
 import com.kekadoc.project.capybara.server.intercator.contacts.ContactsInteractorImpl
 import com.kekadoc.project.capybara.server.intercator.groups.GroupsInteractor
 import com.kekadoc.project.capybara.server.intercator.groups.GroupsInteractorImpl
-import com.kekadoc.project.capybara.server.intercator.messages.MessagesInteractor
-import com.kekadoc.project.capybara.server.intercator.messages.MessagesInteractorImpl
+import com.kekadoc.project.capybara.server.intercator.notification.NotificationsInteractor
+import com.kekadoc.project.capybara.server.intercator.notification.NotificationsInteractorImpl
 import com.kekadoc.project.capybara.server.intercator.profile.ProfileInteractor
 import com.kekadoc.project.capybara.server.intercator.profile.ProfileInteractorImpl
 import com.kekadoc.project.capybara.server.intercator.schedule.ScheduleInteractor
@@ -26,7 +26,8 @@ val interactorsModule = module {
 
     single<AuthInteractor> {
         AuthInteractorImpl(
-            userRepository = get(),
+            authorizationRepository = get(),
+            usersRepository = get(),
         )
     }
 
@@ -44,8 +45,8 @@ val interactorsModule = module {
         )
     }
 
-    single<MessagesInteractor> {
-        MessagesInteractorImpl(
+    single<NotificationsInteractor> {
+        NotificationsInteractorImpl(
             userRepository = get(),
             messagesRepository = get(),
         )
@@ -54,6 +55,7 @@ val interactorsModule = module {
     single<ProfileInteractor> {
         ProfileInteractorImpl(
             userRepository = get(),
+            mobileNotificationsRepository = get(),
         )
     }
 

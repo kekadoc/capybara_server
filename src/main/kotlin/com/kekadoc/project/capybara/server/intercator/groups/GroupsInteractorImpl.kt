@@ -5,6 +5,7 @@ package com.kekadoc.project.capybara.server.intercator.groups
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.repository.group.GroupRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.source.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.routing.api.groups.model.*
@@ -29,14 +30,7 @@ class GroupsInteractorImpl(
                 request.members.toSet(),
             )
         }
-        .onEach { newGroup ->
-            newGroup.members.map { memberId ->
-                usersRepository.updateUserGroupAdd(
-                    id = memberId,
-                    groups = setOf(newGroup.id),
-                )
-            }.merge().collect()
-        }
+        .map(GroupDtoConverter::revert)
         .map(::CreateGroupResponse)
         .single()
 
@@ -46,9 +40,8 @@ class GroupsInteractorImpl(
     ): GetGroupResponse = usersRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
-        .flatMapLatest {
-            groupsRepository.getGroup(groupId)
-        }
+        .flatMapLatest { groupsRepository.getGroup(groupId) }
+        .map(GroupDtoConverter::revert)
         .map(::GetGroupResponse)
         .single()
 
@@ -66,14 +59,7 @@ class GroupsInteractorImpl(
                 members = request.members,
             )
         }
-        .onEach { newGroup ->
-            newGroup.members.map { memberId ->
-                usersRepository.updateUserGroupAdd(
-                    id = memberId,
-                    groups = setOf(newGroup.id),
-                )
-            }.merge().collect()
-        }
+        .map(GroupDtoConverter::revert)
         .map(::UpdateGroupResponse)
         .single()
 
@@ -90,6 +76,7 @@ class GroupsInteractorImpl(
                 name = request.name,
             )
         }
+        .map(GroupDtoConverter::revert)
         .map(::UpdateGroupResponse)
         .single()
 
@@ -106,14 +93,7 @@ class GroupsInteractorImpl(
                 members = request.members,
             )
         }
-        .onEach { newGroup ->
-            request.members.map { memberId ->
-                usersRepository.updateUserGroupAdd(
-                    id = memberId,
-                    groups = setOf(newGroup.id),
-                )
-            }.merge().collect()
-        }
+        .map(GroupDtoConverter::revert)
         .map(::UpdateGroupResponse)
         .single()
 
@@ -130,14 +110,7 @@ class GroupsInteractorImpl(
                 members = request.members,
             )
         }
-        .onEach { newGroup ->
-            request.members.map { memberId ->
-                usersRepository.updateUserGroupRemove(
-                    id = memberId,
-                    groups = setOf(newGroup.id),
-                )
-            }.merge().collect()
-        }
+        .map(GroupDtoConverter::revert)
         .map(::UpdateGroupResponse)
         .single()
 
@@ -150,17 +123,10 @@ class GroupsInteractorImpl(
             .requireAdminUser()
             .flatMapLatest {
                 groupsRepository.deleteGroup(
-                    groupId = groupId
+                    groupId = groupId,
                 )
-            }
-            .onEach { group ->
-                group.members.map { memberId ->
-                    usersRepository.updateUserGroupRemove(
-                        id = memberId,
-                        groups = setOf(group.id),
-                    )
-                }.merge().collect()
             }
             .single()
     }
+
 }

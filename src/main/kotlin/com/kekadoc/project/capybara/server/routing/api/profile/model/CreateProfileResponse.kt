@@ -1,10 +1,10 @@
 package com.kekadoc.project.capybara.server.routing.api.profile.model
 
-import com.kekadoc.project.capybara.server.data.model.user.Profile
+import com.kekadoc.project.capybara.server.data.source.network.model.ProfileDto
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateProfileResponse(
-    val profile: Profile,
+    val profile: ProfileDto,
     val password: String,
 )

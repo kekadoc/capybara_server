@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.data.repository.contacts
 
-import com.kekadoc.project.capybara.server.data.model.CommunicationType
+import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Contact
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.source.api.contacts.ContactsDataSource
@@ -20,14 +20,14 @@ class ContactsRepositoryImpl(
 
     override fun createContact(
         userContactId: Identifier,
-        communications: Map<CommunicationType, String>,
+        communications: Communications,
     ): Flow<Contact> {
         return contactsDataSource.createContact(userContactId, communications)
     }
 
     override fun updateContact(
         contactId: Identifier,
-        communications: Map<CommunicationType, String>,
+        communications: Communications,
     ): Flow<Contact> {
         return contactsDataSource.updateContact(contactId, communications)
     }
@@ -35,6 +35,5 @@ class ContactsRepositoryImpl(
     override fun deleteContact(contactId: Identifier): Flow<Unit> {
         return contactsDataSource.deleteContact(contactId)
     }
-
 
 }

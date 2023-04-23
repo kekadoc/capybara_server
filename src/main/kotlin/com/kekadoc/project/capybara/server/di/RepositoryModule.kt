@@ -6,8 +6,8 @@ import com.kekadoc.project.capybara.server.data.repository.contacts.ContactsRepo
 import com.kekadoc.project.capybara.server.data.repository.contacts.ContactsRepositoryImpl
 import com.kekadoc.project.capybara.server.data.repository.group.GroupRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
-import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepository
+import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepositoryImpl
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepositoryImpl
 import org.koin.dsl.module
@@ -23,9 +23,8 @@ val repositoryModule = module {
             usersDataSource = get(),
         )
     }
-    single<MessagesRepository> {
-        MessagesRepositoryImpl(
-            messagesDataSource = get(),
+    single<NotificationRepository> {
+        NotificationRepositoryImpl(
             notificationsDataSource = get(),
         )
     }

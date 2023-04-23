@@ -4,15 +4,10 @@ import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 
 interface ProfileInteractor {
 
-    suspend fun createAdmin(
-        request: CreateAdminRequest,
-    ): CreateProfileResponse
-
     suspend fun createProfile(
         authToken: String,
         request: CreateProfileRequest,
     ): CreateProfileResponse
-
 
     suspend fun getProfileByAuthToken(
         authToken: String,
@@ -22,17 +17,6 @@ interface ProfileInteractor {
         authToken: String,
         request: UpdateProfileRequest,
     ): UpdateProfileResponse
-
-
-    suspend fun updatePushTokenByAuthToken(
-        authToken: String,
-        request: UpdatePushTokenRequest,
-    )
-
-    suspend fun deletePushTokenByAuthToken(
-        authToken: String,
-    )
-
 
     suspend fun getProfileById(
         authToken: String,
@@ -56,50 +40,34 @@ interface ProfileInteractor {
         profileId: String,
     )
 
-    suspend fun deletePushTokenById(
-        authToken: String,
-        profileId: String,
-    )
-
-    suspend fun updateUserGroupAdd(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserGroupsRequest,
-    )
-    suspend fun updateUserGroupRemove(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserGroupsRequest,
-    )
-
-    suspend fun updateUserCommunicationsAddresseesGroupAdd(
+    suspend fun updateUserAvailabilityGroupAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
     )
-    suspend fun updateUserCommunicationsAddresseesGroupRemove(
+    suspend fun updateUserAvailabilityGroupRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
     )
 
-    suspend fun updateUserCommunicationsAddresseesUserAdd(
+    suspend fun updateUserAvailabilityUserAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
     )
-    suspend fun updateUserCommunicationsAddresseesUserRemove(
+    suspend fun updateUserAvailabilityRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
     )
 
-    suspend fun updateUserCommunicationsContactsAdd(
+    suspend fun updateUserAvailabilityContactsAdd(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,
     )
-    suspend fun updateUserCommunicationsContactsRemove(
+    suspend fun updateUserAvailabilityContactsRemove(
         authToken: String,
         profileId: String,
         request: UpdateUserCommunicationsRequest,

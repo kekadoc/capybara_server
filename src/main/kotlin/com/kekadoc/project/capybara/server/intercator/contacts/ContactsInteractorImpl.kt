@@ -1,9 +1,11 @@
 package com.kekadoc.project.capybara.server.intercator.contacts
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.data.model.user.ProfileType
+import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.repository.contacts.ContactsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.source.converter.CommunicationsDtoConverter
+import com.kekadoc.project.capybara.server.data.source.converter.ContactDtoConverter
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.routing.api.contacts.model.*
@@ -27,9 +29,7 @@ class ContactsInteractorImpl(
         authToken: String,
     ): GetAllContactsResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
-        .flatMapLatest { user ->
-            contactsRepository.getContacts(user.communications.availableContacts)
-        }
+        .map { user -> user.availability.contacts.map(ContactDtoConverter::convert) }
         .map(::GetAllContactsResponse)
         .single()
 
@@ -42,9 +42,11 @@ class ContactsInteractorImpl(
         .flatMapLatest {
             contactsRepository.createContact(
                 userContactId = request.userContactId,
-                communications = request.communications,
+                communications = request.communications
+                    .let(CommunicationsDtoConverter::revert),
             )
         }
+        .map(ContactDtoConverter::convert)
         .map(::CreateContactResponse)
         .single()
 
@@ -54,10 +56,11 @@ class ContactsInteractorImpl(
     ): GetContactResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .onEach { user ->
-            if (!user.communications.availableContacts.contains(contactId))
+            if (!user.availability.contacts.any { it.id == contactId })
                 throw HttpException(HttpStatusCode.Forbidden)
         }
         .flatMapLatest { contactsRepository.getContact(contactId) }
+        .map(ContactDtoConverter::convert)
         .map(::GetContactResponse)
         .single()
 
@@ -68,15 +71,17 @@ class ContactsInteractorImpl(
     ): UpdateContactResponse = userRepository.getUserByToken(authToken)
         .requireAuthorizedUser()
         .onEach { user ->
-            if (user.id != contactId && user.profile.type != ProfileType.ADMIN)
+            if (user.id != contactId && user.profile.type != Profile.Type.ADMIN)
                 throw HttpException(HttpStatusCode.Forbidden)
         }
         .flatMapLatest {
             contactsRepository.updateContact(
                 contactId = contactId,
-                communications = request.communications,
+                communications = request.communications
+                    .let(CommunicationsDtoConverter::revert),
             )
         }
+        .map(ContactDtoConverter::convert)
         .map(::UpdateContactResponse)
         .single()
 

@@ -1,19 +1,19 @@
 package com.kekadoc.project.capybara.server.data.repository.user
 
+import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.user.Communications
-import com.kekadoc.project.capybara.server.data.model.user.Person
-import com.kekadoc.project.capybara.server.data.model.user.ProfileType
-import com.kekadoc.project.capybara.server.data.model.user.User
+import com.kekadoc.project.capybara.server.data.model.Profile
+import com.kekadoc.project.capybara.server.data.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface UsersRepository {
 
     fun createUser(
         login: String,
-        person: Person,
-        type: ProfileType,
+        profile: Profile,
     ): Flow<User>
+
+    fun deleteUser(id: String): Flow<Unit>
 
     fun getUserById(id: String): Flow<User?>
 
@@ -22,52 +22,48 @@ interface UsersRepository {
     fun getUserByLogin(login: String): Flow<User?>
 
     fun updateUserPassword(
-        id: String,
+        userId: Identifier,
         password: String,
     ): Flow<User>
 
-    fun updateUserPersonal(
-        id: String,
-        person: Person,
-    ): Flow<User>
-
-    fun updateUserProfileType(
-        id: String,
-        type: ProfileType,
-    ): Flow<User>
-
-    fun updateUserPushToken(
-        id: String,
-        pushToken: String,
-    ): Flow<User>
-
-    fun updateUserAuthToken(
-        id: String,
-        authToken: String,
+    fun updateUserProfile(
+        userId: Identifier,
+        profile: Profile,
     ): Flow<User>
 
     fun updateUserCommunications(
-        id: String,
+        userId: Identifier,
         communications: Communications,
     ): Flow<User>
 
-    fun updateUserGroupAdd(
-        id: String,
-        groups: Set<Identifier>,
+    fun updateUserAvailabilityGroupsAdd(
+        userId: Identifier,
+        groupIds: Set<Identifier>,
     ): Flow<User>
 
-    fun updateUserGroupRemove(
-        id: String,
-        groups: Set<Identifier>,
+    fun updateUserAvailabilityGroupsRemove(
+        userId: Identifier,
+        groupIds: Set<Identifier>,
     ): Flow<User>
 
-    fun authorizeUser(
-        login: String,
-        password: String,
-        pushToken: String,
+    fun updateUserAvailabilityUsersAdd(
+        userId: Identifier,
+        userIds: Set<Identifier>,
     ): Flow<User>
 
-    fun deleteUser(id: String): Flow<Unit>
+    fun updateUserAvailabilityUsersRemove(
+        userId: Identifier,
+        userIds: Set<Identifier>,
+    ): Flow<User>
 
+    fun updateUserAvailabilityContactsAdd(
+        userId: Identifier,
+        contactIds: Set<Identifier>,
+    ): Flow<User>
+
+    fun updateUserAvailabilityContactsRemove(
+        userId: Identifier,
+        contactIds: Set<Identifier>,
+    ): Flow<User>
 
 }
