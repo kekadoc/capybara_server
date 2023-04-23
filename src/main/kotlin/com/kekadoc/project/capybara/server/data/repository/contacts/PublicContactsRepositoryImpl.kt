@@ -6,12 +6,12 @@ import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.source.api.contacts.ContactsDataSource
 import kotlinx.coroutines.flow.Flow
 
-class ContactsRepositoryImpl(
+class PublicContactsRepositoryImpl(
     private val contactsDataSource: ContactsDataSource,
-) : ContactsRepository {
+) : PublicContactsRepository {
 
-    override fun getContacts(ids: List<Identifier>): Flow<List<Contact>> {
-        return contactsDataSource.getContacts(ids)
+    override fun getContacts(): Flow<List<Contact>> {
+        return contactsDataSource.getContacts()
     }
 
     override fun getContact(contactId: Identifier): Flow<Contact> {
@@ -23,13 +23,6 @@ class ContactsRepositoryImpl(
         communications: Communications,
     ): Flow<Contact> {
         return contactsDataSource.createContact(userContactId, communications)
-    }
-
-    override fun updateContact(
-        contactId: Identifier,
-        communications: Communications,
-    ): Flow<Contact> {
-        return contactsDataSource.updateContact(contactId, communications)
     }
 
     override fun deleteContact(contactId: Identifier): Flow<Unit> {

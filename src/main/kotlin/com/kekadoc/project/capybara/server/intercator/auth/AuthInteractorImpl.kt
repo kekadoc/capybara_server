@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.intercator.auth
 
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.converter.ProfileDtoConverter
+import com.kekadoc.project.capybara.server.data.source.converter.dto.ProfileDtoConverter
 import com.kekadoc.project.capybara.server.intercator.requireUser
 import com.kekadoc.project.capybara.server.routing.api.auth.model.AuthorizationRequest
 import com.kekadoc.project.capybara.server.routing.api.auth.model.AuthorizationResponse

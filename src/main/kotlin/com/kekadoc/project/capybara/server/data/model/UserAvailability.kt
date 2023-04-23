@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.model
 
 data class UserAvailability(
-    val contacts: List<Contact>,
-    val groups: List<Group>,
-    val users: List<User>,
+    val contacts: List<Identifier>,
+    val groups: List<Identifier>,
+    val users: List<Identifier>,
 )

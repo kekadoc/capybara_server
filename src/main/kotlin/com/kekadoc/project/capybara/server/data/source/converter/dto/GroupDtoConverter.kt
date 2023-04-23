@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.converter
+package com.kekadoc.project.capybara.server.data.source.converter.dto
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.model.Group

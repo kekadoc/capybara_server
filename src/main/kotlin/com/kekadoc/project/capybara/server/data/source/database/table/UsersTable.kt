@@ -9,5 +9,6 @@ object UsersTable : UUIDTable("users") {
     val password = varchar("password", 255)
     val profile = reference("profile", ProfilesTable)
     val character = reference("character", UserCharactersTable)
+    //val communications = reference(name = "communications", CommunicationsTable)
 
 }

@@ -14,6 +14,9 @@ class FDGroupDataSourceImpl(
 
     private val groups = database.getReference("/groups")
 
+    override fun getGroups(groupIds: List<Identifier>): Flow<List<Group>> {
+        TODO()
+    }
 
     override fun getGroup(groupId: Identifier): Flow<Group> = flowOf {
         throw NotImplementedError()

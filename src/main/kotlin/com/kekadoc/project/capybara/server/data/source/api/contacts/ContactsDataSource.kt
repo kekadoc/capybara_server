@@ -7,17 +7,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContactsDataSource {
 
-    fun getContacts(ids: List<Identifier>): Flow<List<Contact>>
+    fun getContacts(): Flow<List<Contact>>
 
     fun getContact(contactId: Identifier): Flow<Contact>
 
     fun createContact(
         userContactId: Identifier,
-        communications: Communications,
-    ): Flow<Contact>
-
-    fun updateContact(
-        contactId: Identifier,
         communications: Communications,
     ): Flow<Contact>
 

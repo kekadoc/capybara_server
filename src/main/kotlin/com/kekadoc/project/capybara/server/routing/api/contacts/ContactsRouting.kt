@@ -26,9 +26,6 @@ fun Route.contacts() = route("/contacts") {
         //Получить детализацию контакта
         get { getContact(requirePathId()) }
 
-        //Обновление контакта
-        patch<UpdateContactRequest> { request -> updateContact(requirePathId(), request) }
-
         //Удаление контакта
         delete { deleteContact(requirePathId()) }
 
@@ -68,21 +65,6 @@ private suspend fun PipelineContext.createContact(
     )
     call.respond(result)
 }
-
-private suspend fun PipelineContext.updateContact(
-    contactId: String,
-    request: UpdateContactRequest,
-) = executeAuthorizedApi {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ContactsInteractor>()
-    val result = interactor.updateContact(
-        authToken = authToken,
-        contactId = contactId,
-        request = request,
-    )
-    call.respond(result)
-}
-
 
 private suspend fun PipelineContext.deleteContact(
     contactId: String,

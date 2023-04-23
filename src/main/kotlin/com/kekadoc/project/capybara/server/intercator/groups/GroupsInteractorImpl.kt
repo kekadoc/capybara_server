@@ -3,9 +3,9 @@
 package com.kekadoc.project.capybara.server.intercator.groups
 
 import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.repository.group.GroupRepository
+import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.converter.GroupDtoConverter
+import com.kekadoc.project.capybara.server.data.source.converter.dto.GroupDtoConverter
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.routing.api.groups.model.*
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.*
 @OptIn(ExperimentalCoroutinesApi::class)
 class GroupsInteractorImpl(
     private val usersRepository: UsersRepository,
-    private val groupsRepository: GroupRepository,
+    private val groupsRepository: GroupsRepository,
 ) : GroupsInteractor {
 
     override suspend fun createGroup(

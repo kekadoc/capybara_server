@@ -1,28 +1,26 @@
 package com.kekadoc.project.capybara.server.data.model
 
-open class Communication(
-    val name: String,
+data class Communication(
+    val type: Type,
     val value: String,
 ) {
 
-    data class Phone(
-        val number: String,
-    ) : Communication(name = "Phone", value = number)
+    companion object {
+        operator fun invoke(type: String, value: String): Communication {
+            return Communication(
+                type = Type.values().find { next -> next.name == type } ?: Type.UNKNOWN,
+                value = value,
+            )
+        }
+    }
 
-    data class Email(
-        val address: String,
-    ) : Communication(name = "Email", value = address)
-
-    data class Viber(
-        val number: String,
-    ) : Communication(name = "Viber", value = number)
-
-    data class WhatsApp(
-        val number: String,
-    ) : Communication(name = "WhatsApp", value = number)
-
-    data class Telegram(
-        val number: String,
-    ) : Communication(name = "Telegram", value = number)
+    enum class Type {
+        PHONE,
+        EMAIL,
+        VIBER,
+        WHATS_APP,
+        TELEGRAM,
+        UNKNOWN,
+    }
 
 }

@@ -25,6 +25,10 @@ class FDUsersDataSourceImpl(
         TODO("Not yet implemented")
     }
 
+    override fun getUsersByIds(id: List<Identifier>): Flow<List<User>> {
+        TODO("Not yet implemented")
+    }
+
     override fun getUserByToken(token: String): Flow<User?> {
         TODO("Not yet implemented")
     }

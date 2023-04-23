@@ -2,10 +2,10 @@ package com.kekadoc.project.capybara.server.data.source.database.table
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 
-//
-object AccessUserContactsTable : UUIDTable("access_user_contacts") {
+object CommunicationsTable : UUIDTable("communications") {
 
     val user = reference("user", UsersTable)
-    val contact = reference("contact", UsersTable)
+    val type = varchar("type", 256)
+    val value = varchar("value", 256)
 
 }

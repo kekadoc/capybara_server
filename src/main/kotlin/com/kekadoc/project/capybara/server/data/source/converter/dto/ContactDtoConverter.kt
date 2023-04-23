@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.converter
+package com.kekadoc.project.capybara.server.data.source.converter.dto
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.model.Contact
@@ -9,8 +9,8 @@ object ContactDtoConverter : Converter<ContactDto, Contact> {
     override fun convert(source: Contact): ContactDto {
         return ContactDto(
             id = source.id,
-            profile = source.user.profile.let { ProfileDtoConverter.revert(it) },
-            communications = source.communications.let { CommunicationsDtoConverter.convert(it) },
+            profile = ProfileDtoConverter.revert(source.user.profile),
+            communications = CommunicationsDtoConverter.convert(source.user.communications),
         )
     }
 

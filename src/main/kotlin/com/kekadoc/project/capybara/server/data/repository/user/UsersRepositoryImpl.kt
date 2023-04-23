@@ -23,6 +23,10 @@ class UsersRepositoryImpl(
         return usersDataSource.getUserById(id)
     }
 
+    override fun getUsersByIds(ids: List<Identifier>): Flow<List<User>> {
+        return usersDataSource.getUsersByIds(ids)
+    }
+
     override fun getUserByToken(token: String): Flow<User?> {
         return usersDataSource.getUserByToken(token)
     }

@@ -31,6 +31,7 @@ object Database : Component {
                 NotificationsTable,
                 NotificationsForUsersTable,
                 NotificationsForGroupsTable,
+                CommunicationsTable,
             )
         }
     }

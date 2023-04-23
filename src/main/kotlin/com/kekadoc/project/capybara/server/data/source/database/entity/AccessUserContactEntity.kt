@@ -11,6 +11,6 @@ class AccessUserContactEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<AccessUserContactEntity>(AccessUserContactsTable)
 
     var user by UserEntity referencedOn AccessUserContactsTable.user
-    var contact by ContactEntity referencedOn AccessUserContactsTable.contact
+    var contact by UserEntity referencedOn AccessUserContactsTable.contact
 
 }

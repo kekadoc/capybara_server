@@ -6,7 +6,7 @@ import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.repository.notification.mobile.MobileNotificationsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.converter.ProfileDtoConverter
+import com.kekadoc.project.capybara.server.data.source.converter.dto.ProfileDtoConverter
 import com.kekadoc.project.capybara.server.data.source.network.model.ProfileDto
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser

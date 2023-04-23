@@ -5,11 +5,12 @@ import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.model.User
-import com.kekadoc.project.capybara.server.data.source.converter.UserEntityConverter
+import com.kekadoc.project.capybara.server.data.source.converter.entity.UserEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.entity.ProfileEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserCharacterEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.exposed.sql.emptySized
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -49,12 +50,17 @@ class UsersDataSourceImpl : UsersDataSource {
 
     override fun getUserById(id: String): Flow<User?> {
         return flowOf {
+            println("_____getUserById $id")
             transaction {
-                UserEntity.findById(UUID.fromString(id))
-            }?.let { entity ->
-                UserEntityConverter.convert(entity)
+                UserEntity.findById(UUID.fromString(id))?.let {
+                    UserEntityConverter.convert(it)
+                }
             }
         }
+    }
+
+    override fun getUsersByIds(id: List<Identifier>): Flow<List<User>> {
+        TODO("Not yet implemented")
     }
 
     override fun getUserByToken(token: String): Flow<User?> {

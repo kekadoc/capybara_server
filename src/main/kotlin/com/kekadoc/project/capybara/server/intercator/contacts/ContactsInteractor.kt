@@ -18,12 +18,6 @@ interface ContactsInteractor {
         contactId: String,
     ): GetContactResponse
 
-    suspend fun updateContact(
-        authToken: String,
-        contactId: String,
-        request: UpdateContactRequest,
-    ): UpdateContactResponse
-
     suspend fun deleteContact(
         authToken: String,
         contactId: String,

@@ -17,6 +17,8 @@ interface UsersDataSource {
 
     fun getUserById(id: String): Flow<User?>
 
+    fun getUsersByIds(id: List<Identifier>): Flow<List<User>>
+
     fun getUserByToken(token: String): Flow<User?>
 
     fun getUserByLogin(login: String): Flow<User?>

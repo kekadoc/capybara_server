@@ -3,16 +3,11 @@ package com.kekadoc.project.capybara.server.intercator.notification
 import com.kekadoc.project.capybara.server.data.model.Group
 import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.converter.NotificationDtoConverter
+import com.kekadoc.project.capybara.server.data.source.converter.dto.NotificationDtoConverter
 import com.kekadoc.project.capybara.server.intercator.orNotFoundError
 import com.kekadoc.project.capybara.server.intercator.requireAuthor
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.routing.api.notifications.model.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.websocket.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
@@ -134,7 +129,7 @@ class NotificationsInteractorImpl(
             .flatMapLatest { user ->
                 merge(
                     messagesRepository.getMessagesByAddresseeUserId(user.id),
-                    messagesRepository.getMessagesByAddresseeGroupIds(user.groups.map(Group::id).toSet()),
+                    messagesRepository.getMessagesByAddresseeGroupIds(user.groupIds.toSet()),
                 )
             }
             .map { it.map(NotificationDtoConverter::convert) }

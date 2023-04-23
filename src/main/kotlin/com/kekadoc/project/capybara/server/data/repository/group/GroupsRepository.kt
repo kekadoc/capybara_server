@@ -4,9 +4,11 @@ import com.kekadoc.project.capybara.server.data.model.Group
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import kotlinx.coroutines.flow.Flow
 
-interface GroupRepository {
+interface GroupsRepository {
 
     fun getGroup(groupId: Identifier): Flow<Group>
+
+    fun getGroups(groupIds: List<Identifier>): Flow<List<Group>>
 
     fun createGroup(name: String, members: Set<Identifier>): Flow<Group>
 

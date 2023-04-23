@@ -21,6 +21,7 @@ val interactorsModule = module {
     single<AddresseesInteractor> {
         AddresseesInteractorImpl(
             userRepository = get(),
+            groupsRepository = get(),
         )
     }
 
@@ -34,7 +35,7 @@ val interactorsModule = module {
     single<ContactsInteractor> {
         ContactsInteractorImpl(
             userRepository = get(),
-            contactsRepository = get(),
+            publicContactsRepository = get(),
         )
     }
 

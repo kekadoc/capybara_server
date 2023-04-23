@@ -4,6 +4,7 @@ import com.kekadoc.project.capybara.server.common.component.Component
 import com.kekadoc.project.capybara.server.data.source.database.Database
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.firebase.Firebase
+import com.kekadoc.project.capybara.server.test.Test
 
 object Application : Component {
 
@@ -11,6 +12,7 @@ object Application : Component {
         Di,
         Database,
         Firebase,
+        Test,
         Server,
     )
 

@@ -8,5 +8,5 @@ data class User(
     val character: UserCharacter,
     val communications: Communications,
     val availability: UserAvailability,
-    val groups: List<Group>
+    val groupIds: List<Identifier>
 )

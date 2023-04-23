@@ -4,6 +4,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CommunicationDto(
-    val name: String,
+    val type: Type,
     val value: String,
-)
+) {
+
+    enum class Type {
+        PHONE,
+        EMAIL,
+        VIBER,
+        WHATS_APP,
+        TELEGRAM,
+        UNKNOWN,
+    }
+
+}

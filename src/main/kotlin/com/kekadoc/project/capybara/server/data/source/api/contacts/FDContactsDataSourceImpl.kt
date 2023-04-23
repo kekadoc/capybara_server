@@ -17,7 +17,7 @@ class FDContactsDataSourceImpl(
 
     private val contacts = database.getReference("/contacts")
 
-    override fun getContacts(ids: List<Identifier>): Flow<List<Contact>> = flowOf {
+    override fun getContacts(): Flow<List<Contact>> = flowOf {
         contacts.getAll<Contact>().values.toList().filterNotNull()
     }
 
@@ -39,18 +39,6 @@ class FDContactsDataSourceImpl(
 //        )
 //        document.set(contact)
 //        contact
-    }
-
-    override fun updateContact(
-        contactId: Identifier,
-        communications: Communications
-    ): Flow<Contact> = flowOf {
-        throw NotImplementedError()
-//        contacts.child(contactId).runTransaction { currentContact ->
-//            currentContact?.copy(
-//                communications = communications.mapKeys { it.key.name },
-//            )
-//        } ?: throw EntityNotFoundException("Contact [$contactId] not found for update")
     }
 
     override fun deleteContact(contactId: String): Flow<Unit> = flowOf(contacts.child(contactId)::remove)

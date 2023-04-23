@@ -8,6 +8,8 @@ interface GroupDataSource {
 
     fun getGroup(groupId: Identifier): Flow<Group>
 
+    fun getGroups(groupIds: List<Identifier>): Flow<List<Group>>
+
     fun createGroup(name: String, members: Set<Identifier>): Flow<Group>
 
     fun updateGroup(groupId: Identifier, name: String, members: Set<Identifier>): Flow<Group>

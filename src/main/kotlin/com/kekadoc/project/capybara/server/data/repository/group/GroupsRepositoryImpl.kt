@@ -5,9 +5,13 @@ import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import kotlinx.coroutines.flow.Flow
 
-class GroupRepositoryImpl(
+class GroupsRepositoryImpl(
     private val dataSource: GroupDataSource,
-) : GroupRepository {
+) : GroupsRepository {
+
+    override fun getGroups(groupIds: List<Identifier>): Flow<List<Group>> {
+        return dataSource.getGroups(groupIds)
+    }
 
     override fun getGroup(groupId: Identifier): Flow<Group> {
         return dataSource.getGroup(groupId)
