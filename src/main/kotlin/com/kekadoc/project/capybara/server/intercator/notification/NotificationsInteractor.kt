@@ -1,53 +1,59 @@
 package com.kekadoc.project.capybara.server.intercator.notification
 
+import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.Token
 import com.kekadoc.project.capybara.server.routing.api.notifications.model.*
 
 interface NotificationsInteractor {
 
     suspend fun getSentNotifications(
-        authToken: String,
+        authToken: Token,
     ): GetSentNotificationsResponse
 
     suspend fun createSentNotification(
-        authToken: String,
+        authToken: Token,
         request: CreateSentNotificationRequest,
     ): CreateSentNotificationResponse
 
     suspend fun getSentNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
     ): GetSentNotificationResponse
 
     suspend fun updateSentNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
         request: UpdateSentMessageRequest,
     ): UpdateSentNotificationResponse
 
     suspend fun deleteSentNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
     )
 
     suspend fun getReceivedNotifications(
-        authToken: String,
+        authToken: Token,
     ): GetReceivedNotifications
 
     suspend fun getReceivedNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
     ): GetReceivedNotification
 
     suspend fun setReceivedNotificationAnswer(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
         request: PostReceivedMessageAnswerRequest,
     )
 
     suspend fun setReceivedNotificationNotify(
-        authToken: String,
-        messageId: String,
-        request: PostReceivedMessageNotifyRequest,
+        authToken: Token,
+        notificationId: Identifier,
+    )
+
+    suspend fun setReadNotificationNotify(
+        authToken: Token,
+        notificationId: Identifier,
     )
 
 }

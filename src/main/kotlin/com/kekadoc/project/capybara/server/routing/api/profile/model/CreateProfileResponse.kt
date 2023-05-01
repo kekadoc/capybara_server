@@ -6,5 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateProfileResponse(
     val profile: ProfileDto,
-    val password: String,
 )

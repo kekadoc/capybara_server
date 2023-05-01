@@ -4,18 +4,16 @@ import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.source.database.entity.ProfileEntity
 
-object ProfileEntityConverter : Converter<Profile, ProfileEntity> {
+object ProfileEntityConverter : Converter<ProfileEntity, Profile> {
 
-    override fun convert(source: ProfileEntity): Profile {
-        return Profile(
-            type = enumValueOf(source.type),
-            name = source.name,
-            surname = source.surname,
-            patronymic = source.patronymic,
-            avatar = source.avatar,
-            role = source.role,
-            about = source.about,
-        )
-    }
+    override fun convert(value: ProfileEntity): Profile = Profile(
+        type = enumValueOf(value.type),
+        name = value.name,
+        surname = value.surname,
+        patronymic = value.patronymic,
+        avatar = value.avatar,
+        role = value.role,
+        about = value.about,
+    )
 
 }

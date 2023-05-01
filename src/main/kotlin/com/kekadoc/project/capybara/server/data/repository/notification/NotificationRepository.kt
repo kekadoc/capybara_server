@@ -3,12 +3,11 @@ package com.kekadoc.project.capybara.server.data.repository.notification
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Notification
 import com.kekadoc.project.capybara.server.data.model.NotificationInfo
+import com.kekadoc.project.capybara.server.routing.api.notifications.model.PostReceivedMessageAnswerRequest
 import kotlinx.coroutines.flow.Flow
 
 interface NotificationRepository {
 
-    fun getAll(): Flow<List<Notification>>
-    
     fun createNotification(
         authorId: Identifier,
         type: Notification.Type,
@@ -17,29 +16,47 @@ interface NotificationRepository {
         content: Notification.Content,
     ): Flow<Notification>
 
-    fun updateMessage(
+    fun updateNotification(
         messageId: Identifier,
         content: Notification.Content,
-    ): Flow<Notification>
+    ): Flow<Notification?>
 
-    fun updateMessageStatus(
+    fun updateNotificationStatus(
         messageId: Identifier,
         status: NotificationInfo.Status,
-    ): Flow<Notification>
+    ): Flow<Notification?>
 
-    fun updateMessageUserInfo(
+    fun updateNotificationUserInfo(
         messageId: Identifier,
         info: NotificationInfo.FromUserInfo,
-    ): Flow<Notification>
+    ): Flow<Notification?>
 
-    fun removeMessage(messageId: Identifier): Flow<Unit>
+    fun removeNotification(messageId: Identifier): Flow<Unit>
     
-    fun getMessage(messageId: Identifier): Flow<Notification?>
-    
-    fun getMessagesByAuthorId(authorId: Identifier): Flow<List<Notification>>
+    fun getNotification(messageId: Identifier): Flow<Notification?>
 
-    fun getMessagesByAddresseeUserId(userId: Identifier): Flow<List<Notification>>
+    fun getNotificationInfo(messageId: Identifier): Flow<NotificationInfo?>
 
-    fun getMessagesByAddresseeGroupIds(groupIds: Set<Identifier>): Flow<List<Notification>>
-    
+    fun getNotificationsByAuthorId(authorId: Identifier): Flow<List<Notification>>
+
+    fun getNotificationsByAddresseeUserId(userId: Identifier): Flow<List<Notification>>
+
+    fun getNotificationsByAddresseeGroupIds(groupIds: Set<Identifier>): Flow<List<Notification>>
+
+    fun setReceivedNotificationAnswer(
+        notificationId: Identifier,
+        userId: Identifier,
+        request: PostReceivedMessageAnswerRequest,
+    ): Flow<Notification?>
+
+    fun setReceivedNotificationNotify(
+        notificationId: Identifier,
+        userId: Identifier,
+    ): Flow<Notification?>
+
+    fun setReadNotificationNotify(
+        notificationId: Identifier,
+        userId: Identifier,
+    ): Flow<Notification?>
+
 }

@@ -12,6 +12,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 
 internal suspend fun ApplicationCall.handleError(e: Throwable) {
+    e.printStackTrace()
     when (e) {
         is HttpException -> {
             respond(e.statusCode, e.message.orEmpty())
@@ -26,7 +27,20 @@ internal suspend fun ApplicationCall.handleError(e: Throwable) {
             }
         }
         else -> {
-            respond(HttpStatusCode.InternalServerError, e.localizedMessage)
+            val message = buildString {
+                var error: Throwable? = e
+                while (error != null) {
+                    append(error.localizedMessage)
+                    error = error.cause
+                    if (error != null) {
+                        appendLine()
+                    }
+                }
+            }
+            respond(
+                HttpStatusCode.InternalServerError,
+                message,
+            )
         }
     }
 }

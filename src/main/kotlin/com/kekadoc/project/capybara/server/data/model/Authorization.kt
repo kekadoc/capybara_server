@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.data.model
 
 data class Authorization(
-    val token: String,
-    val user: User,
+    val accessToken: String,
+    val refreshToken: String,
 )

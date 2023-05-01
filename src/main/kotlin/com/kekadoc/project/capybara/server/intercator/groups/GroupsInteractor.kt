@@ -15,12 +15,6 @@ interface GroupsInteractor {
         groupId: Identifier,
     ): GetGroupResponse
 
-    suspend fun updateGroup(
-        authToken: String,
-        groupId: Identifier,
-        request: UpdateGroupRequest,
-    ): UpdateGroupResponse
-
     suspend fun updateGroupName(
         authToken: String,
         groupId: Identifier,

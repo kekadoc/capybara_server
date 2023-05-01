@@ -2,20 +2,16 @@ package com.kekadoc.project.capybara.server.data.source.converter.dto
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.model.Group
+import com.kekadoc.project.capybara.server.data.model.User
 import com.kekadoc.project.capybara.server.data.source.network.model.GroupDto
+import java.util.*
 
-object GroupDtoConverter : Converter.Bidirectional<Group, GroupDto> {
+object GroupDtoConverter : Converter<Group, GroupDto> {
 
-    override fun convert(source: GroupDto): Group {
-        throw NotImplementedError()
-    }
-
-    override fun revert(target: Group): GroupDto {
-        return GroupDto(
-            id = target.id,
-            name = target.name,
-            members = target.members.map { it.profile }.map { ProfileDtoConverter.revert(it) },
-        )
-    }
+    override fun convert(value: Group): GroupDto = GroupDto(
+        id = UUID.fromString(value.id.toString()),
+        name = value.name,
+        membersIds = value.members.map { it.id },
+    )
 
 }

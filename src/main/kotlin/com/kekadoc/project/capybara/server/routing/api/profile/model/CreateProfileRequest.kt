@@ -1,16 +1,17 @@
 package com.kekadoc.project.capybara.server.routing.api.profile.model
 
-import com.kekadoc.project.capybara.server.common.extensions.emptyString
-import com.kekadoc.project.capybara.server.data.source.network.model.ProfileDto
+import com.kekadoc.project.capybara.server.data.source.network.model.ProfileTypeDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateProfileRequest(
     @SerialName("login")
-    val login: String = emptyString(),
+    val login: String,
+    @SerialName("password")
+    val password: String,
     @SerialName("type")
-    val type: ProfileDto.Type,
+    val type: ProfileTypeDto,
     @SerialName("name")
     val name: String,
     @SerialName("surname")

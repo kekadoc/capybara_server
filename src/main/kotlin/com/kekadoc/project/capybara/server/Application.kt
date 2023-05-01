@@ -5,6 +5,7 @@ import com.kekadoc.project.capybara.server.data.source.database.Database
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.firebase.Firebase
 import com.kekadoc.project.capybara.server.test.Test
+import io.ktor.server.application.Application
 
 object Application : Component {
 
@@ -16,6 +17,6 @@ object Application : Component {
         Server,
     )
 
-    override fun init() { components.forEach(Component::init) }
+    override fun init(application: Application) { components.forEach { it.init(application) }}
 
 }

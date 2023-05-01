@@ -1,12 +1,11 @@
 package com.kekadoc.project.capybara.server.routing.api.profile
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.common.extensions.requireNotNull
+import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.intercator.profile.ProfileInteractor
-import com.kekadoc.project.capybara.server.routing.api.profile.model.CreateProfileRequest
-import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateProfileRequest
-import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateProfileTypeRequest
-import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateUserCommunicationsRequest
+import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
@@ -19,6 +18,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.core.component.get
+import java.util.*
 
 fun Route.profile() = route("/profile") {
 
@@ -31,81 +31,101 @@ fun Route.profile() = route("/profile") {
     //Обновление профиля через токен авторизации
     patch<UpdateProfileRequest> { request -> updateProfileByAuthToken(request) }
 
-
+    //Обновить способы связи авторизованного пользователя
+    post<UpdateUserCommunicationsRequest>("/communications") { request -> updateCommunications(request) }
 
     route("/{id}") {
 
         //Получение профиля по идентификатору
-        get { getProfileById(requirePathId()) }
+        get { execute { getProfileById(requirePathId()) } }
 
         //Обновление профиля по идентификатору
-        patch<UpdateProfileRequest> { request -> updateProfileById(requirePathId(), request) }
+        patch<UpdateProfileRequest> { request ->
+            execute {
+                updateProfileById(
+                    profileId = requirePathId(),
+                    request = request,
+                )
+            }
+        }
 
         //Обновление тип профиля по идентификатору
-        patch<UpdateProfileTypeRequest>("type") { request -> updateProfileTypeById(requirePathId(), request) }
+        patch<UpdateProfileTypeRequest>("/type") { request ->
+            execute {
+                updateProfileTypeById(
+                    profileId = requirePathId(),
+                    request = request,
+                )
+            }
+        }
 
-        route("/communications") {
+        //Удаление профиля по идентификатору
+        delete { execute { deleteProfileById(requirePathId()) } }
 
-            route("/addressees") {
+        route("/access") {
 
-                route("/group") {
-                    patch<UpdateUserCommunicationsRequest>(
-                        path = "/add",
-                        ApiKeyVerifier, AuthorizationVerifier,
-                    ) { request ->
-                        updateUserCommunicationsAddresseesGroupAdd(
-                            profileId = requirePathId(),
-                            request = request,
-                        )
-                    }
-                    patch<UpdateUserCommunicationsRequest>(
-                        path = "/remove",
-                        ApiKeyVerifier, AuthorizationVerifier,
-                    ) { request ->
-                        updateUserCommunicationsAddresseesGroupRemove(
-                            profileId = requirePathId(),
-                            request = request,
-                        )
-                    }
-                }
+            route("/user") {
 
-                route("/users") {
-                    patch<UpdateUserCommunicationsRequest>(
-                        path = "/add",
-                        ApiKeyVerifier, AuthorizationVerifier,
-                    ) { request ->
-                        updateUserCommunicationsAddresseesUserAdd(
-                            profileId = requirePathId(),
-                            request = request,
-                        )
+                route("/{targetUserId}") {
+
+                    get {
+                        execute {
+                            getAccessUser(
+                                fromUserId = requirePathId(),
+                                toUserId = call.parameters["targetUserId"].requireNotNull().let(UUID::fromString),
+                            )
+                        }
                     }
-                    patch<UpdateUserCommunicationsRequest>(
-                        path = "/remove",
-                        ApiKeyVerifier, AuthorizationVerifier,
-                    ) { request ->
-                        updateUserCommunicationsAddresseesUserRemove(
-                            profileId = requirePathId(),
-                            request = request,
-                        )
+
+                    patch<UpdateAccessUserRequestDto> { request ->
+                        execute {
+                            updateAccessUser(
+                                fromUserId = requirePathId(),
+                                toUserId = call.parameters["targetUserId"].requireNotNull().let(UUID::fromString),
+                                request = request,
+                            )
+                        }
                     }
+
                 }
 
             }
-            route("/contacts") {
-                patch<UpdateUserCommunicationsRequest>(
-                    path = "/add",
-                    ApiKeyVerifier, AuthorizationVerifier,
-                ) { request ->
-                    updateUserCommunicationsContactsAdd(
-                        profileId = requirePathId(),
-                        request = request,
-                    )
+
+            route("/group") {
+
+                route("/{targetGroupId}") {
+
+                    get {
+                        execute {
+                            getAccessGroup(
+                                userId = requirePathId(),
+                                groupId = call.parameters["targetGroupId"].requireNotNull().let(UUID::fromString)
+                            )
+                        }
+                    }
+
+                    patch<UpdateAccessGroupRequestDto> { request ->
+                        execute {
+                            updateAccessGroup(
+                                userId = requirePathId(),
+                                groupId = call.parameters["targetGroupId"].requireNotNull().let(UUID::fromString),
+                                request = request,
+                            )
+                        }
+                    }
+
                 }
-                patch<UpdateUserCommunicationsRequest>(
-                    path = "/remove",
-                    ApiKeyVerifier, AuthorizationVerifier,
-                ) { request ->
-                    updateUserCommunicationsContactsRemove(
+
+            }
+
+        }
+
+        route("/communications") {
+
+            //Обновить способы связи пользователя
+            post<UpdateUserCommunicationsRequest> { request ->
+                execute {
+                    updateCommunications(
                         profileId = requirePathId(),
                         request = request,
                     )
@@ -113,9 +133,6 @@ fun Route.profile() = route("/profile") {
             }
 
         }
-
-        //Удаление профиля по идентификатору
-        delete { deleteProfileById(requirePathId()) }
 
     }
 
@@ -156,8 +173,34 @@ private suspend fun PipelineContext.updateProfileByAuthToken(
     call.respond(result)
 }
 
+private suspend fun PipelineContext.updateCommunications(
+    request: UpdateUserCommunicationsRequest,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<ProfileInteractor>()
+    val result = interactor.updateCommunications(
+        authToken = authToken,
+        request = request,
+    )
+    call.respond(result)
+}
+
+private suspend fun PipelineContext.updateCommunications(
+    profileId: Identifier,
+    request: UpdateUserCommunicationsRequest,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<ProfileInteractor>()
+    val result = interactor.updateCommunications(
+        authToken = authToken,
+        profileId = profileId,
+        request = request,
+    )
+    call.respond(result)
+}
+
 private suspend fun PipelineContext.getProfileById(
-    profileId: String,
+    profileId: Identifier,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
@@ -169,7 +212,7 @@ private suspend fun PipelineContext.getProfileById(
 }
 
 private suspend fun PipelineContext.updateProfileById(
-    profileId: String,
+    profileId: Identifier,
     request: UpdateProfileRequest,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
@@ -183,7 +226,7 @@ private suspend fun PipelineContext.updateProfileById(
 }
 
 private suspend fun PipelineContext.updateProfileTypeById(
-    profileId: String,
+    profileId: Identifier,
     request: UpdateProfileTypeRequest,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
@@ -197,7 +240,7 @@ private suspend fun PipelineContext.updateProfileTypeById(
 }
 
 private suspend fun PipelineContext.deleteProfileById(
-    profileId: String,
+    profileId: Identifier,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
@@ -208,82 +251,61 @@ private suspend fun PipelineContext.deleteProfileById(
     call.respond(result)
 }
 
-private suspend fun PipelineContext.updateUserCommunicationsAddresseesGroupAdd(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
+private suspend fun PipelineContext.getAccessUser(
+    fromUserId: Identifier,
+    toUserId: Identifier,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityGroupAdd(
+    val result = interactor.getAccessUser(
         authToken = authToken,
-        profileId = profileId,
-        request = request,
+        fromUserId = fromUserId,
+        toUserId = toUserId,
     )
     call.respond(result)
 }
-private suspend fun PipelineContext.updateUserCommunicationsAddresseesGroupRemove(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
+
+private suspend fun PipelineContext.updateAccessUser(
+    fromUserId: Identifier,
+    toUserId: Identifier,
+    request: UpdateAccessUserRequestDto,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityGroupRemove(
+    val result = interactor.updateAccessUser(
         authToken = authToken,
-        profileId = profileId,
+        fromUserId = fromUserId,
+        toUserId = toUserId,
         request = request,
     )
     call.respond(result)
 }
 
-private suspend fun PipelineContext.updateUserCommunicationsAddresseesUserAdd(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
+private suspend fun PipelineContext.getAccessGroup(
+    userId: Identifier,
+    groupId: Identifier,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityUserAdd(
+    val result = interactor.getAccessGroup(
         authToken = authToken,
-        profileId = profileId,
-        request = request,
-    )
-    call.respond(result)
-}
-private suspend fun PipelineContext.updateUserCommunicationsAddresseesUserRemove(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
-) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityRemove(
-        authToken = authToken,
-        profileId = profileId,
-        request = request,
+        userId = userId,
+        groupId = groupId,
     )
     call.respond(result)
 }
 
-private suspend fun PipelineContext.updateUserCommunicationsContactsAdd(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
+private suspend fun PipelineContext.updateAccessGroup(
+    userId: Identifier,
+    groupId: Identifier,
+    request: UpdateAccessGroupRequestDto,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityContactsAdd(
+    val result = interactor.updateAccessGroup(
         authToken = authToken,
-        profileId = profileId,
-        request = request,
-    )
-    call.respond(result)
-}
-private suspend fun PipelineContext.updateUserCommunicationsContactsRemove(
-    profileId: String,
-    request: UpdateUserCommunicationsRequest,
-) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<ProfileInteractor>()
-    val result = interactor.updateUserAvailabilityContactsRemove(
-        authToken = authToken,
-        profileId = profileId,
+        userId = userId,
+        groupId = groupId,
         request = request,
     )
     call.respond(result)

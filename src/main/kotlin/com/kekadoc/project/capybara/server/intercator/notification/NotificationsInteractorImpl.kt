@@ -1,13 +1,18 @@
 package com.kekadoc.project.capybara.server.intercator.notification
 
-import com.kekadoc.project.capybara.server.data.model.Group
+import com.kekadoc.project.capybara.server.common.exception.HttpException
+import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.NotificationInfo
+import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.data.repository.distribution.DistributionRepository
 import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.source.converter.dto.NotificationDtoConverter
-import com.kekadoc.project.capybara.server.intercator.orNotFoundError
-import com.kekadoc.project.capybara.server.intercator.requireAuthor
-import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
+import com.kekadoc.project.capybara.server.data.source.factory.dto.NotificationInfoDtoFactory
+import com.kekadoc.project.capybara.server.intercator.*
+import com.kekadoc.project.capybara.server.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.routing.api.notifications.model.*
+import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
@@ -15,160 +20,217 @@ import kotlinx.coroutines.flow.*
 class NotificationsInteractorImpl(
     private val userRepository: UsersRepository,
     private val messagesRepository: NotificationRepository,
+    private val distributionRepository: DistributionRepository,
+    private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
 ) : NotificationsInteractor {
 
     override suspend fun getSentNotifications(
-        authToken: String,
-    ): GetSentNotificationsResponse {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user -> messagesRepository.getMessagesByAuthorId(user.id) }
-            .map { it.map(NotificationDtoConverter::convert) }
-            .map(::GetSentNotificationsResponse)
-            .single()
-    }
+        authToken: Token,
+    ): GetSentNotificationsResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user -> messagesRepository.getNotificationsByAuthorId(user.id) }
+        .map { it.map(NotificationDtoConverter::convert) }
+        .map(::GetSentNotificationsResponse)
+        .single()
 
     override suspend fun createSentNotification(
-        authToken: String,
+        authToken: Token,
         request: CreateSentNotificationRequest,
-    ): CreateSentNotificationResponse {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                messagesRepository.createNotification(
-                    authorId = user.id,
-                    addresseeGroups = request.addresseeGroups.toSet(),
-                    addresseeUsers = request.addresseeUsers.toSet(),
-                    content = request.content.let(NotificationDtoConverter.ContentConverter::revert),
-                    type = request.type.let(NotificationDtoConverter.TypeConverter::revert),
-                )
+    ): CreateSentNotificationResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .requireSpeakerUser()
+        .flatMapLatest { user ->
+            val isAllUsersAvailableForNotificationFlow = userRepository.getAccessForUsers(
+                userId = user.id,
+                forUserIds = request.addresseeUsers,
+            ).onEach { accessForUsers ->
+                accessForUsers.forEach { access ->
+                    if (!access.sentNotification) throw HttpException(
+                        statusCode = HttpStatusCode.Forbidden,
+                        message = "The user {${access.toUserId}} is not available for notification"
+                    )
+                }
             }
-            .map(NotificationDtoConverter::convert)
-            .map(::CreateSentNotificationResponse)
-            .single()
-    }
+            val isAllGroupsAvailableForNotificationFlow = userRepository.getAccessForGroup(
+                userId = user.id,
+                groupIds = request.addresseeGroups,
+            ).onEach { accessForGroups ->
+                accessForGroups.forEach { access ->
+                    if (!access.sentNotification) throw HttpException(
+                        statusCode = HttpStatusCode.Forbidden,
+                        message = "The group {${access.groupId}} is not available for notification"
+                    )
+                }
+            }
+            combine(
+                isAllUsersAvailableForNotificationFlow,
+                isAllGroupsAvailableForNotificationFlow,
+            ) { _, _ -> }
+                .flatMapLatest {
+                    messagesRepository.createNotification(
+                        authorId = user.id,
+                        addresseeGroups = request.addresseeGroups.toSet(),
+                        addresseeUsers = request.addresseeUsers.toSet(),
+                        content = request.content.let(NotificationDtoConverter.ContentConverter::revert),
+                        type = request.type.let(NotificationDtoConverter.TypeConverter::revert),
+                    )
+                }
+                .flatMapLatest { notification ->
+                    distributionRepository.distribute(notification).map { notification }
+                }
+        }
+        .map(NotificationDtoConverter::convert)
+        .map(::CreateSentNotificationResponse)
+        .single()
 
     override suspend fun getSentNotification(
-        authToken: String,
-        messageId: String,
-    ): GetSentNotificationResponse {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                messagesRepository.getMessage(messageId)
-                    .orNotFoundError()
-                    .requireAuthor(user)
-                    .map(NotificationDtoConverter::convert)
-            }
-            .map(::GetSentNotificationResponse)
-            .single()
-    }
+        authToken: Token,
+        notificationId: Identifier,
+    ): GetSentNotificationResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotificationInfo(notificationId)
+                .map { it ?: throw HttpException(HttpStatusCode.NotFound) }
+                .onEach { info ->
+                    if (info.notification.authorId != user.id) {
+                        throw HttpException(HttpStatusCode.Forbidden)
+                    }
+                }
+        }
+        .map(NotificationInfoDtoFactory::create)
+        .map(::GetSentNotificationResponse)
+        .single()
 
     override suspend fun updateSentNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
         request: UpdateSentMessageRequest,
-    ): UpdateSentNotificationResponse {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                messagesRepository.getMessage(messageId)
-                    .orNotFoundError()
-                    .requireAuthor(user)
-                    .map { user }
-            }
-            .flatMapLatest {
-                messagesRepository.updateMessage(
-                    messageId = messageId,
-                    content = NotificationDtoConverter.ContentConverter.revert(request.content),
-                )
-            }
-            .map(NotificationDtoConverter::convert)
-            .map(::UpdateSentNotificationResponse)
-            .single()
-    }
+    ): UpdateSentNotificationResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotification(notificationId)
+                .orNotFoundError()
+                .requireAuthor(user)
+                .map { user }
+        }
+        .flatMapLatest {
+            messagesRepository.updateNotification(
+                messageId = notificationId,
+                content = NotificationDtoConverter.ContentConverter.revert(request.content),
+            )
+        }
+        .map { value -> value ?: throw HttpException(HttpStatusCode.NotFound) }
+        .map(NotificationDtoConverter::convert)
+        .map(::UpdateSentNotificationResponse)
+        .single()
 
     override suspend fun deleteSentNotification(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
     ) {
-        userRepository.getUserByToken(authToken)
+        fetchUserByAccessTokenFunction.fetchUser(authToken)
             .requireAuthorizedUser()
             .flatMapLatest { user ->
-                messagesRepository.getMessage(messageId)
+                messagesRepository.getNotification(notificationId)
                     .orNotFoundError()
                     .requireAuthor(user)
             }
             .flatMapLatest {
-                messagesRepository.removeMessage(
-                    messageId = messageId,
+                messagesRepository.removeNotification(
+                    messageId = notificationId,
                 )
             }
             .single()
     }
-
-
-//    override fun observeSentMessageState(
-//        authToken: String,
-//        messageId: String,
-//    ): Flow<Message.State> {
-//        return userRepository.getUserByToken(authToken)
-//            .requireAuthorizedUser()
-//            .flatMapLatest { user ->
-//                messagesRepository.observeMessage(messageId)
-//                    .requireAuthor(user)
-//                    .map { it.state }
-//            }
-//    }
 
     override suspend fun getReceivedNotifications(
-        authToken: String,
-    ): GetReceivedNotifications {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                merge(
-                    messagesRepository.getMessagesByAddresseeUserId(user.id),
-                    messagesRepository.getMessagesByAddresseeGroupIds(user.groupIds.toSet()),
-                )
+        authToken: Token,
+    ): GetReceivedNotifications = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            combine(
+                messagesRepository.getNotificationsByAddresseeUserId(user.id),
+                messagesRepository.getNotificationsByAddresseeGroupIds(user.groupIds.toSet()),
+            ) { messagesByAddresseeUser, messagesByAddresseeGroup ->
+                messagesByAddresseeUser + messagesByAddresseeGroup
             }
-            .map { it.map(NotificationDtoConverter::convert) }
-            .map(::GetReceivedNotifications)
-            .single()
-    }
+        }
+        .map { it.map(NotificationDtoConverter::convert) }
+        .map(::GetReceivedNotifications)
+        .single()
 
     override suspend fun getReceivedNotification(
-        authToken: String,
-        messageId: String,
-    ): GetReceivedNotification {
-        return userRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                messagesRepository.getMessage(messageId)
-                    .orNotFoundError()
-                    .requireAuthor(user)
-            }
-            .map(NotificationDtoConverter::convert)
-            .map(::GetReceivedNotification)
-            .single()
-    }
+        authToken: Token,
+        notificationId: Identifier,
+    ): GetReceivedNotification = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotification(notificationId)
+                .orNotFoundError()
+                .requireAddressee(user)
+        }
+        .map(NotificationDtoConverter::convert)
+        .map(::GetReceivedNotification)
+        .single()
 
     override suspend fun setReceivedNotificationAnswer(
-        authToken: String,
-        messageId: String,
+        authToken: Token,
+        notificationId: Identifier,
         request: PostReceivedMessageAnswerRequest,
-    ) {
-        TODO("Not yet implemented")
-    }
+    ): Unit = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotification(notificationId)
+                .orNotFoundError()
+                .requireAddressee(user)
+                .flatMapLatest {
+                    messagesRepository.setReceivedNotificationAnswer(
+                        notificationId = notificationId,
+                        userId = user.id,
+                        request = request,
+                    )
+                }
+                .orNotFoundError()
+        }
+        .collect()
 
     override suspend fun setReceivedNotificationNotify(
-        authToken: String,
-        messageId: String,
-        request: PostReceivedMessageNotifyRequest,
-    ) {
-        TODO("Not yet implemented")
-    }
+        authToken: Token,
+        notificationId: Identifier
+    ): Unit = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotification(notificationId)
+                .orNotFoundError()
+                .requireAddressee(user)
+                .flatMapLatest {
+                    messagesRepository.setReceivedNotificationNotify(
+                        notificationId = notificationId,
+                        userId = user.id,
+                    )
+                }
+                .orNotFoundError()
+        }
+        .collect()
 
+    override suspend fun setReadNotificationNotify(
+        authToken: Token,
+        notificationId: Identifier,
+    ): Unit = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapLatest { user ->
+            messagesRepository.getNotification(notificationId)
+                .orNotFoundError()
+                .requireAddressee(user)
+                .flatMapLatest {
+                    messagesRepository.setReadNotificationNotify(
+                        notificationId = notificationId,
+                        userId = user.id,
+                    )
+                }
+                .orNotFoundError()
+        }
+        .collect()
 
 
     //@Serializable
@@ -180,7 +242,7 @@ class NotificationsInteractorImpl(
 //
 //@Serializable
 //data class SendNotificationResponse(
-//    val messageId: String
+//    val messageId: Identifier
 //)
 //
 //suspend fun PipelineContext.sendNotification() = execute {
@@ -188,7 +250,7 @@ class NotificationsInteractorImpl(
 //    val authToken = requireAuthorizationToken()
 //    val userRepository = Di.get<UserRepository>()
 //    val notificationRepository = Di.get<NotificationRepository>()
-//    val user = userRepository.getUserByToken(authToken).first() ?: throw HttpException(HttpStatusCode.NotFound)
+//    val user = fetchUserByAccessTokenFunction.fetchUser(authToken).first() ?: throw HttpException(HttpStatusCode.NotFound)
 //
 //    val messageId = notificationRepository.sendNotification(
 //        userId = user.profile.id,

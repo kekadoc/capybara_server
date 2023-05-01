@@ -4,68 +4,79 @@ import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.model.User
+import com.kekadoc.project.capybara.server.data.model.access.UserAccessToGroup
+import com.kekadoc.project.capybara.server.data.model.access.UserAccessToUser
 import kotlinx.coroutines.flow.Flow
 
 interface UsersRepository {
 
     fun createUser(
         login: String,
+        password: String,
         profile: Profile,
     ): Flow<User>
 
-    fun deleteUser(id: String): Flow<Unit>
-
-    fun getUserById(id: String): Flow<User?>
+    fun deleteUser(id: Identifier): Flow<User?>
 
     fun getUsersByIds(ids: List<Identifier>): Flow<List<User>>
 
-    fun getUserByToken(token: String): Flow<User?>
+    fun getUserById(id: Identifier): Flow<User?>
 
     fun getUserByLogin(login: String): Flow<User?>
 
     fun updateUserPassword(
         userId: Identifier,
-        password: String,
-    ): Flow<User>
+        newPassword: String,
+    ): Flow<User?>
 
     fun updateUserProfile(
         userId: Identifier,
         profile: Profile,
-    ): Flow<User>
+    ): Flow<User?>
 
     fun updateUserCommunications(
         userId: Identifier,
         communications: Communications,
-    ): Flow<User>
+    ): Flow<User?>
 
-    fun updateUserAvailabilityGroupsAdd(
+    fun getAllAccessForUser(
         userId: Identifier,
-        groupIds: Set<Identifier>,
-    ): Flow<User>
+    ): Flow<List<UserAccessToUser>>
 
-    fun updateUserAvailabilityGroupsRemove(
+    fun getAccessForUser(
         userId: Identifier,
-        groupIds: Set<Identifier>,
-    ): Flow<User>
+        forUserId: Identifier,
+    ): Flow<UserAccessToUser?>
 
-    fun updateUserAvailabilityUsersAdd(
+    fun getAccessForUsers(
         userId: Identifier,
-        userIds: Set<Identifier>,
-    ): Flow<User>
+        forUserIds: List<Identifier>,
+    ): Flow<List<UserAccessToUser>>
 
-    fun updateUserAvailabilityUsersRemove(
+    fun updateAccessForUser(
         userId: Identifier,
-        userIds: Set<Identifier>,
-    ): Flow<User>
+        forUserId: Identifier,
+        userAccessUser: UserAccessToUser.Updater,
+    ): Flow<UserAccessToUser?>
 
-    fun updateUserAvailabilityContactsAdd(
+    fun getAllAccessForGroup(
         userId: Identifier,
-        contactIds: Set<Identifier>,
-    ): Flow<User>
+    ): Flow<List<UserAccessToGroup>>
 
-    fun updateUserAvailabilityContactsRemove(
+    fun getAccessForGroup(
         userId: Identifier,
-        contactIds: Set<Identifier>,
-    ): Flow<User>
+        groupId: Identifier,
+    ): Flow<UserAccessToGroup?>
+
+    fun getAccessForGroup(
+        userId: Identifier,
+        groupIds: List<Identifier>,
+    ): Flow<List<UserAccessToGroup>>
+
+    fun updateAccessForGroup(
+        userId: Identifier,
+        groupId: Identifier,
+        userAccessGroup: UserAccessToGroup.Updater,
+    ): Flow<UserAccessToGroup?>
 
 }

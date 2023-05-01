@@ -5,8 +5,7 @@ import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.routing.configureRouting
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.application.Application
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.resources.*
 import io.ktor.server.websocket.*
@@ -16,22 +15,22 @@ import io.ktor.server.application.Application as KtorApplication
 
 object Server : Component {
     
-    fun getTime(): Long {
-        return System.currentTimeMillis()
-    }
+    fun getTime(): Long = System.currentTimeMillis()
 
-    override fun init() {
-        startServer()
+    override fun init(application: Application): Unit = with(application) {
+        install(Resources)
+        configureApplication()
+        configureRouting()
     }
 
     private fun startServer() {
-        val port = System.getenv(Config.PORT_KEY)?.toInt() ?: Config.DEFAULT_PORT_CODE
-        val engine = Netty
-        embeddedServer(factory = engine, port = port) {
-            install(Resources)
-            configureApplication()
-            configureRouting()
-        }.start(wait = true)
+//        val port = System.getenv(Config.PORT_KEY)?.toInt() ?: Config.DEFAULT_PORT_CODE
+//        val engine = Netty
+//        embeddedServer(factory = engine, port = port) {
+//            install(Resources)
+//            configureApplication()
+//            configureRouting()
+//        }.start(wait = true)
     }
 
     private fun KtorApplication.configureApplication() {

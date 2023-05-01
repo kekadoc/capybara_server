@@ -1,13 +1,14 @@
 package com.kekadoc.project.capybara.server.common.extensions
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 
-fun <T> flowOf(block: suspend () -> T): Flow<T> {
-    return flow { emit(block()) }
-}
+fun <T> flowOf(block: suspend () -> T): Flow<T> = flow { emit(block()) }
 
-fun <T, R> Flow<T>.extract(block: T.() -> R): Flow<R> {
-    return map { block.invoke(it) }
-}
+fun <T, R> Flow<T>.extract(block: T.() -> R): Flow<R> = map { block.invoke(it) }
+
+fun <T, R> Flow<Collection<T>>.mapElements(
+    transform: (T) -> R,
+): Flow<List<R>> = map { collection -> collection.map(transform) }
+
+inline fun <reified T> Flow<List<Flow<T>>>.combineLatest(): Flow<List<T>> =
+    flatMapLatest { combine(it) { it.toList() } }

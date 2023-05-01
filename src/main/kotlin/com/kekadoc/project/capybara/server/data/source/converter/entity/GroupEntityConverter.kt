@@ -5,12 +5,12 @@ import com.kekadoc.project.capybara.server.data.model.Group
 import com.kekadoc.project.capybara.server.data.source.database.entity.GroupEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroupEntity
 
-object GroupEntityConverter : Converter<Group, GroupEntity> {
+object GroupEntityConverter : Converter<GroupEntity, Group> {
 
-    override fun convert(source: GroupEntity): Group = Group(
-        id = source.id.value.toString(),
-        name = source.name,
-        members = source.members
+    override fun convert(value: GroupEntity): Group = Group(
+        id = value.id.value,
+        name = value.name,
+        members = value.members
             .also {
                 println("GroupEntityConverter members ${it.toList()}")
             }

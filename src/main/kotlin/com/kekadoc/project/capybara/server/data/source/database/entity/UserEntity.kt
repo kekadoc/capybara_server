@@ -13,14 +13,8 @@ class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var login by UsersTable.login
     var password by UsersTable.password
     var profile by ProfileEntity referencedOn UsersTable.profile
-    var character by UserCharacterEntity referencedOn UsersTable.character
 
     val communications by CommunicationEntity referrersOn CommunicationsTable.user
-
-    val availableGroups by AccessUserGroupEntity referrersOn AccessUserGroupsTable.user
-    val availableUsers by AccessUserUserEntity referrersOn AccessUserUsersTable.fromUser
-    val availableContacts by AccessUserContactEntity referrersOn AccessUserContactsTable.user
-
     val groups by UserGroupEntity referrersOn UsersGroupsTable.user
 
 }

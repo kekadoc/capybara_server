@@ -3,10 +3,12 @@ package com.kekadoc.project.capybara.server.routing.api.notifications.mobile
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.intercator.mobile_push.MobilePushInteractor
-import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.model.DeletePushTokenByUserIdRequest
-import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdatePushTokenRequest
+import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.model.UpdatePushTokenByUserIdRequestDto
+import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.model.UpdatePushTokenRequest
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
+import com.kekadoc.project.capybara.server.routing.util.execution.get
+import com.kekadoc.project.capybara.server.routing.util.execution.patch
 import com.kekadoc.project.capybara.server.routing.util.execution.post
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier
@@ -19,54 +21,68 @@ fun Route.mobileNotifications() = route("/mobile") {
 
     route("/push") {
 
+        get { getPushTokenByAuth() }
+
         //Обновление пуш токена через токен авторизации
-        post<UpdatePushTokenRequest> { request -> updatePushTokenByAuthToken(request) }
+        post<UpdatePushTokenRequest> { request -> updatePushTokenByAuth(request) }
 
         //Удаление пуш токена через токен авторизации
-        delete { deletePushTokenByAuthToken() }
+        delete { deletePushTokenByAuth() }
 
-        //Удаление пуштокена по идентификатору пользователя
-        post<DeletePushTokenByUserIdRequest> { request -> deletePushTokenById(request.userId) }
+        //Обновление пуштокена по идентификатору пользователя
+        patch<UpdatePushTokenByUserIdRequestDto> { request -> updatePushTokenByUserId(request) }
 
     }
 
 }
 
-private suspend fun PipelineContext.updatePushTokenByAuthToken(
+private suspend fun PipelineContext.getPushTokenByAuth(
+
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<MobilePushInteractor>()
+    val result = interactor.getPushTokenByAuth(
+        authToken = authToken,
+    )
+    call.respond(result)
+}
+
+private suspend fun PipelineContext.updatePushTokenByAuth(
     request: UpdatePushTokenRequest,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MobilePushInteractor>()
-    val result = interactor.updatePushTokenByAuthToken(
+    val result = interactor.updatePushTokenByAuth(
         authToken = authToken,
         request = request,
     )
     call.respond(result)
 }
 
-private suspend fun PipelineContext.deletePushTokenByAuthToken() = execute(
+private suspend fun PipelineContext.deletePushTokenByAuth() = execute(
     ApiKeyVerifier,
     AuthorizationVerifier
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MobilePushInteractor>()
-    val result = interactor.deletePushTokenByAuthToken(
+    val result = interactor.deletePushTokenByAuth(
         authToken = authToken,
     )
     call.respond(result)
 }
 
-private suspend fun PipelineContext.deletePushTokenById(
-    profileId: String,
+private suspend fun PipelineContext.updatePushTokenByUserId(
+    request: UpdatePushTokenByUserIdRequestDto,
 ) = execute(
     ApiKeyVerifier,
     AuthorizationVerifier
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MobilePushInteractor>()
-    val result = interactor.deletePushTokenById(
+    val result = interactor.updatePushTokenByUserId(
         authToken = authToken,
-        profileId = profileId,
+        userId = request.userId,
+        pushToken = request.token,
     )
     call.respond(result)
 }

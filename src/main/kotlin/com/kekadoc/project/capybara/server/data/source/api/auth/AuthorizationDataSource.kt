@@ -2,22 +2,28 @@ package com.kekadoc.project.capybara.server.data.source.api.auth
 
 import com.kekadoc.project.capybara.server.data.model.Authorization
 import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValidation
+import com.kekadoc.project.capybara.server.data.repository.auth.RefreshTokenValidation
 import kotlinx.coroutines.flow.Flow
 
 interface AuthorizationDataSource {
 
-    fun authorizeUser(
+    /**
+     * Механиз генерации авторизационных доступов для пользователя
+     */
+    suspend fun authorizeUser(
+        userId: Identifier,
         login: String,
-        password: String,
-    ): Flow<Authorization>
+    ): Authorization
 
-    fun updateUserAuthToken(
-        userId: Identifier,
-        authToken: String,
-    ): Flow<Authorization>
+    /**
+     * Проверка аксес токена
+     */
+    suspend fun fetchUser(accessToken: Token): AccessTokenValidation
 
-    fun deleteAuthorization(
-        userId: Identifier,
-    ): Flow<Unit>
+    suspend fun validateRefreshToken(
+        refreshToken: String
+    ): RefreshTokenValidation
 
 }

@@ -10,9 +10,10 @@ class NotificationsForUserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     companion object : UUIDEntityClass<NotificationsForUserEntity>(NotificationsForUsersTable)
 
-    var notificationId by NotificationEntity referencedOn NotificationsForUsersTable.notificationId
-    var userId by UserEntity referencedOn NotificationsForUsersTable.userId
-    var received by NotificationsForUsersTable.received
-    var read by NotificationsForUsersTable.read
-    var answer by NotificationsForUsersTable.answer
+    var notificationId: NotificationEntity by NotificationEntity referencedOn NotificationsForUsersTable.notificationId
+    var userId: UserEntity by UserEntity referencedOn NotificationsForUsersTable.userId
+    var received: Boolean by NotificationsForUsersTable.received
+    var read: Boolean by NotificationsForUsersTable.read
+    var answer: String? by NotificationsForUsersTable.answer
+    var fromGroup: Boolean by NotificationsForUsersTable.fromGroup
 }

@@ -1,112 +1,151 @@
 package com.kekadoc.project.capybara.server.data.repository.user
 
+import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.model.Communications
 import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.Profile
 import com.kekadoc.project.capybara.server.data.model.User
+import com.kekadoc.project.capybara.server.data.model.access.UserAccessToGroup
+import com.kekadoc.project.capybara.server.data.model.access.UserAccessToUser
+import com.kekadoc.project.capybara.server.data.source.DataSourceException
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
+import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAccessDataSource
+import com.kekadoc.project.capybara.server.data.source.api.user.communication.UserCommunicationsDataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 
 class UsersRepositoryImpl(
     private val usersDataSource: UsersDataSource,
+    private val userCommunicationsDataSource: UserCommunicationsDataSource,
+    private val userAccessDataSource: UserAccessDataSource,
 ) : UsersRepository {
 
-    override fun createUser(login: String, profile: Profile): Flow<User> {
-        return usersDataSource.createUser(login, profile)
+    override fun createUser(
+        login: String,
+        password: String,
+        profile: Profile,
+    ): Flow<User> = flowOf {
+        usersDataSource.createUser(
+            login = login,
+            password = password,
+            profile = profile,
+        )
     }
 
-    override fun deleteUser(id: String): Flow<Unit> {
-        return usersDataSource.deleteUser(id)
+    override fun deleteUser(id: Identifier): Flow<User?> = flowOf {
+        usersDataSource.deleteUser(id)
     }
 
-    override fun getUserById(id: String): Flow<User?> {
-        return usersDataSource.getUserById(id)
+    override fun getUserById(id: Identifier): Flow<User?> = flowOf {
+        usersDataSource.getUserById(id)
     }
 
-    override fun getUsersByIds(ids: List<Identifier>): Flow<List<User>> {
-        return usersDataSource.getUsersByIds(ids)
+    override fun getUsersByIds(ids: List<Identifier>): Flow<List<User>> = flowOf {
+        usersDataSource.getUsersByIds(ids)
     }
 
-    override fun getUserByToken(token: String): Flow<User?> {
-        return usersDataSource.getUserByToken(token)
+    override fun getUserByLogin(login: String): Flow<User?> = flowOf {
+        usersDataSource.getUserByLogin(login)
     }
 
-    override fun getUserByLogin(login: String): Flow<User?> {
-        return usersDataSource.getUserByLogin(login)
+    override fun updateUserPassword(
+        userId: Identifier,
+        newPassword: String,
+    ): Flow<User?> = flowOf {
+        usersDataSource.updateUserPassword(
+            userId = userId,
+            newPassword = newPassword,
+        )
     }
 
-    override fun updateUserPassword(userId: Identifier, password: String): Flow<User> {
-        return usersDataSource.updateUserPassword(userId, password)
-    }
-
-    override fun updateUserProfile(userId: Identifier, profile: Profile): Flow<User> {
-        return usersDataSource.updateUserProfile(userId, profile)
+    override fun updateUserProfile(
+        userId: Identifier,
+        profile: Profile,
+    ): Flow<User?> = flowOf {
+        usersDataSource.updateUserProfile(
+            userId = userId,
+            profile = profile,
+        )
     }
 
     override fun updateUserCommunications(
         userId: Identifier,
         communications: Communications,
-    ): Flow<User> {
-        return usersDataSource.updateUserCommunications(userId, communications)
+    ): Flow<User?> = flowOf {
+        userCommunicationsDataSource.updateUserCommunications(
+            userId = userId,
+            communications = communications,
+        )
     }
 
-    override fun updateUserAvailabilityGroupsAdd(
+    override fun getAllAccessForUser(userId: Identifier): Flow<List<UserAccessToUser>> = flowOf {
+        userAccessDataSource.getAllAccessForUser(
+            userId = userId,
+        )
+    }
+
+    override fun getAccessForUser(
         userId: Identifier,
-        groupIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityGroupsAdd(
+        forUserId: Identifier,
+    ): Flow<UserAccessToUser?> = flowOf {
+        userAccessDataSource.getAccessForUser(userId, forUserId)
+    }
+
+    override fun getAccessForUsers(
+        userId: Identifier,
+        forUserIds: List<Identifier>,
+    ): Flow<List<UserAccessToUser>> = flowOf {
+        userAccessDataSource.getAccessForUsers(
+            userId = userId,
+            forUserIds = forUserIds,
+        )
+    }
+
+    override fun updateAccessForUser(
+        userId: Identifier,
+        forUserId: Identifier,
+        userAccessUser: UserAccessToUser.Updater,
+    ): Flow<UserAccessToUser?> = flowOf {
+        userAccessDataSource.updateAccessForUser(userId, forUserId, userAccessUser)
+    }
+
+    override fun getAllAccessForGroup(userId: Identifier): Flow<List<UserAccessToGroup>> = flowOf {
+        userAccessDataSource.getAllAccessForGroup(
+            userId = userId,
+        )
+    }
+
+    override fun getAccessForGroup(
+        userId: Identifier,
+        groupId: Identifier,
+    ): Flow<UserAccessToGroup?> = flowOf {
+        userAccessDataSource.getAccessForGroup(
+            userId = userId,
+            groupId = groupId,
+        )
+    }
+
+    override fun getAccessForGroup(
+        userId: Identifier,
+        groupIds: List<Identifier>,
+    ): Flow<List<UserAccessToGroup>> = flowOf {
+        userAccessDataSource.getAccessForGroup(
             userId = userId,
             groupIds = groupIds,
         )
     }
 
-    override fun updateUserAvailabilityGroupsRemove(
+    override fun updateAccessForGroup(
         userId: Identifier,
-        groupIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityGroupsRemove(
+        groupId: Identifier,
+        userAccessGroup: UserAccessToGroup.Updater,
+    ): Flow<UserAccessToGroup?> = flowOf {
+        userAccessDataSource.updateAccessForGroup(
             userId = userId,
-            groupIds = groupIds,
-        )
-    }
-
-    override fun updateUserAvailabilityUsersAdd(
-        userId: Identifier,
-        userIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityUsersAdd(
-            userId = userId,
-            userIds = userIds,
-        )
-    }
-
-    override fun updateUserAvailabilityUsersRemove(
-        userId: Identifier,
-        userIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityUsersRemove(
-            userId = userId,
-            userIds = userIds,
-        )
-    }
-
-    override fun updateUserAvailabilityContactsAdd(
-        userId: Identifier,
-        contactIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityContactsAdd(
-            userId = userId,
-            contactIds = contactIds,
-        )
-    }
-
-    override fun updateUserAvailabilityContactsRemove(
-        userId: Identifier,
-        contactIds: Set<Identifier>,
-    ): Flow<User> {
-        return usersDataSource.updateUserAvailabilityContactsRemove(
-            userId = userId,
-            contactIds = contactIds,
+            groupId = groupId,
+            userAccessGroup = userAccessGroup
         )
     }
 

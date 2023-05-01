@@ -2,12 +2,15 @@ package com.kekadoc.project.capybara.server.data.model
 
 data class Notification(
     val id: Identifier,
-    val author: User,
+    val authorId: Identifier,
     val type: Type,
     val content: Content,
+    val addresseeUserIds: List<Identifier>,
+    val addresseeGroupIds: List<Identifier>,
 ) {
 
     enum class Type {
+        DEFAULT,
         FOR_GROUP,
         FOR_USER,
     }

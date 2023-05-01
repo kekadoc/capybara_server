@@ -2,26 +2,37 @@
 
 package com.kekadoc.project.capybara.server.intercator.groups
 
+import com.kekadoc.project.capybara.server.common.converter.convert
+import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.data.model.User
+import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValidation
+import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.source.converter.dto.GroupDtoConverter
+import com.kekadoc.project.capybara.server.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.routing.api.groups.model.*
+import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GroupsInteractorImpl(
+    private val authorizationRepository: AuthorizationRepository,
     private val usersRepository: UsersRepository,
     private val groupsRepository: GroupsRepository,
+    private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
 ) : GroupsInteractor {
 
     override suspend fun createGroup(
-        authToken: String,
+        authToken: Token,
         request: CreateGroupRequest,
-    ): CreateGroupResponse = usersRepository.getUserByToken(authToken)
+    ): CreateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -30,44 +41,27 @@ class GroupsInteractorImpl(
                 request.members.toSet(),
             )
         }
-        .map(GroupDtoConverter::revert)
+        .map(GroupDtoConverter::convert)
         .map(::CreateGroupResponse)
         .single()
 
     override suspend fun getGroup(
-        authToken: String,
+        authToken: Token,
         groupId: Identifier,
-    ): GetGroupResponse = usersRepository.getUserByToken(authToken)
+    ): GetGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest { groupsRepository.getGroup(groupId) }
-        .map(GroupDtoConverter::revert)
+        .map { it ?: throw HttpException(HttpStatusCode.NotFound) }
+        .map(GroupDtoConverter::convert)
         .map(::GetGroupResponse)
         .single()
 
-    override suspend fun updateGroup(
-        authToken: String,
-        groupId: Identifier,
-        request: UpdateGroupRequest,
-    ): UpdateGroupResponse = usersRepository.getUserByToken(authToken)
-        .requireAuthorizedUser()
-        .requireAdminUser()
-        .flatMapLatest {
-            groupsRepository.updateGroup(
-                groupId = groupId,
-                name = request.name,
-                members = request.members,
-            )
-        }
-        .map(GroupDtoConverter::revert)
-        .map(::UpdateGroupResponse)
-        .single()
-
     override suspend fun updateGroupName(
-        authToken: String,
+        authToken: Token,
         groupId: Identifier,
         request: UpdateGroupNameRequest,
-    ): UpdateGroupResponse = usersRepository.getUserByToken(authToken)
+    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -76,15 +70,16 @@ class GroupsInteractorImpl(
                 name = request.name,
             )
         }
-        .map(GroupDtoConverter::revert)
+        .map { it ?: throw HttpException(HttpStatusCode.NotFound) }
+        .map(GroupDtoConverter::convert)
         .map(::UpdateGroupResponse)
         .single()
 
     override suspend fun addMembersToGroup(
-        authToken: String,
+        authToken: Token,
         groupId: Identifier,
         request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse = usersRepository.getUserByToken(authToken)
+    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -93,15 +88,16 @@ class GroupsInteractorImpl(
                 members = request.members,
             )
         }
-        .map(GroupDtoConverter::revert)
+        .map { it ?: throw HttpException(HttpStatusCode.NotFound) }
+        .map(GroupDtoConverter::convert)
         .map(::UpdateGroupResponse)
         .single()
 
     override suspend fun removeMembersFromGroup(
-        authToken: String,
+        authToken: Token,
         groupId: Identifier,
         request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse = usersRepository.getUserByToken(authToken)
+    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -110,23 +106,22 @@ class GroupsInteractorImpl(
                 members = request.members,
             )
         }
-        .map(GroupDtoConverter::revert)
+        .map { it ?: throw HttpException(HttpStatusCode.NotFound) }
+        .map(GroupDtoConverter::convert)
         .map(::UpdateGroupResponse)
         .single()
 
     override suspend fun deleteGroup(
-        authToken: String,
+        authToken: Token,
         groupId: Identifier
-    ) {
-        usersRepository.getUserByToken(authToken)
-            .requireAuthorizedUser()
-            .requireAdminUser()
-            .flatMapLatest {
-                groupsRepository.deleteGroup(
-                    groupId = groupId,
-                )
-            }
-            .single()
-    }
+    ) = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .requireAdminUser()
+        .flatMapLatest {
+            groupsRepository.deleteGroup(
+                groupId = groupId,
+            )
+        }
+        .collect()
 
 }

@@ -5,8 +5,6 @@ data class User(
     val login: String,
     val password: String,
     val profile: Profile,
-    val character: UserCharacter,
     val communications: Communications,
-    val availability: UserAvailability,
     val groupIds: List<Identifier>
 )

@@ -1,76 +1,82 @@
 package com.kekadoc.project.capybara.server.intercator.profile
 
+import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.Token
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 
 interface ProfileInteractor {
 
     suspend fun createProfile(
-        authToken: String,
+        authToken: Token,
         request: CreateProfileRequest,
     ): CreateProfileResponse
 
     suspend fun getProfileByAuthToken(
-        authToken: String,
-    ): GetProfileResponse
+        authToken: Token,
+    ): GetAuthorizedProfileResponse
 
     suspend fun updateProfileByAuthToken(
-        authToken: String,
+        authToken: Token,
         request: UpdateProfileRequest,
     ): UpdateProfileResponse
 
     suspend fun getProfileById(
-        authToken: String,
-        profileId: String,
+        authToken: Token,
+        profileId: Identifier,
     ): GetProfileResponse
 
     suspend fun updateProfileById(
-        authToken: String,
-        profileId: String,
+        authToken: Token,
+        profileId: Identifier,
         request: UpdateProfileRequest,
     ): UpdateProfileResponse
 
     suspend fun updateProfileTypeById(
-        authToken: String,
-        profileId: String,
+        authToken: Token,
+        profileId: Identifier,
         request: UpdateProfileTypeRequest,
     ): UpdateProfileTypeResponse
 
     suspend fun deleteProfileById(
-        authToken: String,
-        profileId: String,
+        authToken: Token,
+        profileId: Identifier,
     )
 
-    suspend fun updateUserAvailabilityGroupAdd(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserCommunicationsRequest,
-    )
-    suspend fun updateUserAvailabilityGroupRemove(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserCommunicationsRequest,
-    )
+    suspend fun getAccessUser(
+        authToken: Token,
+        fromUserId: Identifier,
+        toUserId: Identifier,
+    ): GetAccessUserResponseDto
 
-    suspend fun updateUserAvailabilityUserAdd(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserCommunicationsRequest,
-    )
-    suspend fun updateUserAvailabilityRemove(
-        authToken: String,
-        profileId: String,
-        request: UpdateUserCommunicationsRequest,
-    )
+    suspend fun updateAccessUser(
+        authToken: Token,
+        fromUserId: Identifier,
+        toUserId: Identifier,
+        request: UpdateAccessUserRequestDto,
+    ): UpdateAccessUserResponseDto
 
-    suspend fun updateUserAvailabilityContactsAdd(
-        authToken: String,
-        profileId: String,
+    suspend fun getAccessGroup(
+        authToken: Token,
+        userId: Identifier,
+        groupId: Identifier,
+    ): GetAccessGroupResponseDto
+
+    suspend fun updateAccessGroup(
+        authToken: Token,
+        userId: Identifier,
+        groupId: Identifier,
+        request: UpdateAccessGroupRequestDto,
+    ): UpdateAccessGroupResponseDto
+
+    suspend fun updateCommunications(
+        authToken: Token,
         request: UpdateUserCommunicationsRequest,
-    )
-    suspend fun updateUserAvailabilityContactsRemove(
-        authToken: String,
-        profileId: String,
+    ): UpdateUserCommunicationsResponseDto
+
+    suspend fun updateCommunications(
+        authToken: Token,
+        profileId: Identifier,
         request: UpdateUserCommunicationsRequest,
-    )
+    ): UpdateUserCommunicationsResponseDto
 
 }

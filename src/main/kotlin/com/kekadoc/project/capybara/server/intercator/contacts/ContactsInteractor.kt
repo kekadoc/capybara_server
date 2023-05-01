@@ -1,26 +1,37 @@
 package com.kekadoc.project.capybara.server.intercator.contacts
 
+import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.data.model.Token
 import com.kekadoc.project.capybara.server.routing.api.contacts.model.*
 
 interface ContactsInteractor {
 
-    suspend fun getContacts(
-        authToken: String,
+    suspend fun getAllContacts(
+        authToken: Token,
     ): GetAllContactsResponse
 
-    suspend fun createContact(
-        authToken: String,
-        request: CreateContactRequest,
-    ): CreateContactResponse
-
     suspend fun getContact(
-        authToken: String,
-        contactId: String,
+        authToken: Token,
+        contactId: Identifier,
     ): GetContactResponse
 
-    suspend fun deleteContact(
-        authToken: String,
-        contactId: String,
-    )
+    suspend fun getAllPublicContacts(
+        authToken: Token,
+    ): GetAllPublicContactsResponseDto
+
+    suspend fun getPublicContact(
+        authToken: Token,
+        contactId: Identifier,
+    ): GetPublicContactResponseDto
+
+    suspend fun addPublicContact(
+        authToken: Token,
+        request: AddPublicContactRequestDto,
+    ): AddPublicContactResponseDto
+
+    suspend fun deletePublicContact(
+        authToken: Token,
+        contactId: Identifier,
+    ): DeletePublicContactResponseDto
 
 }

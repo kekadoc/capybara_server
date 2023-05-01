@@ -6,20 +6,18 @@ import kotlinx.coroutines.flow.Flow
 
 interface GroupDataSource {
 
-    fun getGroup(groupId: Identifier): Flow<Group>
+    suspend fun getGroup(groupId: Identifier): Group?
 
-    fun getGroups(groupIds: List<Identifier>): Flow<List<Group>>
+    suspend fun getGroups(groupIds: List<Identifier>): List<Group>
 
-    fun createGroup(name: String, members: Set<Identifier>): Flow<Group>
+    suspend fun createGroup(name: String, members: Set<Identifier>): Group
 
-    fun updateGroup(groupId: Identifier, name: String, members: Set<Identifier>): Flow<Group>
+    suspend fun updateGroupName(groupId: Identifier, name: String): Group?
 
-    fun updateGroupName(groupId: Identifier, name: String): Flow<Group>
+    suspend fun addMembersToGroup(groupId: Identifier, members: Set<Identifier>): Group?
 
-    fun addMembersToGroup(groupId: Identifier, members: Set<Identifier>): Flow<Group>
+    suspend fun removeMembersFromGroup(groupId: Identifier, members: Set<Identifier>): Group?
 
-    fun removeMembersFromGroup(groupId: Identifier, members: Set<Identifier>): Flow<Group>
-
-    fun deleteGroup(groupId: Identifier): Flow<Group>
+    suspend fun deleteGroup(groupId: Identifier): Group?
 
 }

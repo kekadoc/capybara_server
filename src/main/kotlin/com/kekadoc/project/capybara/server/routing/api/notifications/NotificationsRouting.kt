@@ -1,6 +1,7 @@
 package com.kekadoc.project.capybara.server.routing.api.notifications
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.intercator.notification.NotificationsInteractor
 import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.mobileNotifications
@@ -30,15 +31,19 @@ fun Route.notifications() = route("/notifications") {
 
         //Оперции с отправленным сообщением
         route("/{id}") {
+
             //Получение детальной информации о сообщении
             get { getSentNotification(requirePathId()) }
+
             //Обновление сообщения
             patch<UpdateSentMessageRequest> { request -> updateSentNotification(requirePathId(), request) }
+
             //Удалить сообщение
             delete { deleteSentNotification(requirePathId()) }
 
             //Сокет получения статусов сообщения
             webSocket("/status") { observeNotificationStatus(requirePathId()) }
+
         }
 
     }
@@ -55,11 +60,18 @@ fun Route.notifications() = route("/notifications") {
             get { getReceivedNotification(requirePathId()) }
 
             //Отправка ответа на сообщение
-            post<PostReceivedMessageAnswerRequest>("/answer") { answerReceivedNotification(requirePathId()) }
+            post<PostReceivedMessageAnswerRequest>("/answer") { request ->
+                answerReceivedNotification(
+                    messageId = requirePathId(),
+                    request = request,
+                )
+            }
 
-            //Обновление статуса нотификации от получателя
-            post<PostReceivedMessageAnswerRequest>("/notify") { notifyReceivedNotification(requirePathId()) }
+            //Сообщение о том что сообщение получено
+            patch("/notify_received") { notifyReceivedNotification(requirePathId()) }
 
+            //Сообщение о том что сообщение прочитано
+            patch("/notify_read") { notifyReadNotification(requirePathId()) }
         }
 
     }
@@ -77,14 +89,14 @@ private suspend fun PipelineContext.getSentNotifications() = execute(
     call.respond(result)
 }
 
-private suspend fun PipelineContext.getSentNotification(messageId: String) = execute(
+private suspend fun PipelineContext.getSentNotification(messageId: Identifier) = execute(
     ApiKeyVerifier, AuthorizationVerifier
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<NotificationsInteractor>()
     val result = interactor.getSentNotification(
         authToken = authToken,
-        messageId = messageId,
+        notificationId = messageId,
     )
     call.respond(result)
 }
@@ -102,33 +114,33 @@ private suspend fun PipelineContext.createSentNotification(
     }
 
 private suspend fun PipelineContext.updateSentNotification(
-    messageId: String,
+    messageId: Identifier,
     request: UpdateSentMessageRequest,
 ) = execute {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<NotificationsInteractor>()
     val result = interactor.updateSentNotification(
         authToken = authToken,
-        messageId = messageId,
+        notificationId = messageId,
         request = request,
     )
     call.respond(result)
 }
 
 private suspend fun PipelineContext.deleteSentNotification(
-    messageId: String,
+    messageId: Identifier,
 ) = execute {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<NotificationsInteractor>()
     val result = interactor.deleteSentNotification(
         authToken = authToken,
-        messageId = messageId,
+        notificationId = messageId,
     )
     call.respond(result)
 }
 
 private suspend fun DefaultWebSocketServerSession.observeNotificationStatus(
-    messageId: String,
+    messageId: Identifier,
 ) = executeAuthorizedApi {
 
     throw NotImplementedError()
@@ -154,22 +166,53 @@ private suspend fun PipelineContext.getReceivedNotification() = executeAuthorize
 }
 
 private suspend fun PipelineContext.getReceivedNotification(
-    messageId: String,
+    messageId: Identifier,
 ) = executeAuthorizedApi {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<NotificationsInteractor>()
     val result = interactor.getReceivedNotification(
         authToken = authToken,
-        messageId = messageId,
+        notificationId = messageId,
     )
     call.respond(result)
 }
 
 private suspend fun PipelineContext.answerReceivedNotification(
-    messageId: String,
-) = executeAuthorizedApi { TODO() }
+    messageId: Identifier,
+    request: PostReceivedMessageAnswerRequest,
+) = executeAuthorizedApi {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<NotificationsInteractor>()
+    val result = interactor.setReceivedNotificationAnswer(
+        authToken = authToken,
+        notificationId = messageId,
+        request = request,
+    )
+    call.respond(result)
+}
 
 private suspend fun PipelineContext.notifyReceivedNotification(
-    messageId: String,
-) = executeAuthorizedApi { TODO() }
+    messageId: Identifier,
+) = executeAuthorizedApi {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<NotificationsInteractor>()
+    val result = interactor.setReceivedNotificationNotify(
+        authToken = authToken,
+        notificationId = messageId,
+    )
+    call.respond(result)
+}
+
+private suspend fun PipelineContext.notifyReadNotification(
+    messageId: Identifier,
+) = executeAuthorizedApi {
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<NotificationsInteractor>()
+    val result = interactor.setReadNotificationNotify(
+        authToken = authToken,
+        notificationId = messageId,
+    )
+    call.respond(result)
+}
+
 

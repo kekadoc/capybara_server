@@ -1,3 +1,5 @@
 package com.kekadoc.project.capybara.server.data.model
 
-typealias Identifier = String
+import java.util.UUID
+
+typealias Identifier = UUID

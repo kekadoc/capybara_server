@@ -1,7 +1,9 @@
 package com.kekadoc.project.capybara.server.routing.util
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.common.extensions.requireNotNull
+import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.model.User
 import com.kekadoc.project.capybara.server.routing.errors.handleError
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
@@ -10,6 +12,7 @@ import com.kekadoc.project.capybara.server.routing.verifier.Verifier
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.websocket.*
+import java.util.*
 
 interface AuthorizedScope {
     val user: User
@@ -52,12 +55,7 @@ suspend fun <T> PipelineContext.execute(
         verifiers.forEach { verifier -> verifier.verify(call) }
         block()
     } catch (e: Throwable) {
-        e.printStackTrace()
-        var ee: Throwable? = e
-        while (ee != null) {
-            println("Error_$ee ${ee.localizedMessage}")
-            ee = ee.cause
-        }
+        println("____ERROR $e")
         call.handleError(e)
     }
 }
@@ -97,9 +95,17 @@ suspend fun WebSocketServerSession.executeAuthorizedApi(
 
 
 
-val PipelineContext.pathId: String?
-    get() = call.parameters["id"]
 
-fun PipelineContext.requirePathId(): String = call.parameters["id"].requireNotNull()
+fun PipelineContext.requireParameter(name: String): String {
+    return call.parameters[name] ?: throw HttpException(HttpStatusCode.BadRequest, "Parameter {$name} not found")
+}
 
-fun WebSocketServerSession.requirePathId(): String = call.parameters["id"].requireNotNull()
+fun PipelineContext.requirePathId(): Identifier {
+    return requireParameter("id").runCatching {
+        UUID.fromString(this)
+    }.getOrElse {
+        throw HttpException(HttpStatusCode.BadRequest, "Parameter {id} not corrected")
+    }
+}
+
+fun WebSocketServerSession.requirePathId(): Identifier = call.parameters["id"].requireNotNull().let(UUID::fromString)

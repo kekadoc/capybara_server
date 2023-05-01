@@ -1,6 +1,7 @@
 package com.kekadoc.project.capybara.server.routing.api.groups
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.intercator.groups.GroupsInteractor
 import com.kekadoc.project.capybara.server.routing.api.groups.model.CreateGroupRequest
@@ -18,6 +19,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.core.component.get
+import java.util.UUID
 
 fun Route.groups() = route("/groups") {
 
@@ -28,11 +30,6 @@ fun Route.groups() = route("/groups") {
 
         //Получить детализацию группы
         get(ApiKeyVerifier, AuthorizationVerifier) { getContact(requirePathId()) }
-
-        //Обновление данных группы
-        patch<UpdateGroupRequest>(ApiKeyVerifier, AuthorizationVerifier) { request ->
-            updateGroup(requirePathId(), request)
-        }
 
         //Обновление данных группы
         patch<UpdateGroupNameRequest>("/name", ApiKeyVerifier, AuthorizationVerifier) { request ->
@@ -69,7 +66,7 @@ private suspend fun PipelineContext.createGroup(
 }
 
 private suspend fun PipelineContext.getContact(
-    groupId: String,
+    groupId: Identifier,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
@@ -80,22 +77,8 @@ private suspend fun PipelineContext.getContact(
     call.respond(result)
 }
 
-private suspend fun PipelineContext.updateGroup(
-    groupId: String,
-    request: UpdateGroupRequest,
-) {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<GroupsInteractor>()
-    val result = interactor.updateGroup(
-        authToken = authToken,
-        groupId = groupId,
-        request = request,
-    )
-    call.respond(result)
-}
-
 private suspend fun PipelineContext.updateGroupName(
-    groupId: String,
+    groupId: Identifier,
     request: UpdateGroupNameRequest,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
@@ -109,7 +92,7 @@ private suspend fun PipelineContext.updateGroupName(
 }
 
 private suspend fun PipelineContext.addMembersToGroup(
-    groupId: String,
+    groupId: Identifier,
     request: UpdateGroupMembersRequest,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
@@ -123,7 +106,7 @@ private suspend fun PipelineContext.addMembersToGroup(
 }
 
 private suspend fun PipelineContext.removeMembersFromGroup(
-    groupId: String,
+    groupId: Identifier,
     request: UpdateGroupMembersRequest,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
@@ -138,7 +121,7 @@ private suspend fun PipelineContext.removeMembersFromGroup(
 
 
 private suspend fun PipelineContext.deleteGroup(
-    groupId: String,
+    groupId: Identifier,
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
