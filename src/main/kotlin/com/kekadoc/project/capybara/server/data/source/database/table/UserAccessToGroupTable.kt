@@ -2,7 +2,6 @@ package com.kekadoc.project.capybara.server.data.source.database.table
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 
-//
 object UserAccessToGroupTable : UUIDTable("access_user_groups") {
 
     val user = reference("user", UsersTable)

@@ -5,7 +5,6 @@ import io.ktor.server.application.*
 import org.koin.core.KoinApplication
 import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
-import org.koin.core.module.Module
 import org.koin.core.scope.Scope
 
 object Di : KoinComponent, Component {
@@ -13,10 +12,12 @@ object Di : KoinComponent, Component {
         startKoin {
             application(application)
             modules(
+                configModule,
                 serverModule,
                 firebaseModule,
                 interactorsModule,
                 interactorFunctionsModule,
+                managersModule,
                 repositoryModule,
                 dataSourceModule,
                 scheduleModule,

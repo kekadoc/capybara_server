@@ -1,20 +1,11 @@
 package com.kekadoc.project.capybara.server.data.repository.user
 
 import com.kekadoc.project.capybara.server.common.extensions.flowOf
-import com.kekadoc.project.capybara.server.data.model.Communications
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.Profile
-import com.kekadoc.project.capybara.server.data.model.User
-import com.kekadoc.project.capybara.server.data.model.access.UserAccessToGroup
-import com.kekadoc.project.capybara.server.data.model.access.UserAccessToUser
-import com.kekadoc.project.capybara.server.data.source.DataSourceException
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAccessDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.communication.UserCommunicationsDataSource
+import com.kekadoc.project.capybara.server.domain.model.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 
 class UsersRepositoryImpl(
     private val usersDataSource: UsersDataSource,
@@ -46,8 +37,8 @@ class UsersRepositoryImpl(
         usersDataSource.getUsersByIds(ids)
     }
 
-    override fun getUserByLogin(login: String): Flow<User?> = flowOf {
-        usersDataSource.getUserByLogin(login)
+    override fun findUserByLogin(login: String): Flow<User?> = flowOf {
+        usersDataSource.findUserByLogin(login)
     }
 
     override fun updateUserPassword(

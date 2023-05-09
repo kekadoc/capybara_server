@@ -1,8 +1,8 @@
 package com.kekadoc.project.capybara.server.data.source.api.user
 
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.Profile
-import com.kekadoc.project.capybara.server.data.model.User
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Profile
+import com.kekadoc.project.capybara.server.domain.model.User
 
 interface UsersDataSource {
 
@@ -12,22 +12,24 @@ interface UsersDataSource {
         profile: Profile,
     ): User
 
-    suspend fun deleteUser(id: Identifier): User?
+    suspend fun deleteUser(id: Identifier): User
 
-    suspend fun getUserById(id: Identifier): User?
+    suspend fun getUserById(id: Identifier): User
 
     suspend fun getUsersByIds(ids: List<Identifier>): List<User>
 
-    suspend fun getUserByLogin(login: String): User?
+    suspend fun findUsersByIds(ids: List<Identifier>): List<User>
+
+    suspend fun findUserByLogin(login: String): User?
 
     suspend fun updateUserPassword(
         userId: Identifier,
         newPassword: String,
-    ): User?
+    ): User
 
     suspend fun updateUserProfile(
         userId: Identifier,
         profile: Profile,
-    ): User?
+    ): User
 
 }

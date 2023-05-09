@@ -2,29 +2,40 @@ package com.kekadoc.project.capybara.server.data.source.api.group
 
 import com.kekadoc.project.capybara.server.common.exception.GroupNotFound
 import com.kekadoc.project.capybara.server.common.exception.UserNotFound
-import com.kekadoc.project.capybara.server.data.model.Group
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.source.converter.entity.GroupEntityConverter
+import com.kekadoc.project.capybara.server.common.extensions.orElse
 import com.kekadoc.project.capybara.server.data.source.database.entity.GroupEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroupEntity
+import com.kekadoc.project.capybara.server.data.source.database.entity.converter.GroupEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.GroupsTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UsersGroupsTable
-import kotlinx.coroutines.flow.Flow
-import org.jetbrains.exposed.sql.deleteWhere
+import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class GroupDataSourceImpl : GroupDataSource {
 
     override suspend fun getGroup(
         groupId: Identifier,
-    ): Group? = transaction {
+    ): Group = findGroup(groupId) ?: throw GroupNotFound(id = groupId)
+
+    override suspend fun findGroup(groupId: Identifier): Group? = transaction {
         GroupEntity.findById(groupId)
             ?.let(GroupEntityConverter::convert)
     }
 
     override suspend fun getGroups(
         groupIds: List<Identifier>,
+    ): List<Group> = findGroups(groupIds).also { groups ->
+        groupIds.forEach { targetGroupId ->
+            if (groups.find { group -> group.id == targetGroupId } == null) {
+                throw GroupNotFound(id = targetGroupId)
+            }
+        }
+    }
+
+    override suspend fun findGroups(
+        groupIds: List<Identifier>
     ): List<Group> = transaction {
         GroupEntity.find { GroupsTable.id inList groupIds }
             .map(GroupEntityConverter::convert)
@@ -49,16 +60,17 @@ class GroupDataSourceImpl : GroupDataSource {
     override suspend fun updateGroupName(
         groupId: Identifier,
         name: String,
-    ): Group? = transaction {
+    ): Group = transaction {
         GroupEntity.findById(groupId)
             ?.apply { this.name = name }
             ?.let(GroupEntityConverter::convert)
+            .orElse { throw GroupNotFound(id = groupId) }
     }
 
     override suspend fun addMembersToGroup(
         groupId: Identifier,
         members: Set<Identifier>,
-    ): Group? = transaction {
+    ): Group = transaction {
         val groupEntity = GroupEntity.findById(groupId) ?: throw GroupNotFound(groupId)
         val currentMembers = groupEntity.members
         members.filter { newMember -> currentMembers.all { it.user.id.value != newMember } }
@@ -74,20 +86,20 @@ class GroupDataSourceImpl : GroupDataSource {
     override suspend fun removeMembersFromGroup(
         groupId: Identifier,
         members: Set<Identifier>,
-    ): Group? = transaction {
+    ): Group = transaction {
         val groupEntity = GroupEntity.findById(groupId) ?: throw GroupNotFound(groupId)
-        UserGroupEntity.find {
-            UsersGroupsTable.user inList members
-        }.forEach { it.delete() }
+        UserGroupEntity.find { UsersGroupsTable.user inList members }
+            .forEach(UserGroupEntity::delete)
         groupEntity.let(GroupEntityConverter::convert)
     }
 
     override suspend fun deleteGroup(
         groupId: Identifier,
-    ): Group? = transaction {
+    ): Group = transaction {
         GroupEntity.findById(groupId)
             ?.apply { delete() }
             ?.let(GroupEntityConverter::convert)
+            .orElse { throw GroupNotFound(id = groupId) }
     }
 
 }

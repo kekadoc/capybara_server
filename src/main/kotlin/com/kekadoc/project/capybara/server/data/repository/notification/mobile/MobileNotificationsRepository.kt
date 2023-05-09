@@ -1,7 +1,8 @@
 package com.kekadoc.project.capybara.server.data.repository.notification.mobile
 
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Message
+import com.kekadoc.project.capybara.server.domain.model.Token
 import kotlinx.coroutines.flow.Flow
 
 interface MobileNotificationsRepository {
@@ -23,17 +24,10 @@ interface MobileNotificationsRepository {
         userId: Identifier,
     ): Flow<Unit>
 
-    fun savePushNotificationId(
-        userId: Identifier,
-        notificationId: Identifier,
-        pushId: String,
-    ): Flow<Unit>
-
     fun sendNotification(
+        userId: Identifier,
         pushToken: String,
-        title: String?,
-        body: String,
-        imageUrl: String?,
-    ): Flow<String>
+        message: Message,
+    ): Flow<Unit>
 
 }

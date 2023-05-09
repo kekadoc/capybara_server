@@ -8,12 +8,14 @@ import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContac
 import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContactsDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notification.NotificationsDataSource
-import com.kekadoc.project.capybara.server.data.source.api.notification.NotificationsDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.local.MobileNotificationsLocalDataSource
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.local.MobileNotificationsLocalDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.remote.MobileNotificationsRemoteDataSource
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.remote.MobileNotificationsRemoteDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.messages.MessagesDataSource
+import com.kekadoc.project.capybara.server.data.source.api.messages.MessagesDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote.MobileNotificationsRemoteDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote.MobileNotificationsRemoteDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAccessDataSource
@@ -23,14 +25,39 @@ import com.kekadoc.project.capybara.server.data.source.api.user.communication.Us
 import org.koin.dsl.module
 
 val dataSourceModule = module {
-    single<ApiKeyDataSource> { ApiKeyDataSourceImpl(database = get()) }
-    single<AuthorizationDataSource> { AuthorizationDataSourceImpl(config = get()) }
+
+    single<ApiKeyDataSource> {
+        ApiKeyDataSourceImpl(
+            database = get(),
+        )
+    }
+
+    single<AuthorizationDataSource> {
+        AuthorizationDataSourceImpl(
+            config = get(),
+        )
+    }
+
     single<PublicContactsDataSource> { PublicContactsDataSourceImpl() }
+
     single<GroupDataSource> { GroupDataSourceImpl() }
-    single<NotificationsDataSource> { NotificationsDataSourceImpl() }
+
+    single<MessagesDataSource> { MessagesDataSourceImpl() }
+
     single<MobileNotificationsLocalDataSource> { MobileNotificationsLocalDataSourceImpl() }
+
     single<MobileNotificationsRemoteDataSource> { MobileNotificationsRemoteDataSourceImpl(get()) }
+
     single<UsersDataSource> { UsersDataSourceImpl() }
+
     single<UserAccessDataSource> { UserAccessDataSourceImpl() }
+
     single<UserCommunicationsDataSource> { UserCommunicationsDataSourceImpl() }
+
+    single<EmailNotificationDataSource> {
+        EmailNotificationDataSourceImpl(
+            config = get(),
+        )
+    }
+
 }

@@ -1,13 +1,12 @@
 package com.kekadoc.project.capybara.server.routing.api.groups
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
-import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.groups.GroupsInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.groups.GroupsInteractor
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.api.groups.model.CreateGroupRequest
 import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupMembersRequest
 import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupNameRequest
-import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupRequest
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
 import com.kekadoc.project.capybara.server.routing.util.execution.patch
@@ -19,7 +18,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.core.component.get
-import java.util.UUID
 
 fun Route.groups() = route("/groups") {
 

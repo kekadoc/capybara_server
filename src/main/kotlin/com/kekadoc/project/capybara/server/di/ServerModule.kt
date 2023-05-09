@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.di
 
-import com.kekadoc.project.capybara.server.secure.JWTConfig
+import com.kekadoc.project.capybara.server.common.secure.JWTConfig
 import org.koin.dsl.module
 import kotlin.time.Duration.Companion.hours
 
@@ -9,6 +9,7 @@ val serverModule = module {
         val ktorApp = ktorApplication()
         JWTConfig(
             secret = ktorApp.environment.config.propertyOrNull("jwt.secret")?.getString().orEmpty(),
+            emailSecret = ktorApp.environment.config.propertyOrNull("jwt.email.secret")?.getString().orEmpty(),
             issuer = ktorApp.environment.config.propertyOrNull("jwt.issuer")?.getString().orEmpty(),
             audience = ktorApp.environment.config.propertyOrNull("jwt.audience")?.getString().orEmpty(),
             realm = ktorApp.environment.config.propertyOrNull("jwt.realm")?.getString().orEmpty(),

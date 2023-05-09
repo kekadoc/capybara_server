@@ -1,20 +1,20 @@
 package com.kekadoc.project.capybara.server.data.source.api.user.access
 
-import com.kekadoc.project.capybara.server.common.exception.EntityNotFoundException
 import com.kekadoc.project.capybara.server.common.exception.GroupNotFound
 import com.kekadoc.project.capybara.server.common.exception.UserNotFound
 import com.kekadoc.project.capybara.server.common.extensions.orElse
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.access.UserAccessToGroup
-import com.kekadoc.project.capybara.server.data.model.access.UserAccessToUser
-import com.kekadoc.project.capybara.server.data.source.DataSourceException
-import com.kekadoc.project.capybara.server.data.source.converter.entity.UserAccessToGroupEntityConverter
-import com.kekadoc.project.capybara.server.data.source.converter.entity.UserAccessToUserEntityConverter
-import com.kekadoc.project.capybara.server.data.source.database.entity.*
+import com.kekadoc.project.capybara.server.data.source.database.entity.GroupEntity
+import com.kekadoc.project.capybara.server.data.source.database.entity.UserAccessToGroupEntity
+import com.kekadoc.project.capybara.server.data.source.database.entity.UserAccessToUserEntity
+import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
+import com.kekadoc.project.capybara.server.data.source.database.entity.converter.UserAccessToGroupEntityConverter
+import com.kekadoc.project.capybara.server.data.source.database.entity.converter.UserAccessToUserEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.UserAccessToGroupTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UserAccessToUserTable
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class UserAccessDataSourceImpl : UserAccessDataSource {
@@ -29,7 +29,7 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
     override suspend fun getAccessForUser(
         userId: Identifier,
         forUserId: Identifier,
-    ): UserAccessToUser? = transaction {
+    ): UserAccessToUser = transaction {
         UserAccessToUserEntity.find {
             (UserAccessToUserTable.fromUser eq userId) and (UserAccessToUserTable.toUser eq forUserId)
         }
@@ -43,11 +43,19 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
         forUserIds: List<Identifier>,
     ): List<UserAccessToUser> = transaction {
         val list = UserAccessToUserEntity.find {
-            (UserAccessToUserTable.fromUser eq userId) and (UserAccessToUserTable.toUser inList forUserIds)
+            val byFromUser = UserAccessToUserTable.fromUser eq userId
+            val byToUser = UserAccessToUserTable.toUser inList forUserIds
+            byFromUser and byToUser
         }
             .map(UserAccessToUserEntityConverter::convert)
         forUserIds.map { forUserId ->
-            list.find { it.toUserId == forUserId } ?: UserAccessToUser.nothing(userId, forUserId)
+            list.find { access -> access.toUserId == forUserId }
+                .orElse {
+                    UserAccessToUser.nothing(
+                        fromUserId = userId,
+                        toUserId = forUserId,
+                    )
+                }
         }
     }
 
@@ -55,9 +63,11 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
         userId: Identifier,
         forUserId: Identifier,
         userAccessUser: UserAccessToUser.Updater,
-    ): UserAccessToUser? = transaction {
+    ): UserAccessToUser = transaction {
         UserAccessToUserEntity.find {
-            (UserAccessToUserTable.fromUser eq userId) and (UserAccessToUserTable.toUser eq forUserId)
+            val byFromUser = UserAccessToUserTable.fromUser eq userId
+            val byToUser = UserAccessToUserTable.toUser eq forUserId
+            byFromUser and byToUser
         }
             .firstOrNull()
             ?.apply {
@@ -69,19 +79,19 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
                     ?.also { sentNotification -> this.sentNotification = sentNotification }
             }
             .orElse {
-                val fromUser = UserEntity.findById(userId) ?: return@orElse null
-                val toUser = UserEntity.findById(forUserId) ?: return@orElse null
+                val fromUser = UserEntity.findById(userId) ?: throw UserNotFound(userId)
+                val toUser = UserEntity.findById(forUserId) ?: throw UserNotFound(forUserId)
                 UserAccessToUserEntity.new {
                     this.fromUser = fromUser
                     this.toUser = toUser
-                    userAccessUser.readProfile?.also { readProfile -> this.readProfile = readProfile }
-                    userAccessUser.contactInfo?.also { contactInfo -> this.contactInfo = contactInfo }
-                    userAccessUser.sentNotification?.also { sentNotification ->
-                        this.sentNotification = sentNotification
+                    with(userAccessUser) {
+                        readProfile?.also { readProfile -> this@new.readProfile = readProfile }
+                        contactInfo?.also { contactInfo -> this@new.contactInfo = contactInfo }
+                        sentNotification?.also { notification -> this@new.sentNotification = notification }
                     }
                 }
             }
-            ?.let(UserAccessToUserEntityConverter::convert)
+            .let(UserAccessToUserEntityConverter::convert)
     }
 
 
@@ -95,7 +105,7 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
     override suspend fun getAccessForGroup(
         userId: Identifier,
         groupId: Identifier,
-    ): UserAccessToGroup? = transaction {
+    ): UserAccessToGroup = transaction {
         UserAccessToGroupEntity.find {
             (UserAccessToGroupTable.user eq userId) and (UserAccessToGroupTable.group eq groupId)
         }
@@ -121,7 +131,7 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
         userId: Identifier,
         groupId: Identifier,
         userAccessGroup: UserAccessToGroup.Updater,
-    ): UserAccessToGroup? = transaction {
+    ): UserAccessToGroup = transaction {
         UserAccessToGroupEntity.find {
             (UserAccessToGroupTable.user eq userId) and (UserAccessToGroupTable.group eq groupId)
         }
@@ -145,7 +155,7 @@ class UserAccessDataSourceImpl : UserAccessDataSource {
                     userAccessGroup.sentNotification?.also { sentNotification -> this.sentNotification = sentNotification }
                 }
             }
-            ?.let(UserAccessToGroupEntityConverter::convert)
+            .let(UserAccessToGroupEntityConverter::convert)
     }
 
 }

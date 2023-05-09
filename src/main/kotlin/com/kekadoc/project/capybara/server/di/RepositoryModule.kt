@@ -6,12 +6,12 @@ import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRep
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepositoryImpl
 import com.kekadoc.project.capybara.server.data.repository.contacts.PublicContactsRepository
 import com.kekadoc.project.capybara.server.data.repository.contacts.PublicContactsRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.distribution.DistributionManagerImpl
-import com.kekadoc.project.capybara.server.data.repository.distribution.DistributionRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepositoryImpl
-import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepository
-import com.kekadoc.project.capybara.server.data.repository.notification.NotificationRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
+import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepositoryImpl
+import com.kekadoc.project.capybara.server.data.repository.notification.email.EmailNotificationRepository
+import com.kekadoc.project.capybara.server.data.repository.notification.email.EmailNotificationRepositoryImpl
 import com.kekadoc.project.capybara.server.data.repository.notification.mobile.MobileNotificationsRepository
 import com.kekadoc.project.capybara.server.data.repository.notification.mobile.MobileNotificationsRepositoryImpl
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
@@ -19,16 +19,19 @@ import com.kekadoc.project.capybara.server.data.repository.user.UsersRepositoryI
 import org.koin.dsl.module
 
 val repositoryModule = module {
+
     single<ApiKeysRepository> {
         ApiKeysRepositoryImpl(
             apiKeyDataSource = get(),
         )
     }
+
     single<AuthorizationRepository> {
         AuthorizationRepositoryImpl(
             authorizationDataSource = get(),
         )
     }
+
     single<UsersRepository> {
         UsersRepositoryImpl(
             usersDataSource = get(),
@@ -36,32 +39,36 @@ val repositoryModule = module {
             userCommunicationsDataSource = get(),
         )
     }
-    single<NotificationRepository> {
-        NotificationRepositoryImpl(
-            notificationsDataSource = get(),
+
+    single<MessagesRepository> {
+        MessagesRepositoryImpl(
+            messagesDataSource = get(),
         )
     }
+
     single<MobileNotificationsRepository> {
         MobileNotificationsRepositoryImpl(
             localDataSource = get(),
             remoteDataSource = get(),
         )
     }
+
     single<PublicContactsRepository> {
         PublicContactsRepositoryImpl(
             publicContactsDataSource = get(),
         )
     }
+
     single<GroupsRepository> {
         GroupsRepositoryImpl(
             dataSource = get(),
         )
     }
-    single<DistributionRepository> {
-        DistributionManagerImpl(
-            groupsRepository = get(),
-            usersRepository = get(),
-            mobileNotificationsRepository = get(),
+
+    single<EmailNotificationRepository> {
+        EmailNotificationRepositoryImpl(
+            emailNotificationDataSource = get(),
         )
     }
+
 }

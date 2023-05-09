@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.api.notifications.mobile
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.mobile_push.MobilePushInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.mobile_push.MobilePushInteractor
 import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.model.UpdatePushTokenByUserIdRequestDto
 import com.kekadoc.project.capybara.server.routing.api.notifications.mobile.model.UpdatePushTokenRequest
 import com.kekadoc.project.capybara.server.routing.util.execute

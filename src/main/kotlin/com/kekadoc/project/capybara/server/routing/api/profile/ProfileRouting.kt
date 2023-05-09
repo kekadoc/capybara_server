@@ -2,9 +2,9 @@ package com.kekadoc.project.capybara.server.routing.api.profile
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.common.extensions.requireNotNull
-import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.profile.ProfileInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileInteractor
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete

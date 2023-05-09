@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.routing.api.auth.model
 
-import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.domain.model.Token
 import kotlinx.serialization.Serializable
 
 @Serializable

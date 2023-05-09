@@ -1,13 +1,6 @@
 package com.kekadoc.project.capybara.server.routing.verifier
 
-import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.data.model.User
-import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.di.Di
-import io.ktor.http.*
 import io.ktor.server.application.*
-import kotlinx.coroutines.flow.first
-import org.koin.core.component.get
 
 object ProfileVerifier : Verifier {
 

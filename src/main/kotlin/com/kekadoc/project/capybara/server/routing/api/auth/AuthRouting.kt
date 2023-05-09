@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.api.auth
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.auth.AuthInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.auth.AuthInteractor
 import com.kekadoc.project.capybara.server.routing.api.auth.model.AuthorizationRequest
 import com.kekadoc.project.capybara.server.routing.api.auth.model.RefreshTokensRequest
 import com.kekadoc.project.capybara.server.routing.util.execute

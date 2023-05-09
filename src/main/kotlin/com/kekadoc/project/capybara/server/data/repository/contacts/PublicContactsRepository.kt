@@ -1,14 +1,16 @@
 package com.kekadoc.project.capybara.server.data.repository.contacts
 
-import com.kekadoc.project.capybara.server.data.model.Contact
-import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import kotlinx.coroutines.flow.Flow
 
 interface PublicContactsRepository {
 
     fun getAllContacts(): Flow<List<Contact>>
 
-    fun getContact(contactId: Identifier): Flow<Contact?>
+    fun getContact(contactId: Identifier): Flow<Contact>
+
+    fun findContact(contactId: Identifier): Flow<Contact?>
 
     fun addContact(
         userId: Identifier,
@@ -16,6 +18,6 @@ interface PublicContactsRepository {
 
     fun deleteContact(
         contactId: Identifier,
-    ): Flow<Contact?>
+    ): Flow<Contact>
 
 }

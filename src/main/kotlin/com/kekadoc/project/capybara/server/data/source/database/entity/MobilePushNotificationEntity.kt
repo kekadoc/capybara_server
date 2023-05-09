@@ -11,7 +11,7 @@ class MobilePushNotificationEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<MobilePushNotificationEntity>(MobilePushNotificationsTable)
 
     var user by UserEntity referencedOn MobilePushNotificationsTable.user
-    var notification by NotificationEntity referencedOn MobilePushNotificationsTable.notification
+    var notification by MessageEntity referencedOn MobilePushNotificationsTable.notification
     var pushId by MobilePushNotificationsTable.pushId
 
 }

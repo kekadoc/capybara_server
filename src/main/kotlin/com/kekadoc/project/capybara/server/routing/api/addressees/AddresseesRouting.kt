@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.api.addressees
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.addressees.AddresseesInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.addressees.AddresseesInteractor
 import com.kekadoc.project.capybara.server.routing.util.execution.get
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier

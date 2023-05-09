@@ -1,9 +1,9 @@
 package com.kekadoc.project.capybara.server.routing.api.contacts
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
-import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.intercator.contacts.ContactsInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.contacts.ContactsInteractor
 import com.kekadoc.project.capybara.server.routing.api.contacts.model.*
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.executeAuthorizedApi

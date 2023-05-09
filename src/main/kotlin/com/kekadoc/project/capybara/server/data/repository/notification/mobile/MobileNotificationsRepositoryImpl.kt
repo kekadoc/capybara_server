@@ -1,10 +1,11 @@
 package com.kekadoc.project.capybara.server.data.repository.notification.mobile
 
 import com.kekadoc.project.capybara.server.common.extensions.flowOf
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.Token
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.local.MobileNotificationsLocalDataSource
-import com.kekadoc.project.capybara.server.data.source.api.notification.mobile.remote.MobileNotificationsRemoteDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSource
+import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote.MobileNotificationsRemoteDataSource
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Message
+import com.kekadoc.project.capybara.server.domain.model.Token
 import kotlinx.coroutines.flow.Flow
 
 class MobileNotificationsRepositoryImpl(
@@ -28,25 +29,22 @@ class MobileNotificationsRepositoryImpl(
         localDataSource.deleteUserPushToken(userId)
     }
 
-    override fun savePushNotificationId(
+    override fun sendNotification(
         userId: Identifier,
-        notificationId: Identifier,
-        pushId: String,
+        pushToken: String,
+        message: Message
     ): Flow<Unit> = flowOf {
+        val pushId = remoteDataSource.sendNotification(
+            pushToken = pushToken,
+            title = message.content.title,
+            body = message.content.text,
+            imageUrl = message.content.image,
+        )
         localDataSource.savePushNotificationId(
             userId = userId,
-            notificationId = notificationId,
-            pushId = pushId
+            messageId = message.id,
+            pushId = pushId,
         )
-    }
-
-    override fun sendNotification(
-        pushToken: String,
-        title: String?,
-        body: String,
-        imageUrl: String?,
-    ): Flow<String> = flowOf {
-        remoteDataSource.sendNotification(pushToken, title, body, imageUrl)
     }
 
 }

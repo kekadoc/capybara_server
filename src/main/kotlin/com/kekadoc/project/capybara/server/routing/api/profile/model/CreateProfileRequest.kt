@@ -20,8 +20,6 @@ data class CreateProfileRequest(
     val patronymic: String,
     @SerialName("avatar")
     val avatar: String,
-    @SerialName("role")
-    val role: String,
     @SerialName("about")
     val about: String,
 )

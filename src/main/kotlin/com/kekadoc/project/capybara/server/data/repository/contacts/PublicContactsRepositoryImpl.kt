@@ -1,9 +1,9 @@
 package com.kekadoc.project.capybara.server.data.repository.contacts
 
 import com.kekadoc.project.capybara.server.common.extensions.flowOf
-import com.kekadoc.project.capybara.server.data.model.Contact
-import com.kekadoc.project.capybara.server.data.model.Identifier
 import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContactsDataSource
+import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import kotlinx.coroutines.flow.Flow
 
 class PublicContactsRepositoryImpl(
@@ -14,15 +14,19 @@ class PublicContactsRepositoryImpl(
         publicContactsDataSource.getContacts()
     }
 
-    override fun getContact(contactId: Identifier): Flow<Contact?> = flowOf {
+    override fun getContact(contactId: Identifier): Flow<Contact> = flowOf {
         publicContactsDataSource.getContact(contactId)
+    }
+
+    override fun findContact(contactId: Identifier): Flow<Contact?> {
+        TODO("Not yet implemented")
     }
 
     override fun addContact(userId: Identifier): Flow<Contact> = flowOf {
         publicContactsDataSource.addContact(userId)
     }
 
-    override fun deleteContact(contactId: Identifier): Flow<Contact?> = flowOf {
+    override fun deleteContact(contactId: Identifier): Flow<Contact> = flowOf {
         publicContactsDataSource.deleteContact(contactId)
     }
 

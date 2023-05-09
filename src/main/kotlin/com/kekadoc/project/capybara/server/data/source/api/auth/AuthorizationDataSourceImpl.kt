@@ -3,13 +3,12 @@ package com.kekadoc.project.capybara.server.data.source.api.auth
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.kekadoc.project.capybara.server.Server
-import com.kekadoc.project.capybara.server.data.model.Authorization
-import com.kekadoc.project.capybara.server.data.model.Identifier
-import com.kekadoc.project.capybara.server.data.model.Token
+import com.kekadoc.project.capybara.server.common.secure.JWTConfig
 import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValidation
 import com.kekadoc.project.capybara.server.data.repository.auth.RefreshTokenValidation
-import com.kekadoc.project.capybara.server.secure.JWTConfig
-import kotlinx.coroutines.flow.Flow
+import com.kekadoc.project.capybara.server.domain.model.Authorization
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Token
 import java.util.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours

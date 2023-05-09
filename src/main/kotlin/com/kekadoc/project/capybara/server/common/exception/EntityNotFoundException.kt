@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.common.exception
 
-import com.kekadoc.project.capybara.server.data.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 open class EntityNotFoundException(
     message: String? = null,
@@ -8,10 +8,15 @@ open class EntityNotFoundException(
 ) : ServerException(message, cause)
 
 class UserNotFound(
-    val id: Identifier,
+    val id: Identifier? = null,
+    val login: String? = null,
     throwable: Throwable? = null,
 ) : EntityNotFoundException(
-    message = "User by id={$id} not found",
+    message = when {
+        id != null -> "User by id={$id} not found"
+        login != null -> "User by login={$login} not found"
+        else -> "User not found"
+    },
     cause = throwable,
 )
 
@@ -23,10 +28,18 @@ class GroupNotFound(
     cause = throwable,
 )
 
-class NotificationNotFound(
+class MessageNotFound(
     val id: Identifier,
     throwable: Throwable? = null,
 ) : EntityNotFoundException(
     message = "Notification by id={$id} not found",
+    cause = throwable,
+)
+
+class ContactNotFound(
+    val id: Identifier,
+    throwable: Throwable? = null,
+) : EntityNotFoundException(
+    message = "Contact by id={$id} not found",
     cause = throwable,
 )
