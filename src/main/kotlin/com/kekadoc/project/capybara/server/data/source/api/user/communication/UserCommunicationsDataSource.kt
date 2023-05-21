@@ -9,6 +9,6 @@ interface UserCommunicationsDataSource {
     suspend fun updateUserCommunications(
         userId: Identifier,
         communications: Communications,
-    ): User?
+    ): User
 
 }

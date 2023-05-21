@@ -25,11 +25,11 @@ class UsersRepositoryImpl(
         )
     }
 
-    override fun deleteUser(id: Identifier): Flow<User?> = flowOf {
+    override fun deleteUser(id: Identifier): Flow<User> = flowOf {
         usersDataSource.deleteUser(id)
     }
 
-    override fun getUserById(id: Identifier): Flow<User?> = flowOf {
+    override fun getUserById(id: Identifier): Flow<User> = flowOf {
         usersDataSource.getUserById(id)
     }
 
@@ -41,10 +41,17 @@ class UsersRepositoryImpl(
         usersDataSource.findUserByLogin(login)
     }
 
+    override fun updateUserStatus(userId: Identifier, status: UserStatus): Flow<User> = flowOf {
+        usersDataSource.updateUserStatus(
+            userId = userId,
+            status = status,
+        )
+    }
+
     override fun updateUserPassword(
         userId: Identifier,
         newPassword: String,
-    ): Flow<User?> = flowOf {
+    ): Flow<User> = flowOf {
         usersDataSource.updateUserPassword(
             userId = userId,
             newPassword = newPassword,
@@ -54,7 +61,7 @@ class UsersRepositoryImpl(
     override fun updateUserProfile(
         userId: Identifier,
         profile: Profile,
-    ): Flow<User?> = flowOf {
+    ): Flow<User> = flowOf {
         usersDataSource.updateUserProfile(
             userId = userId,
             profile = profile,
@@ -64,7 +71,7 @@ class UsersRepositoryImpl(
     override fun updateUserCommunications(
         userId: Identifier,
         communications: Communications,
-    ): Flow<User?> = flowOf {
+    ): Flow<User> = flowOf {
         userCommunicationsDataSource.updateUserCommunications(
             userId = userId,
             communications = communications,
@@ -80,7 +87,7 @@ class UsersRepositoryImpl(
     override fun getAccessForUser(
         userId: Identifier,
         forUserId: Identifier,
-    ): Flow<UserAccessToUser?> = flowOf {
+    ): Flow<UserAccessToUser> = flowOf {
         userAccessDataSource.getAccessForUser(userId, forUserId)
     }
 
@@ -98,8 +105,12 @@ class UsersRepositoryImpl(
         userId: Identifier,
         forUserId: Identifier,
         userAccessUser: UserAccessToUser.Updater,
-    ): Flow<UserAccessToUser?> = flowOf {
-        userAccessDataSource.updateAccessForUser(userId, forUserId, userAccessUser)
+    ): Flow<UserAccessToUser> = flowOf {
+        userAccessDataSource.updateAccessForUser(
+            userId = userId,
+            forUserId = forUserId,
+            userAccessUser = userAccessUser,
+        )
     }
 
     override fun getAllAccessForGroup(userId: Identifier): Flow<List<UserAccessToGroup>> = flowOf {
@@ -111,7 +122,7 @@ class UsersRepositoryImpl(
     override fun getAccessForGroup(
         userId: Identifier,
         groupId: Identifier,
-    ): Flow<UserAccessToGroup?> = flowOf {
+    ): Flow<UserAccessToGroup> = flowOf {
         userAccessDataSource.getAccessForGroup(
             userId = userId,
             groupId = groupId,
@@ -132,7 +143,7 @@ class UsersRepositoryImpl(
         userId: Identifier,
         groupId: Identifier,
         userAccessGroup: UserAccessToGroup.Updater,
-    ): Flow<UserAccessToGroup?> = flowOf {
+    ): Flow<UserAccessToGroup> = flowOf {
         userAccessDataSource.updateAccessForGroup(
             userId = userId,
             groupId = groupId,

@@ -9,6 +9,7 @@ object CommunicationEntityConverter : Converter<CommunicationEntity, Communicati
     override fun convert(value: CommunicationEntity): Communication = Communication(
         type = value.type,
         value = value.value,
+        approved = value.approved,
     )
 
 }

@@ -11,28 +11,33 @@ interface UsersRepository {
         profile: Profile,
     ): Flow<User>
 
-    fun deleteUser(id: Identifier): Flow<User?>
+    fun deleteUser(id: Identifier): Flow<User>
 
     fun getUsersByIds(ids: List<Identifier>): Flow<List<User>>
 
-    fun getUserById(id: Identifier): Flow<User?>
+    fun getUserById(id: Identifier): Flow<User>
 
     fun findUserByLogin(login: String): Flow<User?>
+
+    fun updateUserStatus(
+        userId: Identifier,
+        status: UserStatus,
+    ): Flow<User>
 
     fun updateUserPassword(
         userId: Identifier,
         newPassword: String,
-    ): Flow<User?>
+    ): Flow<User>
 
     fun updateUserProfile(
         userId: Identifier,
         profile: Profile,
-    ): Flow<User?>
+    ): Flow<User>
 
     fun updateUserCommunications(
         userId: Identifier,
         communications: Communications,
-    ): Flow<User?>
+    ): Flow<User>
 
     fun getAllAccessForUser(
         userId: Identifier,
@@ -41,7 +46,7 @@ interface UsersRepository {
     fun getAccessForUser(
         userId: Identifier,
         forUserId: Identifier,
-    ): Flow<UserAccessToUser?>
+    ): Flow<UserAccessToUser>
 
     fun getAccessForUsers(
         userId: Identifier,
@@ -52,7 +57,7 @@ interface UsersRepository {
         userId: Identifier,
         forUserId: Identifier,
         userAccessUser: UserAccessToUser.Updater,
-    ): Flow<UserAccessToUser?>
+    ): Flow<UserAccessToUser>
 
     fun getAllAccessForGroup(
         userId: Identifier,
@@ -61,7 +66,7 @@ interface UsersRepository {
     fun getAccessForGroup(
         userId: Identifier,
         groupId: Identifier,
-    ): Flow<UserAccessToGroup?>
+    ): Flow<UserAccessToGroup>
 
     fun getAccessForGroup(
         userId: Identifier,
@@ -72,6 +77,6 @@ interface UsersRepository {
         userId: Identifier,
         groupId: Identifier,
         userAccessGroup: UserAccessToGroup.Updater,
-    ): Flow<UserAccessToGroup?>
+    ): Flow<UserAccessToGroup>
 
 }

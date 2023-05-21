@@ -15,6 +15,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 class GroupDataSourceImpl : GroupDataSource {
 
+    override suspend fun getAllGroups(): List<Group> = transaction {
+        GroupEntity.all().map(GroupEntityConverter::convert)
+    }
+
     override suspend fun getGroup(
         groupId: Identifier,
     ): Group = findGroup(groupId) ?: throw GroupNotFound(id = groupId)

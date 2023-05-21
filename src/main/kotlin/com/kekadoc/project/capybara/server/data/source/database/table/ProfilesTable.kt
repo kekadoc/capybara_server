@@ -8,7 +8,6 @@ object ProfilesTable : UUIDTable("profiles") {
     val name = text("name")
     val surname = text("surname")
     val patronymic = text("patronymic")
-    val avatar = text("avatar").nullable().default(null)
     val about = text("about").nullable().default(null)
 
 }

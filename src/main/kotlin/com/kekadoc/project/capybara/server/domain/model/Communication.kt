@@ -3,13 +3,15 @@ package com.kekadoc.project.capybara.server.domain.model
 data class Communication(
     val type: Type,
     val value: String,
+    val approved: Boolean,
 ) {
 
     companion object {
-        operator fun invoke(type: String, value: String): Communication {
+        operator fun invoke(type: String, value: String, approved: Boolean): Communication {
             return Communication(
                 type = Type.values.find { next -> next.name == type } ?: Type.Unknown(type),
                 value = value,
+                approved = approved,
             )
         }
     }

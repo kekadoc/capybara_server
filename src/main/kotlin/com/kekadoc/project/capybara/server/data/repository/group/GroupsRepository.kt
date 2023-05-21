@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface GroupsRepository {
 
+    fun getAllGroups(): Flow<List<Group>>
+
     fun getGroup(groupId: Identifier): Flow<Group>
 
     fun findGroup(groupId: Identifier): Flow<Group?>

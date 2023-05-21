@@ -10,6 +10,10 @@ class GroupsRepositoryImpl(
     private val dataSource: GroupDataSource,
 ) : GroupsRepository {
 
+    override fun getAllGroups(): Flow<List<Group>> = flowOf {
+        dataSource.getAllGroups()
+    }
+
     override fun getGroups(groupIds: List<Identifier>): Flow<List<Group>> = flowOf {
         dataSource.getGroups(groupIds)
     }

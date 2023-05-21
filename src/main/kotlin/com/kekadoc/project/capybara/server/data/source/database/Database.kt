@@ -40,6 +40,7 @@ object Database : Component {
                 UserAccessToUserTable,
                 UsersGroupsTable,
                 UsersTable,
+                RegistrationRequestsTable,
             )
         }
     }

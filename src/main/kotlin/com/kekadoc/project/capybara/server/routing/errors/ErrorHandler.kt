@@ -11,7 +11,7 @@ import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 
-internal suspend fun ApplicationCall.handleError(e: Throwable) {
+suspend fun ApplicationCall.handleError(e: Throwable) {
     e.printStackTrace()
     when (e) {
         is HttpException -> {

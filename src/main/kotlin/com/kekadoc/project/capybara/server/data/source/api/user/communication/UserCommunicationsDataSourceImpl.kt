@@ -27,7 +27,12 @@ class UserCommunicationsDataSourceImpl : UserCommunicationsDataSource {
                         if (new == null) {
                             entity.delete()
                         } else {
-                            entity.apply { value = entity.value }
+                            if (entity.value != new.value) {
+                                entity.apply {
+                                    value = new.value
+                                    approved = false
+                                }
+                            }
                             types.remove(new)
                         }
                     }
@@ -36,6 +41,7 @@ class UserCommunicationsDataSourceImpl : UserCommunicationsDataSource {
                         this.user = userEntity
                         this.type = communication.type.name
                         this.value = communication.value
+                        this.approved = false
                     }
                 }
             }

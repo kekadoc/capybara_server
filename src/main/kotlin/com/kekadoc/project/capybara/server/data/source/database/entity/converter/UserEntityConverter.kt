@@ -6,25 +6,25 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntit
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroupEntity
 import com.kekadoc.project.capybara.server.domain.model.Communications
 import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.UserStatus
 import org.jetbrains.exposed.dao.id.EntityID
 import java.util.*
 
 object UserEntityConverter : Converter<UserEntity, User> {
 
-    override fun convert(value: UserEntity): User {
-        return User(
-            id = value.id.value,
-            profile = ProfileEntityConverter.convert(value.profile),
-            password = value.password,
-            login = value.login,
-            communications = value.communications
-                .map(CommunicationEntityConverter::convert)
-                .let(::Communications),
-            groupIds = value.groups
-                .map(UserGroupEntity::group)
-                .map(GroupEntity::id)
-                .map(EntityID<UUID>::value),
-        )
-    }
+    override fun convert(value: UserEntity): User = User(
+        id = value.id.value,
+        status = UserStatus.valueOf(value.status),
+        profile = ProfileEntityConverter.convert(value.profile),
+        password = value.password,
+        login = value.login,
+        communications = value.communications
+            .map(CommunicationEntityConverter::convert)
+            .let(::Communications),
+        groupIds = value.groups
+            .map(UserGroupEntity::group)
+            .map(GroupEntity::id)
+            .map(EntityID<UUID>::value),
+    )
 
 }

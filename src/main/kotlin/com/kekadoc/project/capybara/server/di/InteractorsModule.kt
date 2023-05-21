@@ -14,10 +14,14 @@ import com.kekadoc.project.capybara.server.domain.intercator.mobile_push.MobileP
 import com.kekadoc.project.capybara.server.domain.intercator.mobile_push.MobilePushInteractorImpl
 import com.kekadoc.project.capybara.server.domain.intercator.notification.MessagesInteractor
 import com.kekadoc.project.capybara.server.domain.intercator.notification.MessagesInteractorImpl
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileInteractor
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileInteractorImpl
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdminInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdminInteractorImpl
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractorImpl
 import com.kekadoc.project.capybara.server.domain.intercator.schedule.ScheduleInteractor
 import com.kekadoc.project.capybara.server.domain.intercator.schedule.ScheduleInteractorImpl
+import com.kekadoc.project.capybara.server.domain.intercator.system.SystemInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.system.SystemInteractorImpl
 import org.koin.dsl.module
 
 val interactorsModule = module {
@@ -34,6 +38,7 @@ val interactorsModule = module {
         AuthInteractorImpl(
             authorizationRepository = get(),
             usersRepository = get(),
+            fetchUserByAccessTokenFunction = get(),
         )
     }
 
@@ -70,8 +75,15 @@ val interactorsModule = module {
         )
     }
 
-    single<ProfileInteractor> {
-        ProfileInteractorImpl(
+    single<ProfileAdminInteractor> {
+        ProfileAdminInteractorImpl(
+            userRepository = get(),
+            fetchUserByAccessTokenFunction = get(),
+        )
+    }
+
+    single<ProfileAuthorizedInteractor> {
+        ProfileAuthorizedInteractorImpl(
             userRepository = get(),
             fetchUserByAccessTokenFunction = get(),
         )
@@ -87,5 +99,12 @@ val interactorsModule = module {
             messagesRepository = get(),
         )
     }
+
+    single<SystemInteractor> {
+        SystemInteractorImpl(
+            fetchUserByAccessTokenFunction = get(),
+        )
+    }
+
 
 }

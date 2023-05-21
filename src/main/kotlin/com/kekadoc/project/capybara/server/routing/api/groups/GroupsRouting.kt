@@ -21,6 +21,8 @@ import org.koin.core.component.get
 
 fun Route.groups() = route("/groups") {
 
+    get { getAllGroups() }
+
     //Создание группы
     post<CreateGroupRequest>(ApiKeyVerifier, AuthorizationVerifier) { request -> createGroup(request) }
 
@@ -49,6 +51,12 @@ fun Route.groups() = route("/groups") {
 
     }
 
+}
+
+private suspend fun PipelineContext.getAllGroups() {
+    val interactor = Di.get<GroupsInteractor>()
+    val result = interactor.getAllGroups()
+    call.respond(result)
 }
 
 private suspend fun PipelineContext.createGroup(

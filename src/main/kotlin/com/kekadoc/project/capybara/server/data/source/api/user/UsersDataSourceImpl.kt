@@ -13,6 +13,7 @@ import com.kekadoc.project.capybara.server.data.source.database.table.UsersTable
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Profile
 import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.UserStatus
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -27,6 +28,7 @@ class UsersDataSourceImpl : UsersDataSource {
             UserIdGenerator.generate()
         )
         UserEntity.new(id = userId) {
+            this.status = UserStatus.ACTIVE.name
             this.login = login
             this.password = Hash.hash(
                 value = password,
@@ -40,7 +42,6 @@ class UsersDataSourceImpl : UsersDataSource {
                 this.surname = profile.surname
                 this.patronymic = profile.patronymic
                 this.type = profile.type.name
-                this.avatar = profile.avatar
                 this.about = profile.about
             }
         }.convert(UserEntityConverter)
@@ -76,14 +77,33 @@ class UsersDataSourceImpl : UsersDataSource {
             ?.convert(UserEntityConverter)
     }
 
+    override suspend fun updateUserStatus(
+        userId: Identifier,
+        status: UserStatus,
+    ): User = transaction {
+        (UserEntity.findById(userId) ?: throw UserNotFound(userId))
+            .apply { this.status = status.name }
+            .convert(UserEntityConverter)
+    }
+
     override suspend fun updateUserPassword(
         userId: Identifier,
         newPassword: String,
     ): User = transaction {
-        UserEntity.findById(userId)
-            ?.apply { this.password = newPassword }
-            ?.convert(UserEntityConverter)
-            ?: throw UserNotFound(id = userId)
+        (UserEntity.findById(userId) ?: throw UserNotFound(id = userId))
+            .apply {
+                this.password = Hash.hash(
+                    value = newPassword,
+                    salt = UserSalt.get(
+                        id = userId,
+                        login = login,
+                    ),
+                )
+                if (this.status == UserStatus.NEED_UPDATE_PASSWORD.name) {
+                    this.status = UserStatus.ACTIVE.name
+                }
+            }
+            .convert(UserEntityConverter)
     }
 
     override suspend fun updateUserProfile(
@@ -97,7 +117,6 @@ class UsersDataSourceImpl : UsersDataSource {
                     this.name = profile.name
                     this.surname = profile.surname
                     this.patronymic = profile.patronymic
-                    this.avatar = profile.avatar
                     this.about = profile.about
                 }
             }

@@ -13,5 +13,6 @@ class CommunicationEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var user by UserEntity referencedOn CommunicationsTable.user
     var type by CommunicationsTable.type
     var value by CommunicationsTable.value
+    var approved by CommunicationsTable.approved
 
 }

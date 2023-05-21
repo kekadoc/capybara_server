@@ -4,6 +4,6 @@ import com.kekadoc.project.capybara.server.data.source.network.model.GroupDto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetGroupResponse(
+data class GetGroupResponseDto(
     val group: GroupDto,
 )

@@ -10,16 +10,12 @@ data class ProfileDto(
     @Contextual
     @SerialName("id")
     val id: Identifier,
-    @SerialName("type")
-    val type: ProfileTypeDto,
     @SerialName("name")
     val name: String,
     @SerialName("surname")
     val surname: String,
     @SerialName("patronymic")
     val patronymic: String,
-    @SerialName("avatar")
-    val avatar: String?,
     @SerialName("about")
     val about: String?,
 )

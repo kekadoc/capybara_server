@@ -4,10 +4,16 @@ import com.kekadoc.project.capybara.server.domain.model.Message
 import com.kekadoc.project.capybara.server.domain.model.MessageInfo
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.ReferenceOption
 
 object MessageTable : UUIDTable("notifications") {
 
-    val author = reference("author", UsersTable)
+    val author = reference(
+        name = "author",
+        foreign = UsersTable,
+        onDelete = ReferenceOption.CASCADE,
+        onUpdate = ReferenceOption.CASCADE,
+    )
 
     val type = varchar("type", 255)
         .default(Message.Type.DEFAULT.name)

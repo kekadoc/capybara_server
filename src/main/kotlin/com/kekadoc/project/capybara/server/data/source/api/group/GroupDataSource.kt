@@ -5,6 +5,8 @@ import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 interface GroupDataSource {
 
+    suspend fun getAllGroups(): List<Group>
+
     suspend fun getGroup(groupId: Identifier): Group
 
     suspend fun findGroup(groupId: Identifier): Group?

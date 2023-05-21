@@ -4,6 +4,8 @@ import com.kekadoc.project.capybara.server.data.source.api.api_key.ApiKeyDataSou
 import com.kekadoc.project.capybara.server.data.source.api.api_key.ApiKeyDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.auth.AuthorizationDataSource
 import com.kekadoc.project.capybara.server.data.source.api.auth.AuthorizationDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.api.auth.RegistrationDataSource
+import com.kekadoc.project.capybara.server.data.source.api.auth.RegistrationDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContactsDataSource
 import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContactsDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
@@ -34,6 +36,12 @@ val dataSourceModule = module {
 
     single<AuthorizationDataSource> {
         AuthorizationDataSourceImpl(
+            config = get(),
+        )
+    }
+
+    single<RegistrationDataSource> {
+        RegistrationDataSourceImpl(
             config = get(),
         )
     }

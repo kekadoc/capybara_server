@@ -14,7 +14,6 @@ class ProfileEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var name by ProfilesTable.name
     var surname by ProfilesTable.surname
     var patronymic by ProfilesTable.patronymic
-    var avatar by ProfilesTable.avatar
     var about by ProfilesTable.about
 
 }

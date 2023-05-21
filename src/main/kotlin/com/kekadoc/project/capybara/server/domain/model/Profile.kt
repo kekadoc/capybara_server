@@ -5,7 +5,6 @@ data class Profile(
     val name: String,
     val surname: String,
     val patronymic: String,
-    val avatar: String?,
     val about: String?,
 ) {
 

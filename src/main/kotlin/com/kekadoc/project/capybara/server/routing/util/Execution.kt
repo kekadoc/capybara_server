@@ -11,6 +11,7 @@ import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifie
 import com.kekadoc.project.capybara.server.routing.verifier.Verifier
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.websocket.*
 import java.util.*
 
@@ -37,9 +38,9 @@ interface RespondBodyScope<Response> {
 
 interface AuthorizedExecutionScope<Request, Response> : AuthorizedScope, RequestBodyScope<Request>, RespondBodyScope<Response>
 
-suspend fun <T> PipelineContext.execute(
+internal suspend inline fun <reified T : Any> PipelineContext.execute(
     vararg verifiers: Verifier,
-    block: suspend () -> T
+    noinline block: suspend () -> T
 ) = execute(verifiers.toList(), block)
 
 suspend fun PipelineContext.executeAuthorizedApi(
@@ -47,19 +48,20 @@ suspend fun PipelineContext.executeAuthorizedApi(
     block: suspend () -> Unit
 ) = execute(listOf(ApiKeyVerifier, AuthorizationVerifier) + verifiers.toList(), block)
 
-suspend fun <T> PipelineContext.execute(
+suspend inline fun <reified T : Any> PipelineContext.execute(
     verifiers: List<Verifier> = emptyList(),
-    block: suspend () -> T
-) {
-    try {
-        verifiers.forEach { verifier -> verifier.verify(call) }
-        block()
-    } catch (e: Throwable) {
-        println("____ERROR $e")
-        call.handleError(e)
-    }
+    noinline block: suspend () -> T,
+): Result<T> = kotlin.runCatching {
+    verifiers.forEach { verifier -> verifier.verify(call) }
+    block()
 }
-
+    .onSuccess { response ->
+        call.respond(response)
+    }
+    .onFailure { error ->
+        error.printStackTrace()
+        call.handleError(error)
+    }
 
 
 suspend fun WebSocketServerSession.execute(

@@ -1,10 +1,10 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.kekadoc.project.capybara.server.domain.intercator.groups
 
+import com.kekadoc.project.capybara.server.common.extensions.mapElements
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.source.network.model.SimpleGroupDto
 import com.kekadoc.project.capybara.server.data.source.network.model.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
@@ -23,6 +23,16 @@ class GroupsInteractorImpl(
     private val groupsRepository: GroupsRepository,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
 ) : GroupsInteractor {
+
+    override suspend fun getAllGroups(): GetAllGroupsResponseDto = groupsRepository.getAllGroups()
+        .mapElements { group ->
+            SimpleGroupDto(
+                id = group.id,
+                name = group.name,
+            )
+        }
+        .map(::GetAllGroupsResponseDto)
+        .single()
 
     override suspend fun createGroup(
         authToken: Token,
@@ -43,12 +53,12 @@ class GroupsInteractorImpl(
     override suspend fun getGroup(
         authToken: Token,
         groupId: Identifier,
-    ): GetGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+    ): GetGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest { groupsRepository.getGroup(groupId) }
         .map(GroupDtoConverter::convert)
-        .map(::GetGroupResponse)
+        .map(::GetGroupResponseDto)
         .single()
 
     override suspend fun updateGroupName(

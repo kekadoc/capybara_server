@@ -29,6 +29,7 @@ val repositoryModule = module {
     single<AuthorizationRepository> {
         AuthorizationRepositoryImpl(
             authorizationDataSource = get(),
+            registrationDataSource = get(),
         )
     }
 

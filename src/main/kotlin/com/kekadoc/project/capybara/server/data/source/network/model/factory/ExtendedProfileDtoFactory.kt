@@ -2,22 +2,24 @@ package com.kekadoc.project.capybara.server.data.source.network.model.factory
 
 import com.kekadoc.project.capybara.server.common.converter.revert
 import com.kekadoc.project.capybara.server.common.factory.Factory
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.data.source.network.model.ExtendedProfileDto
 import com.kekadoc.project.capybara.server.data.source.network.model.converter.ProfileTypeDtoConverter
-import com.kekadoc.project.capybara.server.data.source.network.model.AuthorizedUserDto
+import com.kekadoc.project.capybara.server.domain.model.User
 
-object AuthorizedUserDtoFactory : Factory.Single<User, AuthorizedUserDto> {
+object ExtendedProfileDtoFactory : Factory.Single<User, ExtendedProfileDto> {
 
-    override fun create(value: User): AuthorizedUserDto = AuthorizedUserDto(
+    override fun create(value: User): ExtendedProfileDto = ExtendedProfileDto(
         id = value.id,
+        status = value.status,
         login = value.login,
         type = value.profile.type.revert(ProfileTypeDtoConverter),
         name = value.profile.name,
         surname = value.profile.surname,
         patronymic = value.profile.patronymic,
-        avatar = value.profile.avatar,
         about = value.profile.about,
-        communications = value.communications.values.associate { (type, value) -> type.name to value },
+        communications = value.communications.values.associate { (type, value, approved) ->
+            type.name to (value to approved)
+        },
         groupIds = value.groupIds,
     )
 

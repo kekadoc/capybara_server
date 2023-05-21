@@ -11,7 +11,6 @@ object ProfileEntityConverter : Converter<ProfileEntity, Profile> {
         name = value.name,
         surname = value.surname,
         patronymic = value.patronymic,
-        avatar = value.avatar,
         about = value.about,
     )
 

@@ -5,6 +5,8 @@ import com.kekadoc.project.capybara.server.routing.api.groups.model.*
 
 interface GroupsInteractor {
 
+    suspend fun getAllGroups(): GetAllGroupsResponseDto
+
     suspend fun createGroup(
         authToken: String,
         request: CreateGroupRequest,
@@ -13,7 +15,7 @@ interface GroupsInteractor {
     suspend fun getGroup(
         authToken: String,
         groupId: Identifier,
-    ): GetGroupResponse
+    ): GetGroupResponseDto
 
     suspend fun updateGroupName(
         authToken: String,
