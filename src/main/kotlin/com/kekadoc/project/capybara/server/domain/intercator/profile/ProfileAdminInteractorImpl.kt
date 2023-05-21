@@ -283,7 +283,7 @@ class ProfileAdminInteractorImpl(
             )
         }
         .map(ExtendedProfileDtoFactory::create)
-        .swap(::UpdateUserCommunicationsResponseDto)
+        .map(::UpdateUserCommunicationsResponseDto)
         .single()
 
 }

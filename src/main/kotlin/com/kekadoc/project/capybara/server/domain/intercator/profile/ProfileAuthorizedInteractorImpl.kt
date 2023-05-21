@@ -110,7 +110,7 @@ class ProfileAuthorizedInteractorImpl(
             )
         }
         .map(ExtendedProfileDtoFactory::create)
-        .swap(::UpdateUserCommunicationsResponseDto)
+        .map(::UpdateUserCommunicationsResponseDto)
         .single()
 
 }

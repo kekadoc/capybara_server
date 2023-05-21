@@ -1,6 +1,11 @@
 package com.kekadoc.project.capybara.server.routing.api.profile.model
 
+import com.kekadoc.project.capybara.server.data.source.network.model.ExtendedProfileDto
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UpdateUserCommunicationsResponseDto
+data class UpdateUserCommunicationsResponseDto(
+    @SerialName("profile")
+    val profile: ExtendedProfileDto,
+)
