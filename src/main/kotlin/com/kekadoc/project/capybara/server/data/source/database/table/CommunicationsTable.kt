@@ -12,6 +12,6 @@ object CommunicationsTable : UUIDTable("communications") {
     )
     val type = varchar("type", 256)
     val value = varchar("value", 256)
-    val approved = bool("approved").default(false)
+    val approved = bool("approved").nullable().default(null)
 
 }
