@@ -1,12 +1,11 @@
 package com.kekadoc.project.capybara.server.domain.intercator.contacts
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.common.extensions.mapElements
 import com.kekadoc.project.capybara.server.data.repository.contacts.PublicContactsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.ContactDto
-import com.kekadoc.project.capybara.server.data.source.network.model.converter.ContactDtoConverter
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.ContactDto
+import com.kekadoc.project.capybara.server.routing.model.converter.ContactDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser

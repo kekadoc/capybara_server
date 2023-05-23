@@ -1,17 +1,20 @@
 package com.kekadoc.project.capybara.server.data.source.api.messages
 
+import com.kekadoc.project.capybara.server.Server
+import com.kekadoc.project.capybara.server.common.exception.EntityNotFoundException
 import com.kekadoc.project.capybara.server.common.exception.GroupNotFound
 import com.kekadoc.project.capybara.server.common.exception.MessageNotFound
 import com.kekadoc.project.capybara.server.common.exception.UserNotFound
 import com.kekadoc.project.capybara.server.common.extensions.orElse
+import com.kekadoc.project.capybara.server.common.time.Time
 import com.kekadoc.project.capybara.server.data.source.database.entity.*
 import com.kekadoc.project.capybara.server.data.source.database.entity.factory.MessageFactory
-import com.kekadoc.project.capybara.server.data.source.database.table.MessageForGroupTable
+import com.kekadoc.project.capybara.server.data.source.database.entity.factory.MessageForUserFactory
 import com.kekadoc.project.capybara.server.data.source.database.table.MessageForUserTable
 import com.kekadoc.project.capybara.server.data.source.database.table.MessageTable
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
-import com.kekadoc.project.capybara.server.domain.model.MessageInfo
+import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.message.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -19,29 +22,29 @@ class MessagesDataSourceImpl : MessagesDataSource {
 
     override suspend fun createMessage(
         authorId: Identifier,
-        type: Message.Type,
-        addresseeGroups: Set<Identifier>,
-        addresseeUsers: Set<Identifier>,
-        content: Message.Content,
-        actions: Message.Actions?,
-        notifications: Message.Notifications
+        type: MessageType,
+        title: String?,
+        text: String,
+        actions: List<MessageAction>?,
+        isMultiAction: Boolean,
+        addresseeUsers: List<Identifier>,
+        addresseeGroups: List<Identifier>,
+        notifications: MessageNotifications
     ): Message = transaction {
         val userEntity = UserEntity.findById(authorId) ?: throw UserNotFound(authorId)
 
         val messageEntity = MessageEntity.new {
             this.author = userEntity
             this.type = type.name
-            this.contentTitle = content.title
-            this.contentText = content.text
-            this.contentImage = content.image
-            this.status = MessageInfo.Status.RECEIVED.toString()
+            this.contentTitle = title
+            this.contentText = text
+            this.actions = actions?.map(MessageAction::text)?.toTypedArray()
+            this.date = Time.formatToServer(Server.getZonedTime())
+            this.status = MessageStatus.RECEIVED.toString()
             this.notificationEmail = notifications.email
             this.notificationSms = notifications.sms
             this.notificationApp = notifications.app
             this.notificationMessengers = notifications.messengers
-            this.action1 = actions?.action1
-            this.action2 = actions?.action2
-            this.action3 = actions?.action3
         }
 
         addresseeGroups.forEach { groupId ->
@@ -69,23 +72,9 @@ class MessagesDataSourceImpl : MessagesDataSource {
         MessageFactory.create(messageEntity)
     }
 
-    override suspend fun updateMessage(
-        messageId: Identifier,
-        content: Message.Content,
-    ): Message = transaction {
-        MessageEntity.findById(messageId)
-            ?.apply {
-                this.contentTitle = content.title
-                this.contentText = content.text
-                this.contentImage = content.image
-            }
-            ?.let(MessageFactory::create)
-            .orElse { throw MessageNotFound(messageId) }
-    }
-
     override suspend fun updateMessageStatus(
         messageId: Identifier,
-        status: MessageInfo.Status,
+        status: MessageStatus,
     ): Message = transaction {
         MessageEntity.findById(messageId)
             ?.apply {
@@ -111,13 +100,13 @@ class MessagesDataSourceImpl : MessagesDataSource {
                 this.userId = user
                 this.received = info.received
                 this.read = info.read
-                this.answer = info.answer
+                this.answerIds = info.answerIds?.map(Long::toString)?.toTypedArray()
             }
         } else {
             all.first().apply {
                 this.received = info.received
                 this.read = info.read
-                this.answer = info.answer
+                this.answerIds = info.answerIds?.map(Long::toString)?.toTypedArray()
             }
         }
 
@@ -141,18 +130,30 @@ class MessagesDataSourceImpl : MessagesDataSource {
             ?: throw MessageNotFound(messageId)
     }
 
+    override suspend fun getAddresseeUserInfo(
+        messageId: Identifier,
+        userId: Identifier,
+    ): MessageForUser = transaction {
+        val entity = MessageForUserEntity.find {
+            val isUserEq = MessageForUserTable.userId eq userId
+            val isMessageEq = MessageForUserTable.messageId eq messageId
+            isUserEq and isMessageEq
+        }.singleOrNull() ?: throw EntityNotFoundException("MessageForUserEntity not found")
+        MessageForUserFactory.create(entity)
+    }
+
     override suspend fun getMessageInfo(
         messageId: Identifier,
     ): MessageInfo = transaction {
         val messageEntity = MessageEntity.findById(messageId) ?: throw MessageNotFound(messageId)
         val addresseeUsers = messageEntity.addresseeUsers
             .filter { !it.fromGroup }
-            .map {
+            .map { forUser ->
                 MessageInfo.FromUserInfo(
-                    userId = it.userId.id.value,
-                    received = it.received,
-                    read = it.read,
-                    answer = it.answer,
+                    userId = forUser.userId.id.value,
+                    received = forUser.received,
+                    read = forUser.read,
+                    answerIds = forUser.answerIds?.map(String::toLong),
                 )
             }
         val addresseeGroups = messageEntity.addresseeGroups.map { forGroup ->
@@ -167,11 +168,11 @@ class MessagesDataSourceImpl : MessagesDataSource {
                     userId = forUser.userId.id.value,
                     received = forUser.received,
                     read = forUser.read,
-                    answer = forUser.answer,
+                    answerIds = forUser.answerIds?.map(String::toLong),
                 )
             }
             MessageInfo.GroupInfo(
-                id = forGroup.group.id.value,
+                groupId = forGroup.group.id.value,
                 name = forGroup.group.name,
                 members = members,
             )
@@ -180,48 +181,45 @@ class MessagesDataSourceImpl : MessagesDataSource {
             message = MessageFactory.create(messageEntity),
             addresseeGroups = addresseeGroups,
             addresseeUsers = addresseeUsers,
-            status = MessageInfo.Status.values()
+            status = MessageStatus.values()
                 .find { it.name == messageEntity.status }
-                .orElse { MessageInfo.Status.UNDEFINED },
+                .orElse { MessageStatus.UNDEFINED },
         )
     }
 
     override suspend fun getMessagesByAuthorId(
         authorId: Identifier,
+        range: Range
     ): List<Message> = transaction {
         MessageEntity.find { MessageTable.author eq authorId }
+            .limit(n = range.count, offset = range.from.toLong())
             .map(MessageFactory::create)
     }
 
     override suspend fun getMessagesByAddresseeUserId(
         userId: Identifier,
+        range: Range,
     ): List<Message> = transaction {
-        MessageForUserEntity
-            .find { MessageForUserTable.userId eq userId }
-            .map(MessageForUserEntity::message)
-            .map(MessageFactory::create)
-    }
-
-    override suspend fun getMessagesByAddresseeGroupIds(
-        groupIds: Set<Identifier>,
-    ): List<Message> = transaction {
-        MessageForGroupEntity
-            .find { MessageForGroupTable.groupId inList groupIds }
-            .map(MessageForGroupEntity::message)
-            .map(MessageFactory::create)
+        MessageForUserEntity.find { MessageForUserTable.userId eq userId }
+            .limit(n = range.count, offset = range.from.toLong())
+            .map(MessageForUserEntity::message).map(MessageFactory::create)
     }
 
     override suspend fun setReceivedMessageAnswer(
         messageId: Identifier,
         userId: Identifier,
-        answer: String
-    ): Message = transaction {
+        answerIds: List<Long>
+    ): Message  = transaction {
         MessageForUserEntity.find {
             val byUserId = (MessageForUserTable.userId eq userId)
             val byMessageId = (MessageForUserTable.messageId eq messageId)
             byUserId and byMessageId
         }
-            .map { entity -> entity.apply { this.answer = answer } }
+            .map { entity ->
+                entity.apply {
+                    this.answerIds = answerIds.map(Long::toString).toTypedArray()
+                }
+            }
             .firstOrNull()
             .orElse { throw MessageNotFound(messageId) }
             .let(MessageForUserEntity::message)

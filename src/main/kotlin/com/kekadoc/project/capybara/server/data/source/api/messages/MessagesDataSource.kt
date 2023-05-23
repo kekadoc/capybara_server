@@ -1,29 +1,26 @@
 package com.kekadoc.project.capybara.server.data.source.api.messages
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
-import com.kekadoc.project.capybara.server.domain.model.MessageInfo
+import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.message.*
 
 interface MessagesDataSource {
 
     suspend fun createMessage(
         authorId: Identifier,
-        type: Message.Type,
-        addresseeGroups: Set<Identifier>,
-        addresseeUsers: Set<Identifier>,
-        content: Message.Content,
-        actions: Message.Actions?,
-        notifications: Message.Notifications,
-    ): Message
-
-    suspend fun updateMessage(
-        messageId: Identifier,
-        content: Message.Content,
+        type: MessageType,
+        title: String?,
+        text: String,
+        actions: List<MessageAction>?,
+        isMultiAction: Boolean = false,
+        addresseeUsers: List<Identifier>,
+        addresseeGroups: List<Identifier>,
+        notifications: MessageNotifications,
     ): Message
 
     suspend fun updateMessageStatus(
         messageId: Identifier,
-        status: MessageInfo.Status,
+        status: MessageStatus,
     ): Message
 
     suspend fun updateMessageUserInfo(
@@ -35,18 +32,21 @@ interface MessagesDataSource {
 
     suspend fun getMessage(messageId: Identifier): Message
 
+    suspend fun getAddresseeUserInfo(
+        messageId: Identifier,
+        userId: Identifier,
+    ): MessageForUser
+
     suspend fun getMessageInfo(messageId: Identifier): MessageInfo
 
-    suspend fun getMessagesByAuthorId(authorId: Identifier): List<Message>
+    suspend fun getMessagesByAuthorId(authorId: Identifier, range: Range): List<Message>
 
-    suspend fun getMessagesByAddresseeUserId(userId: Identifier): List<Message>
-
-    suspend fun getMessagesByAddresseeGroupIds(groupIds: Set<Identifier>): List<Message>
+    suspend fun getMessagesByAddresseeUserId(userId: Identifier, range: Range): List<Message>
 
     suspend fun setReceivedMessageAnswer(
         messageId: Identifier,
         userId: Identifier,
-        answer: String,
+        answerIds: List<Long>,
     ): Message
 
     suspend fun setReceivedMessageNotify(

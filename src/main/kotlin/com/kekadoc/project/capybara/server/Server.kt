@@ -11,11 +11,14 @@ import io.ktor.server.resources.*
 import io.ktor.server.websocket.*
 import org.koin.core.component.get
 import java.time.Duration
+import java.time.ZonedDateTime
 import io.ktor.server.application.Application as KtorApplication
 
 object Server : Component {
     
     fun getTime(): Long = System.currentTimeMillis()
+
+    fun getZonedTime(): ZonedDateTime = ZonedDateTime.now()
 
     override fun init(application: Application): Unit = with(application) {
         install(Resources)

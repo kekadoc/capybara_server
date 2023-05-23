@@ -1,12 +1,12 @@
 package com.kekadoc.project.capybara.server.data.repository.notification.mobile
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSource
 import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote.MobileNotificationsRemoteDataSource
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
 import com.kekadoc.project.capybara.server.domain.model.Token
+import com.kekadoc.project.capybara.server.domain.model.message.Message
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class MobileNotificationsRepositoryImpl(
     private val localDataSource: MobileNotificationsLocalDataSource,
@@ -36,9 +36,9 @@ class MobileNotificationsRepositoryImpl(
     ): Flow<Unit> = flowOf {
         val pushId = remoteDataSource.sendNotification(
             pushToken = pushToken,
-            title = message.content.title,
-            body = message.content.text,
-            imageUrl = message.content.image,
+            title = message.title,
+            body = message.text,
+            imageUrl = null,
         )
         localDataSource.savePushNotificationId(
             userId = userId,

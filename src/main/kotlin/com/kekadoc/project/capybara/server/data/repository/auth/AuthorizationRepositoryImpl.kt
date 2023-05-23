@@ -1,6 +1,5 @@
 package com.kekadoc.project.capybara.server.data.repository.auth
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.auth.AuthorizationDataSource
 import com.kekadoc.project.capybara.server.data.source.api.auth.RegistrationDataSource
 import com.kekadoc.project.capybara.server.domain.model.Authorization
@@ -13,6 +12,7 @@ import com.kekadoc.project.capybara.server.domain.model.auth.registration.Regist
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.UpdateRegistrationStatusRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 class AuthorizationRepositoryImpl(
     private val authorizationDataSource: AuthorizationDataSource,

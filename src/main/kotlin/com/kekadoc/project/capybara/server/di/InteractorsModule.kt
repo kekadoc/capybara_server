@@ -65,6 +65,7 @@ val interactorsModule = module {
             messagesRepository = get(),
             fetchUserByAccessTokenFunction = get(),
             messageWithNotificationManager = get(),
+            getReceivedMessageFunction = get(),
         )
     }
 

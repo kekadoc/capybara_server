@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.repository.notification.mobile
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
+import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.domain.model.Token
 import kotlinx.coroutines.flow.Flow
 

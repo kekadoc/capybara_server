@@ -1,11 +1,11 @@
 package com.kekadoc.project.capybara.server.data.repository.user
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAccessDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.communication.UserCommunicationsDataSource
 import com.kekadoc.project.capybara.server.domain.model.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class UsersRepositoryImpl(
     private val usersDataSource: UsersDataSource,

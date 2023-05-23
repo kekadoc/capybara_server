@@ -1,11 +1,11 @@
 package com.kekadoc.project.capybara.server.data.repository.message
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.messages.MessagesDataSource
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
-import com.kekadoc.project.capybara.server.domain.model.MessageInfo
+import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.message.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class MessagesRepositoryImpl(
     private val messagesDataSource: MessagesDataSource,
@@ -13,37 +13,31 @@ class MessagesRepositoryImpl(
 
     override fun createMessage(
         authorId: Identifier,
-        type: Message.Type,
-        addresseeGroups: Set<Identifier>,
-        addresseeUsers: Set<Identifier>,
-        content: Message.Content,
-        actions: Message.Actions?,
-        notifications: Message.Notifications
+        type: MessageType,
+        title: String?,
+        text: String,
+        actions: List<MessageAction>?,
+        isMultiAction: Boolean,
+        addresseeUsers: List<Identifier>,
+        addresseeGroups: List<Identifier>,
+        notifications: MessageNotifications?,
     ): Flow<Message> = flowOf {
         messagesDataSource.createMessage(
             authorId = authorId,
             type = type,
+            title = title,
+            text = text,
+            actions = actions,
+            isMultiAction = isMultiAction,
             addresseeGroups = addresseeGroups,
             addresseeUsers = addresseeUsers,
-            content = content,
-            actions = actions,
-            notifications = notifications,
-        )
-    }
-
-    override fun updateMessage(
-        messageId: Identifier,
-        content: Message.Content,
-    ): Flow<Message> = flowOf {
-        messagesDataSource.updateMessage(
-            messageId = messageId,
-            content = content,
+            notifications = notifications ?: MessageNotifications.Default,
         )
     }
 
     override fun updateMessageStatus(
         messageId: Identifier,
-        status: MessageInfo.Status,
+        status: MessageStatus,
     ): Flow<Message> = flowOf {
         messagesDataSource.updateMessageStatus(
             messageId = messageId,
@@ -83,39 +77,45 @@ class MessagesRepositoryImpl(
         )
     }
 
+    override fun getAddresseeUserInfo(
+        messageId: Identifier,
+        userId: Identifier,
+    ): Flow<MessageForUser> = flowOf {
+        messagesDataSource.getAddresseeUserInfo(
+            messageId = messageId,
+            userId = userId,
+        )
+    }
+
     override fun getMessagesByAuthorId(
         authorId: Identifier,
+        range: Range,
     ): Flow<List<Message>> = flowOf {
         messagesDataSource.getMessagesByAuthorId(
             authorId = authorId,
+            range = range,
         )
     }
 
     override fun getMessagesByAddresseeUserId(
         userId: Identifier,
+        range: Range,
     ): Flow<List<Message>> = flowOf {
         messagesDataSource.getMessagesByAddresseeUserId(
             userId = userId,
-        )
-    }
-
-    override fun getMessagesByAddresseeGroupIds(
-        groupIds: Set<Identifier>,
-    ): Flow<List<Message>> = flowOf {
-        messagesDataSource.getMessagesByAddresseeGroupIds(
-            groupIds = groupIds,
+            range = range,
         )
     }
 
     override fun setReceivedMessageAnswer(
         messageId: Identifier,
         userId: Identifier,
-        answer: String,
+        answerIds: List<Long>,
     ): Flow<Message> = flowOf {
         messagesDataSource.setReceivedMessageAnswer(
             messageId = messageId,
             userId = userId,
-            answer = answer,
+            answerIds = answerIds,
         )
     }
 

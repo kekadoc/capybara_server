@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.domain.intercator
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.domain.model.Message
+import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.domain.model.Profile
 import com.kekadoc.project.capybara.server.domain.model.User
 import io.ktor.http.*

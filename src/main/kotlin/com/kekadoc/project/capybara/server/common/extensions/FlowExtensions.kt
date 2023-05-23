@@ -1,6 +1,4 @@
-package com.kekadoc.project.capybara.server.common.extensions
-
-import kotlinx.coroutines.flow.*
+package kotlinx.coroutines.flow
 
 fun <T> flowOf(block: suspend () -> T): Flow<T> = flow { emit(block()) }
 

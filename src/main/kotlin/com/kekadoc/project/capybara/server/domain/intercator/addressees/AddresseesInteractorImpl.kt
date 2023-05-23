@@ -2,16 +2,15 @@
 
 package com.kekadoc.project.capybara.server.domain.intercator.addressees
 
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.converter.GroupDtoConverter
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ProfileDtoFactory
-import com.kekadoc.project.capybara.server.data.source.network.model.AddresseeDto
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
+import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
 import com.kekadoc.project.capybara.server.routing.api.addressees.model.GetAddresseesResponse
+import com.kekadoc.project.capybara.server.routing.model.converter.GroupDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.combine
@@ -46,15 +45,8 @@ class AddresseesInteractorImpl(
                         groupsRepository.getGroups(groupsList),
                     ) { users, groups ->
                         GetAddresseesResponse(
-                            users = users
-                                .map { nextUser ->
-                                    AddresseeDto(
-                                        userId = nextUser.id,
-                                        profile = ProfileDtoFactory.create(nextUser),
-                                    )
-                                },
-                            groups = groups
-                                .map(GroupDtoConverter::convert),
+                            users = users.map(ProfileDtoFactory::create),
+                            groups = groups.map(GroupDtoConverter::convert),
                         )
                     }
                 }.flattenConcat()

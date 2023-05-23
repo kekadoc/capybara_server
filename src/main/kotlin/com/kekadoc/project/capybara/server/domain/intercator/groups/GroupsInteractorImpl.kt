@@ -1,11 +1,10 @@
 package com.kekadoc.project.capybara.server.domain.intercator.groups
 
-import com.kekadoc.project.capybara.server.common.extensions.mapElements
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.SimpleGroupDto
-import com.kekadoc.project.capybara.server.data.source.network.model.converter.GroupDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.group.SimpleGroupDto
+import com.kekadoc.project.capybara.server.routing.model.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser

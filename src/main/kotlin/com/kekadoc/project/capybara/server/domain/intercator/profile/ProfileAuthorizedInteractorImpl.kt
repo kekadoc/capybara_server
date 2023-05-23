@@ -3,10 +3,9 @@
 package com.kekadoc.project.capybara.server.domain.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.common.extensions.swap
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ExtendedProfileDtoFactory
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.Communication

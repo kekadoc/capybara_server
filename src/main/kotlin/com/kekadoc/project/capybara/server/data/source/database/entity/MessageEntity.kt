@@ -12,19 +12,18 @@ class MessageEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     companion object : UUIDEntityClass<MessageEntity>(MessageTable)
 
-    var author: UserEntity by UserEntity referencedOn MessageTable.author
-    var type: String by MessageTable.type
-    var contentTitle: String? by MessageTable.contentTitle
-    var contentText: String by MessageTable.contentText
-    var contentImage: String? by MessageTable.contentImage
-    var status: String by MessageTable.status
-    var action1: String? by MessageTable.action1
-    var action2: String? by MessageTable.action2
-    var action3: String? by MessageTable.action3
-    var notificationEmail: Boolean by MessageTable.notificationEmail
-    var notificationSms: Boolean by MessageTable.notificationSms
-    var notificationApp: Boolean by MessageTable.notificationApp
-    var notificationMessengers: Boolean by MessageTable.notificationMessengers
+    var author by UserEntity referencedOn MessageTable.author
+    var type by MessageTable.type
+    var contentTitle by MessageTable.contentTitle
+    var date by MessageTable.date
+    var contentText by MessageTable.contentText
+    var status by MessageTable.status
+    var actions by MessageTable.actions
+    var isMultiAnswer by MessageTable.isMultiAnswer
+    var notificationEmail by MessageTable.notificationEmail
+    var notificationSms by MessageTable.notificationSms
+    var notificationApp by MessageTable.notificationApp
+    var notificationMessengers by MessageTable.notificationMessengers
 
     val addresseeUsers by MessageForUserEntity referrersOn MessageForUserTable.messageId
     val addresseeGroups by MessageForGroupEntity referrersOn MessageForGroupTable.message_id

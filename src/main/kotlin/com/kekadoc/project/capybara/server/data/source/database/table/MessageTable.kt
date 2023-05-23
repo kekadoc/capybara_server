@@ -1,7 +1,8 @@
 package com.kekadoc.project.capybara.server.data.source.database.table
 
-import com.kekadoc.project.capybara.server.domain.model.Message
-import com.kekadoc.project.capybara.server.domain.model.MessageInfo
+import com.kekadoc.project.capybara.server.data.source.database.utils.textArray
+import com.kekadoc.project.capybara.server.domain.model.message.MessageStatus
+import com.kekadoc.project.capybara.server.domain.model.message.MessageType
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -16,7 +17,9 @@ object MessageTable : UUIDTable("notifications") {
     )
 
     val type = varchar("type", 255)
-        .default(Message.Type.DEFAULT.name)
+        .default(MessageType.DEFAULT.name)
+
+    val date = text("date")
 
     val contentTitle = varchar("content_title", 255)
         .nullable()
@@ -24,22 +27,13 @@ object MessageTable : UUIDTable("notifications") {
 
     val contentText = varchar("content_text", 255)
 
-    val contentImage = varchar("content_image", 255)
-        .nullable()
-        .default(null)
-
     val status: Column<String> = varchar("status", 255)
-        .default(MessageInfo.Status.UNDEFINED.name)
+        .default(MessageStatus.UNDEFINED.name)
 
-    val action1 = varchar("action_1", length = 255)
-        .nullable()
-        .default(null)
+    val isMultiAnswer = bool("is_multi_answer")
+        .default(false)
 
-    val action2 = varchar("action_2", length = 255)
-        .nullable()
-        .default(null)
-
-    val action3 = varchar("action_3", length = 255)
+    val actions = textArray("actions")
         .nullable()
         .default(null)
 

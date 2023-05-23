@@ -5,5 +5,5 @@ import com.kekadoc.project.capybara.server.domain.model.Identifier
 data class EmailNotificationAnswer(
     val userId: Identifier,
     val messageId: Identifier,
-    val answer: String,
+    val answerId: Long,
 )

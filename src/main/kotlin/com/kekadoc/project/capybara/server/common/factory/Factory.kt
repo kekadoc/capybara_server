@@ -14,16 +14,8 @@ sealed interface Factory<R> {
 
     }
 
-    interface Twin<T1, T2, R> : Factory<R> {
+    interface Twin<R, T1, T2> : Factory<R>, (T1, T2) -> R
 
-        fun create(value1: T1, value2: T2): R
-
-    }
-
-    interface Triple<T1, T2, T3, R> : Factory<R> {
-
-        fun create(value1: T1, value2: T2, value3: T3): R
-
-    }
+    interface Triple<R, T1, T2, T3> : Factory<R>, (T1, T2, T3) -> R
 
 }

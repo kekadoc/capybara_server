@@ -1,17 +1,19 @@
 package com.kekadoc.project.capybara.server.routing.api.messages
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.intercator.notification.MessagesInteractor
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.api.messages.model.CreateMessageRequestDto
-import com.kekadoc.project.capybara.server.routing.api.messages.model.PostReceivedMessageAnswerRequestDto
-import com.kekadoc.project.capybara.server.routing.api.messages.model.UpdateSentMessageRequestDto
+import com.kekadoc.project.capybara.server.routing.api.messages.model.UpdateReceivedMessageAnswerRequestDto
+import com.kekadoc.project.capybara.server.routing.model.RangeDto
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.executeAuthorizedApi
 import com.kekadoc.project.capybara.server.routing.util.requirePathId
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -33,9 +35,6 @@ fun Route.messages() = route("/messages") {
 
             //Получение детальной информации о сообщении
             get { getSentMessage(requirePathId()) }
-
-            //Обновление сообщения
-            patch<UpdateSentMessageRequestDto> { request -> updateSentMessage(requirePathId(), request) }
 
             //Удалить сообщение
             delete { deleteSentMessage(requirePathId()) }
@@ -59,7 +58,7 @@ fun Route.messages() = route("/messages") {
             get { getReceivedMessage(requirePathId()) }
 
             //Отправка ответа на сообщение
-            post<PostReceivedMessageAnswerRequestDto>("/answer") { request ->
+            post<UpdateReceivedMessageAnswerRequestDto>("/answer") { request ->
                 answerReceivedMessage(
                     messageId = requirePathId(),
                     request = request,
@@ -71,6 +70,7 @@ fun Route.messages() = route("/messages") {
 
             //Сообщение о том что сообщение прочитано
             patch("/notify_read") { notifyReadMessage(requirePathId()) }
+
         }
 
     }
@@ -82,7 +82,18 @@ private suspend fun PipelineContext.getSentMessages() = execute(
 ) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MessagesInteractor>()
-    val result = interactor.getSentMessages(authToken)
+
+    val from = call.request.queryParameters["from"]?.toIntOrNull()
+    val count = call.request.queryParameters["count"]?.toIntOrNull()
+
+    if (from == null || count == null) {
+        throw HttpException(HttpStatusCode.BadRequest, "range not found")
+    }
+    val range = RangeDto(
+        from = from,
+        count = count,
+    )
+    val result = interactor.getSentMessages(authToken, range)
     call.respond(result)
 }
 
@@ -109,20 +120,6 @@ private suspend fun PipelineContext.createMessage(
         )
         call.respond(result)
     }
-
-private suspend fun PipelineContext.updateSentMessage(
-    messageId: Identifier,
-    request: UpdateSentMessageRequestDto,
-) = execute {
-    val authToken = AuthorizationVerifier.requireAuthorizationToken()
-    val interactor = Di.get<MessagesInteractor>()
-    val result = interactor.updateSentMessage(
-        authToken = authToken,
-        messageId = messageId,
-        request = request,
-    )
-    call.respond(result)
-}
 
 private suspend fun PipelineContext.deleteSentMessage(
     messageId: Identifier,
@@ -156,8 +153,21 @@ private suspend fun DefaultWebSocketServerSession.observeNotificationStatus(
 private suspend fun PipelineContext.getReceivedMessage() = executeAuthorizedApi {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MessagesInteractor>()
+
+    val from = call.request.queryParameters["from"]?.toIntOrNull()
+    val count = call.request.queryParameters["count"]?.toIntOrNull()
+
+    if (from == null || count == null) {
+        throw HttpException(HttpStatusCode.BadRequest, "range not found")
+    }
+    val range = RangeDto(
+        from = from,
+        count = count,
+    )
+
     val result = interactor.getReceivedMessages(
         authToken = authToken,
+        range = range,
     )
     call.respond(result)
 }
@@ -176,7 +186,7 @@ private suspend fun PipelineContext.getReceivedMessage(
 
 private suspend fun PipelineContext.answerReceivedMessage(
     messageId: Identifier,
-    request: PostReceivedMessageAnswerRequestDto,
+    request: UpdateReceivedMessageAnswerRequestDto,
 ) = executeAuthorizedApi {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<MessagesInteractor>()

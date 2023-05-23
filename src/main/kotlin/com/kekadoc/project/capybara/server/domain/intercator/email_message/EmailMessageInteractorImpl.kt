@@ -22,7 +22,7 @@ class EmailMessageInteractorImpl(
                 messagesRepository.setReceivedMessageAnswer(
                     messageId = result.messageId,
                     userId = result.userId,
-                    answer = result.answer,
+                    answerIds = listOf(result.answerId),
                 )
             }
             .collect()

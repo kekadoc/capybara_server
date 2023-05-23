@@ -14,6 +14,7 @@ class MessageForUserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var userId: UserEntity by UserEntity referencedOn MessageForUserTable.userId
     var received: Boolean by MessageForUserTable.received
     var read: Boolean by MessageForUserTable.read
-    var answer: String? by MessageForUserTable.answer
+    var answerIds by MessageForUserTable.answerIndexes
     var fromGroup: Boolean by MessageForUserTable.fromGroup
+
 }

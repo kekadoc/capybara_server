@@ -1,21 +1,27 @@
 package com.kekadoc.project.capybara.server.domain.intercator.notification
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.common.extensions.mapElements
-import com.kekadoc.project.capybara.server.common.extensions.orElse
 import com.kekadoc.project.capybara.server.data.manager.message_with_notification.MessageWithNotificationManager
 import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.converter.MessageDtoConverter
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.MessageInfoDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.*
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
+import com.kekadoc.project.capybara.server.domain.intercator.functions.GetReceivedMessageFunction
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
 import com.kekadoc.project.capybara.server.domain.model.Token
+import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
+import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
+import com.kekadoc.project.capybara.server.domain.model.message.MessageType
 import com.kekadoc.project.capybara.server.routing.api.messages.model.*
+import com.kekadoc.project.capybara.server.routing.model.RangeDto
+import com.kekadoc.project.capybara.server.routing.model.converter.RangeDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.factory.SentMessageInfoDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.factory.SentMessagePreviewDtoFactory
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -24,15 +30,31 @@ class MessagesInteractorImpl(
     private val userRepository: UsersRepository,
     private val messagesRepository: MessagesRepository,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
+    private val getReceivedMessageFunction: GetReceivedMessageFunction,
 ) : MessagesInteractor {
 
     override suspend fun getSentMessages(
         authToken: Token,
-    ): GetSentNotificationsResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        range: RangeDto,
+    ): GetSentMessagesResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
-        .flatMapLatest { user -> messagesRepository.getMessagesByAuthorId(user.id) }
-        .mapElements(MessageDtoConverter::convert)
-        .map(::GetSentNotificationsResponseDto)
+        .flatMapLatest { user ->
+            messagesRepository.getMessagesByAuthorId(
+                authorId = user.id,
+                range = RangeDtoConverter.convert(range),
+            )
+                .map { messages ->
+                    coroutineScope {
+                        messages.map { message ->
+                            async {
+                                val messageInfo = messagesRepository.getMessageInfo(message.id).single()
+                                SentMessagePreviewDtoFactory.invoke(message, messageInfo)
+                            }
+                        }.awaitAll()
+                    }
+                }
+        }
+        .map(::GetSentMessagesResponseDto)
         .single()
 
     override suspend fun createMessage(
@@ -70,19 +92,29 @@ class MessagesInteractorImpl(
             ) { _, _ -> }
                 .flatMapLatest {
                     messageWithNotificationManager.sentMessage(
-                        type = request.type.let(MessageDtoConverter.TypeConverter::revert),
+                        type = MessageType.valueOf(request.type.name),
                         authorId = user.id,
-                        addresseeGroups = request.addresseeGroups.toSet(),
-                        addresseeUsers = request.addresseeUsers.toSet(),
-                        content = request.content.let(MessageDtoConverter.ContentConverter::revert),
-                        actions = request.actions.let(MessageDtoConverter.ActionsConverter::revert),
-                        notifications = request.notifications
-                            ?.let(MessageDtoConverter.NotificationsConverter::revert)
-                            .orElse { Message.Notifications.Default },
+                        addresseeGroups = request.addresseeGroups,
+                        addresseeUsers = request.addresseeUsers,
+                        title = request.title,
+                        text = request.text,
+                        actions = request.actions?.mapIndexed { index, text -> MessageAction(id = index.toLong(), text = text) },
+                        isMultiAction = request.isMultiAnswer,
+                        notifications = request.notifications?.let {
+                            MessageNotifications(
+                                email = it.email,
+                                sms = it.sms,
+                                app = it.app,
+                                messengers = it.messengers,
+                            )
+                        } ?: MessageNotifications.Default,
                     )
                 }
+                .map { message ->
+                    val messageInfo = messagesRepository.getMessageInfo(message.id).single()
+                    SentMessagePreviewDtoFactory.invoke(message, messageInfo)
+                }
         }
-        .map(MessageDtoConverter::convert)
         .map(::CreateNotificationResponseDto)
         .single()
 
@@ -99,65 +131,46 @@ class MessagesInteractorImpl(
                     }
                 }
         }
-        .map(MessageInfoDtoFactory::create)
+        .map(SentMessageInfoDtoFactory::create)
         .map(::GetSentMessageResponseDto)
         .single()
 
-    override suspend fun updateSentMessage(
+    override suspend fun deleteSentMessage(
         authToken: Token,
-        messageId: Identifier,
-        request: UpdateSentMessageRequestDto,
-    ): UpdateSentMessageResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        messageId: Identifier
+    ) = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .flatMapLatest { user ->
             messagesRepository.getMessage(messageId)
                 .orNotFoundError()
                 .requireAuthor(user)
-                .map { user }
         }
         .flatMapLatest {
-            messagesRepository.updateMessage(
+            messagesRepository.removeMessage(
                 messageId = messageId,
-                content = MessageDtoConverter.ContentConverter.revert(request.content),
             )
         }
-        .map(MessageDtoConverter::convert)
-        .map(::UpdateSentMessageResponseDto)
         .single()
-
-    override suspend fun deleteSentMessage(
-        authToken: Token,
-        messageId: Identifier,
-    ) {
-        fetchUserByAccessTokenFunction.fetchUser(authToken)
-            .requireAuthorizedUser()
-            .flatMapLatest { user ->
-                messagesRepository.getMessage(messageId)
-                    .orNotFoundError()
-                    .requireAuthor(user)
-            }
-            .flatMapLatest {
-                messagesRepository.removeMessage(
-                    messageId = messageId,
-                )
-            }
-            .single()
-    }
 
     override suspend fun getReceivedMessages(
         authToken: Token,
-    ): GetReceivedMessagesDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        range: RangeDto,
+    ): GetReceivedMessagesResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .flatMapLatest { user ->
-            combine(
-                messagesRepository.getMessagesByAddresseeUserId(user.id),
-                messagesRepository.getMessagesByAddresseeGroupIds(user.groupIds.toSet()),
-            ) { messagesByAddresseeUser, messagesByAddresseeGroup ->
-                messagesByAddresseeUser + messagesByAddresseeGroup
-            }
+            messagesRepository.getMessagesByAddresseeUserId(
+                userId = user.id,
+                range = RangeDtoConverter.convert(range),
+            )
+                .map { messages ->
+                    coroutineScope {
+                         messages.map { message ->
+                            async { getReceivedMessageFunction.get(message, user) }
+                        }.awaitAll()
+                    }
+                }
         }
-        .mapElements(MessageDtoConverter::convert)
-        .map(::GetReceivedMessagesDto)
+        .map(::GetReceivedMessagesResponseDto)
         .single()
 
     override suspend fun getReceivedMessage(
@@ -169,15 +182,15 @@ class MessagesInteractorImpl(
             messagesRepository.getMessage(messageId)
                 .orNotFoundError()
                 .requireAddressee(user)
+                .map { message -> getReceivedMessageFunction.get(message, user) }
         }
-        .map(MessageDtoConverter::convert)
         .map(::GetReceivedNotificationDto)
         .single()
 
     override suspend fun setReceivedMessageAnswer(
         authToken: Token,
         messageId: Identifier,
-        request: PostReceivedMessageAnswerRequestDto,
+        request: UpdateReceivedMessageAnswerRequestDto,
     ): Unit = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .flatMapLatest { user ->
@@ -188,7 +201,7 @@ class MessagesInteractorImpl(
                     messagesRepository.setReceivedMessageAnswer(
                         messageId = messageId,
                         userId = user.id,
-                        answer = request.answer,
+                        answerIds = request.answerIds,
                     )
                 }
                 .orNotFoundError()

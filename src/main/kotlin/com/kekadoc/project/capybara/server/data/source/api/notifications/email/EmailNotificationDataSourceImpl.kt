@@ -2,7 +2,11 @@ package com.kekadoc.project.capybara.server.data.source.api.notifications.email
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.Communication
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Token
+import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.message.Message
 import io.ktor.utils.io.charsets.*
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
@@ -31,29 +35,33 @@ class EmailNotificationDataSourceImpl(
                 .find { it.type == Communication.Type.Email }
                 ?.let(Communication::value)
                 ?: return@map null
+            val action1 = message.actions.getOrNull(0)
+            val action2 = message.actions.getOrNull(2)
+            val action3 = message.actions.getOrNull(3)
+
             val notificationText = buildMessage(
                 head = config.subject,
-                title = message.content.title,
-                message = message.content.text,
-                action1 = message.actions?.action1?.let { action1Text ->
+                title = message.title,
+                message = message.text,
+                action1 = action1?.let { (id, action1Text) ->
                     action1Text to createAnswerRequestUrl(
                         userId = user.id,
                         notificationId = message.id,
-                        answer = action1Text,
+                        answerId = id,
                     )
                 } ,
-                action2 = message.actions?.action2?.let { action2Text ->
+                action2 = action2?.let { (id, action2Text) ->
                     action2Text to createAnswerRequestUrl(
                         userId = user.id,
                         notificationId = message.id,
-                        answer = action2Text,
+                        answerId = id,
                     )
                 },
-                action3 = message.actions?.action3?.let { action3Text ->
+                action3 = action3?.let { (id, action3Text) ->
                     action3Text to createAnswerRequestUrl(
                         userId = user.id,
                         notificationId = message.id,
-                        answer = action3Text,
+                        answerId = id,
                     )
                 }
             )
@@ -80,31 +88,31 @@ class EmailNotificationDataSourceImpl(
     private fun createAnswerToken(
         userId: Identifier,
         notificationId: Identifier,
-        answer: String,
+        answerId: Long,
     ): Token = JWT.create()
         .withClaim("userId", userId.toString())
         .withClaim("notificationId", notificationId.toString())
-        .withClaim("answer", answer)
+        .withClaim("answerId", answerId)
         .sign(algorithm)
 
     private fun createAnswerRequestUrl(
         userId: Identifier,
         notificationId: Identifier,
-        answer: String,
+        answerId: Long,
     ): String {
-        return host + "?at=${createAnswerToken(userId, notificationId, answer)}"
+        return host + "?at=${createAnswerToken(userId, notificationId, answerId)}"
     }
 
     private fun parseAnswerToken(answerToken: Token): EmailNotificationAnswer? {
         val decoded = JWT.decode(answerToken)
         val userId: UUID? = decoded.getClaim("userId").asString()?.let(UUID::fromString)
         val notificationId: UUID? = decoded.getClaim("notificationId").asString()?.let(UUID::fromString)
-        val answer: String? = decoded.getClaim("answer").asString()
-        return if (userId != null && notificationId != null && answer != null) {
+        val answerId: Long? = decoded.getClaim("answerId").asLong()
+        return if (userId != null && notificationId != null && answerId != null) {
             EmailNotificationAnswer(
                 userId = userId,
                 messageId = notificationId,
-                answer = answer,
+                answerId = answerId,
             )
         } else {
             null

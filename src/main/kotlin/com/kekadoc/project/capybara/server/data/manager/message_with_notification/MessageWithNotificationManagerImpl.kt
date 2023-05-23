@@ -1,15 +1,15 @@
 package com.kekadoc.project.capybara.server.data.manager.message_with_notification
 
-import com.kekadoc.project.capybara.server.common.extensions.mapElements
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
 import com.kekadoc.project.capybara.server.data.repository.notification.email.EmailNotificationRepository
 import com.kekadoc.project.capybara.server.data.repository.notification.mobile.MobileNotificationsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.domain.model.Group
-import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Message
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.message.Message
+import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
+import com.kekadoc.project.capybara.server.domain.model.message.MessageType
+import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -26,27 +26,29 @@ class MessageWithNotificationManagerImpl(
 
     override fun sentMessage(
         authorId: Identifier,
-        type: Message.Type,
-        addresseeGroups: Set<Identifier>,
-        addresseeUsers: Set<Identifier>,
-        content: Message.Content,
-        actions: Message.Actions?,
-        notifications: Message.Notifications,
+        type: MessageType,
+        title: String?,
+        text: String,
+        actions: List<MessageAction>?,
+        isMultiAction: Boolean,
+        addresseeUsers: List<Identifier>,
+        addresseeGroups: List<Identifier>,
+        notifications: MessageNotifications?
     ): Flow<Message> = messagesRepository.createMessage(
         authorId = authorId,
         type = type,
-        addresseeGroups = addresseeGroups,
-        addresseeUsers = addresseeUsers,
-        content = content,
-        notifications = notifications,
+        title = title,
+        text = text,
         actions = actions,
+        isMultiAction = isMultiAction,
+        addresseeUsers = addresseeUsers,
+        addresseeGroups = addresseeGroups,
+        notifications = notifications,
     )
         .onEach(::handleMessageByNotifications)
 
     private suspend fun handleMessageByNotifications(message: Message) = coroutineScope {
         val allUserIds = getAllUsersForMessage(message)
-        println("__TEST__handleMessageByNotifications__message=$message")
-        println("__TEST__handleMessageByNotifications__allUserIds=$allUserIds")
         with(message.notifications) {
             if (this.email) sentEmailNotification(message, allUserIds)
             if (this.app) sentAppNotification(message, allUserIds)

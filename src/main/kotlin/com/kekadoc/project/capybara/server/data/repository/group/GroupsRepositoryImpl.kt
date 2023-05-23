@@ -1,10 +1,10 @@
 package com.kekadoc.project.capybara.server.data.repository.group
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import com.kekadoc.project.capybara.server.domain.model.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class GroupsRepositoryImpl(
     private val dataSource: GroupDataSource,

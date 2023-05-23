@@ -3,24 +3,20 @@
 package com.kekadoc.project.capybara.server.domain.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
-import com.kekadoc.project.capybara.server.common.extensions.swap
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.data.source.network.model.converter.ProfileTypeDtoConverter
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ExtendedProfileDtoFactory
-import com.kekadoc.project.capybara.server.data.source.network.model.factory.ProfileDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireUser
 import com.kekadoc.project.capybara.server.domain.model.*
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.model.converter.ProfileTypeDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.*
 
 class ProfileAdminInteractorImpl(
     private val userRepository: UsersRepository,

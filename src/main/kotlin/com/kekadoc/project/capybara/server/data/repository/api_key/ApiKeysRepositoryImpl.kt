@@ -1,9 +1,9 @@
 package com.kekadoc.project.capybara.server.data.repository.api_key
 
-import com.kekadoc.project.capybara.server.common.extensions.flowOf
 import com.kekadoc.project.capybara.server.data.source.api.api_key.ApiKeyDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOf
 
 class ApiKeysRepositoryImpl(
     private val apiKeyDataSource: ApiKeyDataSource

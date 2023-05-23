@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.routing.api.profile.model
 
-import com.kekadoc.project.capybara.server.data.source.network.model.ProfileTypeDto
+import com.kekadoc.project.capybara.server.routing.model.profile.ProfileTypeDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,8 +18,6 @@ data class CreateProfileRequestDto(
     val surname: String,
     @SerialName("patronymic")
     val patronymic: String,
-    @SerialName("avatar")
-    val avatar: String,
     @SerialName("about")
     val about: String,
 )
