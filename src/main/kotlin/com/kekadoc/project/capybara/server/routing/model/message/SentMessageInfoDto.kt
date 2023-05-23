@@ -28,6 +28,8 @@ data class SentMessageInfoDto(
     val addresseeUsers: List<FromUserInfo>,
     @SerialName("status")
     val status: MessageStatusDto,
+    @SerialName("notifications")
+    val notifications: MessageNotificationsDto,
 ) {
 
     @Serializable

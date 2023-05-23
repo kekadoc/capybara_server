@@ -60,7 +60,7 @@ class MessagesInteractorImpl(
     override suspend fun createMessage(
         authToken: Token,
         request: CreateMessageRequestDto,
-    ): CreateNotificationResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+    ): CreateMessageResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireSpeakerUser()
         .flatMapLatest { user ->
@@ -115,7 +115,7 @@ class MessagesInteractorImpl(
                     SentMessagePreviewDtoFactory.invoke(message, messageInfo)
                 }
         }
-        .map(::CreateNotificationResponseDto)
+        .map(::CreateMessageResponseDto)
         .single()
 
     override suspend fun getSentMessage(
@@ -176,7 +176,7 @@ class MessagesInteractorImpl(
     override suspend fun getReceivedMessage(
         authToken: Token,
         messageId: Identifier,
-    ): GetReceivedNotificationDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+    ): GetReceivedMessageDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .flatMapLatest { user ->
             messagesRepository.getMessage(messageId)
@@ -184,7 +184,7 @@ class MessagesInteractorImpl(
                 .requireAddressee(user)
                 .map { message -> getReceivedMessageFunction.get(message, user) }
         }
-        .map(::GetReceivedNotificationDto)
+        .map(::GetReceivedMessageDto)
         .single()
 
     override suspend fun setReceivedMessageAnswer(

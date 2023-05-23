@@ -4,6 +4,7 @@ import com.kekadoc.project.capybara.server.common.factory.Factory
 import com.kekadoc.project.capybara.server.common.time.Time
 import com.kekadoc.project.capybara.server.domain.model.message.MessageInfo
 import com.kekadoc.project.capybara.server.routing.model.converter.MessageActionDtoConverter
+import com.kekadoc.project.capybara.server.routing.model.converter.NotificationsConverter
 import com.kekadoc.project.capybara.server.routing.model.message.MessageStatusDto
 import com.kekadoc.project.capybara.server.routing.model.message.MessageTypeDto
 import com.kekadoc.project.capybara.server.routing.model.message.SentMessageInfoDto
@@ -22,6 +23,7 @@ object SentMessageInfoDtoFactory : Factory.Single<MessageInfo, SentMessageInfoDt
             addresseeGroups = value.addresseeGroups.map(::createGroupInfo),
             addresseeUsers = value.addresseeUsers.map(::createFromUserInfo),
             status = MessageStatusDto.valueOf(value.status.name),
+            notifications = NotificationsConverter.convert(value.message.notifications)
         )
     }
 

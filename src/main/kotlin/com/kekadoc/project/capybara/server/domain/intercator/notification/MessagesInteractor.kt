@@ -15,7 +15,7 @@ interface MessagesInteractor {
     suspend fun getReceivedMessage(
         authToken: Token,
         messageId: Identifier,
-    ): GetReceivedNotificationDto
+    ): GetReceivedMessageDto
 
     suspend fun setReceivedMessageAnswer(
         authToken: Token,
@@ -46,7 +46,7 @@ interface MessagesInteractor {
     suspend fun createMessage(
         authToken: Token,
         request: CreateMessageRequestDto,
-    ): CreateNotificationResponseDto
+    ): CreateMessageResponseDto
 
     suspend fun deleteSentMessage(
         authToken: Token,
