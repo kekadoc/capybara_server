@@ -49,6 +49,7 @@ class MessageWithNotificationManagerImpl(
 
     private suspend fun handleMessageByNotifications(message: Message) = coroutineScope {
         val allUserIds = getAllUsersForMessage(message)
+        println("handleMessageByNotifications $allUserIds ${message.notifications}")
         with(message.notifications) {
             if (this.email) sentEmailNotification(message, allUserIds)
             if (this.app) sentAppNotification(message, allUserIds)
@@ -68,8 +69,10 @@ class MessageWithNotificationManagerImpl(
         message: Message,
         allUserIds: List<Identifier>,
     ) = launch(Dispatchers.IO) {
+        println("PUSH TOKENS $allUserIds")
         mobileNotificationsRepository.getPushTokens(allUserIds)
             .onEach { userIdsWithTokens ->
+                println("PUSH TOKENS $userIdsWithTokens")
                 coroutineScope {
                     userIdsWithTokens.forEach { (userId, token) ->
                         if (token != null) {
@@ -78,12 +81,14 @@ class MessageWithNotificationManagerImpl(
                                     userId = userId,
                                     pushToken = token,
                                     message = message,
-                                )
+                                    actions = message.actions,
+                                ).collect()
                             }
                         }
                     }
                 }
             }
+            .collect()
     }
 
     private suspend fun getAllUsersForMessage(message: Message): List<Identifier> {

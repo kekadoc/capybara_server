@@ -37,10 +37,10 @@ val configModule = module {
                 tokenSecret = "213_email_secret_acdef",
                 hostName = "smtp.yandex.ru",
                 smtpPort = 465,
-                username = "ya.zer567@ya.ru",
-                password = "&3igVB.?/Zx3HNj",
-                fromEmail = "ya.zer567@ya.ru",
-                subject = "Чайковский филиал ПНИПУ",
+                username = "pnipu.notifications@yandex.ru",//"ya.zer567@ya.ru",
+                password = "uvxguixghqdxsblk",//"&3igVB.?/Zx3HNj",
+                fromEmail = "pnipu.notifications@yandex.ru",//"ya.zer567@ya.ru",
+                subject = "Информирование",
             )
         } else {
             // TODO: Production config

@@ -161,8 +161,8 @@ class AuthInteractorImpl(
                             name = requestInfo.name,
                             surname = requestInfo.surname,
                             patronymic = requestInfo.patronymic,
-                            about = if (requestInfo.isStudent) "Студент" else null
-                        )
+                            about = if (requestInfo.isStudent) "Студент" else null,
+                        ),
                     ).single()
                     usersRepository.updateUserCommunications(
                         userId = createdUser.id,

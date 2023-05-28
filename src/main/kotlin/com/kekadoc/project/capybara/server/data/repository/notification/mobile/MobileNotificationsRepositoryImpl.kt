@@ -5,6 +5,7 @@ import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.message.Message
+import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -32,13 +33,15 @@ class MobileNotificationsRepositoryImpl(
     override fun sendNotification(
         userId: Identifier,
         pushToken: String,
-        message: Message
+        message: Message,
+        actions: List<MessageAction>,
     ): Flow<Unit> = flowOf {
         val pushId = remoteDataSource.sendNotification(
             pushToken = pushToken,
             title = message.title,
             body = message.text,
             imageUrl = null,
+            actions = actions,
         )
         localDataSource.savePushNotificationId(
             userId = userId,
