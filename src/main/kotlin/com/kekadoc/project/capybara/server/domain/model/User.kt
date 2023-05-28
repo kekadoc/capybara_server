@@ -9,3 +9,5 @@ data class User(
     val communications: Communications,
     val groupIds: List<Identifier>
 )
+
+fun User.isAdmin(): Boolean = profile.type == Profile.Type.ADMIN

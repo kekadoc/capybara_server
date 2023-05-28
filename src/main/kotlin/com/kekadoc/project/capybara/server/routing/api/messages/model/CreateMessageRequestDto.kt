@@ -12,17 +12,28 @@ data class CreateMessageRequestDto(
     @SerialName("type")
     val type: MessageTypeDto,
     @SerialName("title")
-    val title: String?,
+    val title: String? = null,
     @SerialName("text")
     val text: String,
     @SerialName("actions")
-    val actions: List<String>?,
+    val actions: List<String>? = null,
     @SerialName("is_multi_answer")
     val isMultiAnswer: Boolean = false,
     @SerialName("addressee_users")
-    val addresseeUsers: List<@Contextual Identifier>,
+    val addresseeUsers: List<@Contextual Identifier> = emptyList(),
     @SerialName("addressee_groups")
-    val addresseeGroups: List<@Contextual Identifier>,
+    val addresseeGroups: List<AddresseeGroup> = emptyList(),
     @SerialName("notifications")
     val notifications: MessageNotificationsDto? = null,
-)
+) {
+
+    @Serializable
+    data class AddresseeGroup(
+        @Contextual
+        @SerialName("group_id")
+        val groupId: Identifier,
+        @SerialName("members_ids")
+        val membersIds: List<@Contextual Identifier>? = null
+    )
+
+}

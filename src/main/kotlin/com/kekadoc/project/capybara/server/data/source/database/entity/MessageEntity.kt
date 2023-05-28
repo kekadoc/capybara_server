@@ -21,11 +21,10 @@ class MessageEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var actions by MessageTable.actions
     var isMultiAnswer by MessageTable.isMultiAnswer
     var notificationEmail by MessageTable.notificationEmail
-    var notificationSms by MessageTable.notificationSms
     var notificationApp by MessageTable.notificationApp
     var notificationMessengers by MessageTable.notificationMessengers
 
     val addresseeUsers by MessageForUserEntity referrersOn MessageForUserTable.messageId
-    val addresseeGroups by MessageForGroupEntity referrersOn MessageForGroupTable.message_id
+    val addresseeGroups by MessageForGroupEntity referrersOn MessageForGroupTable.messageId
 
 }

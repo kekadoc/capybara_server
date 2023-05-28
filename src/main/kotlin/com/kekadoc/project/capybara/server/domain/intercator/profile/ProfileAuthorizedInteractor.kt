@@ -15,6 +15,11 @@ interface ProfileAuthorizedInteractor {
         profileId: Identifier,
     ): GetProfileResponse
 
+    suspend fun getProfiles(
+        accessToken: Token,
+        profileIds: List<Identifier>,
+    ): GetProfileListResponseDto
+
     suspend fun updateProfile(
         accessToken: Token,
         request: UpdateProfileRequestDto,

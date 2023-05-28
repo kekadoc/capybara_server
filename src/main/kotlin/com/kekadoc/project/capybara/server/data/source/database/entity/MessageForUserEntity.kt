@@ -10,11 +10,11 @@ class MessageForUserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     companion object : UUIDEntityClass<MessageForUserEntity>(MessageForUserTable)
 
-    var message: MessageEntity by MessageEntity referencedOn MessageForUserTable.messageId
-    var userId: UserEntity by UserEntity referencedOn MessageForUserTable.userId
-    var received: Boolean by MessageForUserTable.received
-    var read: Boolean by MessageForUserTable.read
+    var message by MessageEntity referencedOn MessageForUserTable.messageId
+    var userId by UserEntity referencedOn MessageForUserTable.userId
+    var received by MessageForUserTable.received
+    var read by MessageForUserTable.read
     var answerIds by MessageForUserTable.answerIndexes
-    var fromGroup: Boolean by MessageForUserTable.fromGroup
+    var asGroupMember by GroupEntity optionalReferencedOn MessageForUserTable.asGroupMember
 
 }

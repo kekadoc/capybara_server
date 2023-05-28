@@ -2,6 +2,7 @@
 
 package com.kekadoc.project.capybara.server.routing.errors
 
+import com.kekadoc.project.capybara.server.common.exception.EntityNotFoundException
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -16,6 +17,12 @@ suspend fun ApplicationCall.handleError(e: Throwable) {
     when (e) {
         is HttpException -> {
             respond(e.statusCode, e.message.orEmpty())
+        }
+        is EntityNotFoundException -> {
+            respond(
+                HttpStatusCode.NotFound,
+                e.message.orEmpty(),
+            )
         }
         is BadRequestException -> {
             when (val root = e.rootCause ?: e) {

@@ -6,6 +6,7 @@ import com.kekadoc.project.capybara.server.domain.model.message.MessageType
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.javatime.datetime
 
 object MessageTable : UUIDTable("notifications") {
 
@@ -19,7 +20,7 @@ object MessageTable : UUIDTable("notifications") {
     val type = varchar("type", 255)
         .default(MessageType.DEFAULT.name)
 
-    val date = text("date")
+    val date = datetime("date")
 
     val contentTitle = varchar("content_title", 255)
         .nullable()

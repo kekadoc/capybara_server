@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 
 object MessageForGroupTable : UUIDTable("messages_for_groups") {
 
-    val message_id = reference(
+    val messageId = reference(
         name = "message_id",
         foreign = MessageTable,
         onDelete = ReferenceOption.CASCADE,

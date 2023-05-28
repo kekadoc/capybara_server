@@ -8,7 +8,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
 import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
-import com.kekadoc.project.capybara.server.routing.api.addressees.model.GetAddresseesResponse
+import com.kekadoc.project.capybara.server.routing.api.addressees.model.GetAddresseesResponseDto
 import com.kekadoc.project.capybara.server.routing.model.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,7 +26,7 @@ class AddresseesInteractorImpl(
 
     override suspend fun getAddresses(
         authToken: String,
-    ): GetAddresseesResponse {
+    ): GetAddresseesResponseDto {
         return fetchUserByAccessTokenFunction.fetchUser(authToken)
             .requireAuthorizedUser()
             .flatMapLatest { user ->
@@ -44,7 +44,7 @@ class AddresseesInteractorImpl(
                         userRepository.getUsersByIds(usersList),
                         groupsRepository.getGroups(groupsList),
                     ) { users, groups ->
-                        GetAddresseesResponse(
+                        GetAddresseesResponseDto(
                             users = users.map(ProfileDtoFactory::create),
                             groups = groups.map(GroupDtoConverter::convert),
                         )

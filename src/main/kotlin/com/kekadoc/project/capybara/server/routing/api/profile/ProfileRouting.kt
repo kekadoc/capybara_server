@@ -37,6 +37,9 @@ fun Route.profile() = route("/profile") {
     //Обновить способы связи авторизованного пользователя
     patch<UpdateUserCommunicationsRequest>("/update/communications") { request -> updateCommunications(request) }
 
+    //Получение профиля через токен авторизации
+    post<GetProfileListRequestDto>("/list") { request -> getProfileList(request) }
+
     route("/{id}") {
 
         //Получение профиля по идентификатору
@@ -197,6 +200,15 @@ private suspend fun PipelineContext.updateCommunications(
     )
 }
 
+private suspend fun PipelineContext.getProfileList(
+    request: GetProfileListRequestDto,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    Di.get<ProfileAuthorizedInteractor>().getProfiles(
+        accessToken = authToken,
+        profileIds = request.ids.map(UUID::fromString),
+    )
+}
+
 
 //By Identifiers
 
@@ -274,7 +286,7 @@ private suspend fun PipelineContext.deleteProfileById(
 private suspend fun PipelineContext.getAccessUser(
     fromUserId: Identifier,
     toUserId: Identifier,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     Di.get<ProfileAdminInteractor>().getAccessUser(
         adminAccessToken = authToken,
         fromUserId = fromUserId,
@@ -286,7 +298,7 @@ private suspend fun PipelineContext.updateAccessUser(
     fromUserId: Identifier,
     toUserId: Identifier,
     request: UpdateAccessUserRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     Di.get<ProfileAdminInteractor>().updateAccessUser(
         adminAccessToken = authToken,
         fromUserId = fromUserId,
@@ -298,7 +310,7 @@ private suspend fun PipelineContext.updateAccessUser(
 private suspend fun PipelineContext.getAccessGroup(
     userId: Identifier,
     groupId: Identifier,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     Di.get<ProfileAdminInteractor>().getAccessGroup(
         adminAccessToken = authToken,
         userId = userId,
@@ -310,7 +322,7 @@ private suspend fun PipelineContext.updateAccessGroup(
     userId: Identifier,
     groupId: Identifier,
     request: UpdateAccessGroupRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     Di.get<ProfileAdminInteractor>().updateAccessGroup(
         adminAccessToken = authToken,
         userId = userId,

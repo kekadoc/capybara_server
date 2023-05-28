@@ -17,6 +17,11 @@ interface GroupsInteractor {
         groupId: Identifier,
     ): GetGroupResponseDto
 
+    suspend fun getGroups(
+        authToken: String,
+        groupIds: List<Identifier>,
+    ): GetGroupListResponseDto
+
     suspend fun updateGroupName(
         authToken: String,
         groupId: Identifier,
@@ -39,5 +44,10 @@ interface GroupsInteractor {
         authToken: String,
         groupId: Identifier,
     )
+
+    suspend fun getGroupMembers(
+        authToken: String,
+        groupId: Identifier,
+    ): GetGroupMembersResponseDto
 
 }

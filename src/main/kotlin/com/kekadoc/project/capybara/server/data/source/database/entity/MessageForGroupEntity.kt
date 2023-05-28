@@ -10,7 +10,7 @@ class MessageForGroupEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     companion object : UUIDEntityClass<MessageForGroupEntity>(MessageForGroupTable)
 
-    var message by MessageEntity referencedOn MessageForGroupTable.message_id
+    var message by MessageEntity referencedOn MessageForGroupTable.messageId
     var group by GroupEntity referencedOn MessageForGroupTable.groupId
 
 }

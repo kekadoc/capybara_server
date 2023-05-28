@@ -6,7 +6,6 @@ import com.kekadoc.project.capybara.server.common.exception.GroupNotFound
 import com.kekadoc.project.capybara.server.common.exception.MessageNotFound
 import com.kekadoc.project.capybara.server.common.exception.UserNotFound
 import com.kekadoc.project.capybara.server.common.extensions.orElse
-import com.kekadoc.project.capybara.server.common.time.Time
 import com.kekadoc.project.capybara.server.data.source.database.entity.*
 import com.kekadoc.project.capybara.server.data.source.database.entity.factory.MessageFactory
 import com.kekadoc.project.capybara.server.data.source.database.entity.factory.MessageForUserFactory
@@ -15,6 +14,7 @@ import com.kekadoc.project.capybara.server.data.source.database.table.MessageTab
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Range
 import com.kekadoc.project.capybara.server.domain.model.message.*
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -28,48 +28,52 @@ class MessagesDataSourceImpl : MessagesDataSource {
         actions: List<MessageAction>?,
         isMultiAction: Boolean,
         addresseeUsers: List<Identifier>,
-        addresseeGroups: List<Identifier>,
+        addresseeGroups: Map<Identifier, List<Identifier>?>,
         notifications: MessageNotifications
     ): Message = transaction {
-        val userEntity = UserEntity.findById(authorId) ?: throw UserNotFound(authorId)
-
         val messageEntity = MessageEntity.new {
-            this.author = userEntity
+            this.author = UserEntity.findById(authorId) ?: throw UserNotFound(authorId)
             this.type = type.name
             this.contentTitle = title
             this.contentText = text
             this.actions = actions?.map(MessageAction::text)?.toTypedArray()
-            this.date = Time.formatToServer(Server.getZonedTime())
+            this.date = Server.getLocalDateTime()
             this.status = MessageStatus.RECEIVED.toString()
             this.notificationEmail = notifications.email
-            this.notificationSms = notifications.sms
             this.notificationApp = notifications.app
             this.notificationMessengers = notifications.messengers
         }
 
-        addresseeGroups.forEach { groupId ->
+        val addresseeGroupsEntity: List<MessageForGroupEntity> = addresseeGroups.map { (groupId, membersIds) ->
             val group = GroupEntity.findById(groupId) ?: throw GroupNotFound(groupId)
+            group.members
+                .filter { membersIds == null || membersIds.contains(it.id.value) }
+                .forEach { member ->
+                    MessageForUserEntity.new {
+                        this.message = messageEntity
+                        this.userId = member.user
+                        this.asGroupMember = group
+                    }
+                }
             MessageForGroupEntity.new {
                 this.message = messageEntity
                 this.group = group
             }
-            group.members.forEach { member ->
-                MessageForUserEntity.new {
-                    this.message = messageEntity
-                    this.userId = member.user
-                }
-            }
         }
 
-        addresseeUsers.forEach { userId ->
-            val user = UserEntity.findById(userId) ?: throw UserNotFound(userId)
+        val addresseeUsersEntity = addresseeUsers.map { userId ->
             MessageForUserEntity.new {
                 this.message = messageEntity
-                this.userId = user
+                this.userId = UserEntity.findById(userId) ?: throw UserNotFound(userId)
             }
         }
 
-        MessageFactory.create(messageEntity)
+        MessageFactory.create(
+            value = messageEntity,
+            messageForUserEntity = addresseeUsersEntity,
+            messageForGroupEntity = addresseeGroupsEntity,
+            actions = actions,
+        )
     }
 
     override suspend fun updateMessageStatus(
@@ -147,7 +151,7 @@ class MessagesDataSourceImpl : MessagesDataSource {
     ): MessageInfo = transaction {
         val messageEntity = MessageEntity.findById(messageId) ?: throw MessageNotFound(messageId)
         val addresseeUsers = messageEntity.addresseeUsers
-            .filter { !it.fromGroup }
+            .filter { it.asGroupMember == null }
             .map { forUser ->
                 MessageInfo.FromUserInfo(
                     userId = forUser.userId.id.value,
@@ -161,7 +165,7 @@ class MessagesDataSourceImpl : MessagesDataSource {
             val members: List<MessageInfo.FromUserInfo> = MessageForUserEntity.find {
                 val byMessageId = (MessageForUserTable.messageId eq messageId)
                 val byUserId = (MessageForUserTable.userId inList membersIds)
-                val byGroupTrue = (MessageForUserTable.fromGroup eq true)
+                val byGroupTrue = (MessageForUserTable.asGroupMember neq null)
                 byMessageId and byUserId and byGroupTrue
             }.map { forUser ->
                 MessageInfo.FromUserInfo(
@@ -192,6 +196,7 @@ class MessagesDataSourceImpl : MessagesDataSource {
         range: Range
     ): List<Message> = transaction {
         MessageEntity.find { MessageTable.author eq authorId }
+            .orderBy(MessageTable.date to SortOrder.DESC)
             .limit(n = range.count, offset = range.from.toLong())
             .map(MessageFactory::create)
     }

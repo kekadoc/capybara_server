@@ -8,6 +8,6 @@ data class MessageForUser(
     val userId: Identifier,
     val received: Boolean,
     val read: Boolean,
-    val answerIds: List<Long>,
+    val answerIds: List<Long>?,
     val fromGroup: Boolean,
 )

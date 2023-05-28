@@ -12,8 +12,8 @@ object MessageForUserFactory : Factory.Single<MessageForUserEntity, MessageForUs
         userId = value.userId.id.value,
         received = value.received,
         read = value.read,
-        answerIds = value.answerIds?.map(String::toLong).orEmpty(),
-        fromGroup = value.fromGroup,
+        answerIds = value.answerIds?.map(String::toLong),
+        fromGroup = value.asGroupMember != null,
     )
 
 }

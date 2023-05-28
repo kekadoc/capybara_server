@@ -1,7 +1,8 @@
 package com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote
 
 import com.google.firebase.messaging.FirebaseMessaging
-import java.util.*
+import com.google.firebase.messaging.Message
+import com.google.firebase.messaging.Notification
 
 class MobileNotificationsRemoteDataSourceImpl(
     private val firebaseMessaging: FirebaseMessaging,
@@ -13,18 +14,16 @@ class MobileNotificationsRemoteDataSourceImpl(
         body: String,
         imageUrl: String?,
     ): String {
-        println("___sendNotification $title $body $imageUrl $pushToken")
-//        val notification = Notification.builder()
-//            .setTitle(title)
-//            .setBody(body)
-//            .setImage(imageUrl)
-//            .build()
-//        val message = Message.builder()
-//            .setNotification(notification)
-//            .setToken(pushToken)
-//            .build()
-//        return firebaseMessaging.send(message)
-        return UUID.randomUUID().toString()
+        val notification = Notification.builder()
+            .setTitle(title)
+            .setBody(body)
+            .setImage(imageUrl)
+            .build()
+        val message = Message.builder()
+            .setNotification(notification)
+            .setToken(pushToken)
+            .build()
+        return firebaseMessaging.send(message)
     }
 
 }

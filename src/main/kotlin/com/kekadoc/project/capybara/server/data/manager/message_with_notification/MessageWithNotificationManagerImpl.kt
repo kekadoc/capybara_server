@@ -7,9 +7,9 @@ import com.kekadoc.project.capybara.server.data.repository.notification.mobile.M
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.model.*
 import com.kekadoc.project.capybara.server.domain.model.message.Message
+import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
 import com.kekadoc.project.capybara.server.domain.model.message.MessageType
-import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -32,7 +32,7 @@ class MessageWithNotificationManagerImpl(
         actions: List<MessageAction>?,
         isMultiAction: Boolean,
         addresseeUsers: List<Identifier>,
-        addresseeGroups: List<Identifier>,
+        addresseeGroups: Map<Identifier, List<Identifier>?>,
         notifications: MessageNotifications?
     ): Flow<Message> = messagesRepository.createMessage(
         authorId = authorId,
@@ -52,7 +52,6 @@ class MessageWithNotificationManagerImpl(
         with(message.notifications) {
             if (this.email) sentEmailNotification(message, allUserIds)
             if (this.app) sentAppNotification(message, allUserIds)
-            if (this.sms) { Unit } // TODO: Sms notifications
             if (this.messengers) { Unit } // TODO: Messengers notifications
         }
     }
@@ -88,6 +87,7 @@ class MessageWithNotificationManagerImpl(
     }
 
     private suspend fun getAllUsersForMessage(message: Message): List<Identifier> {
+        println("______getAllUsersForMessage=$message")
         val usersFromGroupsFlow = groupsRepository.getGroups(message.addresseeGroupIds)
             .mapElements(Group::members)
             .map(List<List<User>>::flatten)

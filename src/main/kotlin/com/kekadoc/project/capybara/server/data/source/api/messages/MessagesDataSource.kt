@@ -14,7 +14,7 @@ interface MessagesDataSource {
         actions: List<MessageAction>?,
         isMultiAction: Boolean = false,
         addresseeUsers: List<Identifier>,
-        addresseeGroups: List<Identifier>,
+        addresseeGroups: Map<Identifier, List<Identifier>?>,
         notifications: MessageNotifications,
     ): Message
 

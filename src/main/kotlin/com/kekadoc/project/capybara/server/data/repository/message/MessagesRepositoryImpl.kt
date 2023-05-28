@@ -19,7 +19,7 @@ class MessagesRepositoryImpl(
         actions: List<MessageAction>?,
         isMultiAction: Boolean,
         addresseeUsers: List<Identifier>,
-        addresseeGroups: List<Identifier>,
+        addresseeGroups: Map<Identifier, List<Identifier>?>,
         notifications: MessageNotifications?,
     ): Flow<Message> = flowOf {
         messagesDataSource.createMessage(

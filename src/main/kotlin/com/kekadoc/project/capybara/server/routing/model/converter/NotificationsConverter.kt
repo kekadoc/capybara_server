@@ -11,7 +11,6 @@ object NotificationsConverter :
         value: MessageNotifications,
     ): MessageNotificationsDto = MessageNotificationsDto(
         email = value.email,
-        sms = value.sms,
         app = value.app,
         messengers = value.messengers,
     )
@@ -20,7 +19,6 @@ object NotificationsConverter :
         value: MessageNotificationsDto,
     ): MessageNotifications = MessageNotifications(
         email = value.email,
-        sms = value.sms,
         app = value.app,
         messengers = value.messengers,
     )

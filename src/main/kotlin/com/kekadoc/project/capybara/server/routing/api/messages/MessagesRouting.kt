@@ -110,16 +110,16 @@ private suspend fun PipelineContext.getSentMessage(messageId: Identifier) = exec
 }
 
 private suspend fun PipelineContext.createMessage(
-    request: CreateMessageRequestDto
+    request: CreateMessageRequestDto,
 ) = execute {
-        val authToken = AuthorizationVerifier.requireAuthorizationToken()
-        val interactor = Di.get<MessagesInteractor>()
-        val result = interactor.createMessage(
-            authToken = authToken,
-            request = request,
-        )
-        call.respond(result)
-    }
+    val authToken = AuthorizationVerifier.requireAuthorizationToken()
+    val interactor = Di.get<MessagesInteractor>()
+    val result = interactor.createMessage(
+        authToken = authToken,
+        request = request,
+    )
+    call.respond(result)
+}
 
 private suspend fun PipelineContext.deleteSentMessage(
     messageId: Identifier,

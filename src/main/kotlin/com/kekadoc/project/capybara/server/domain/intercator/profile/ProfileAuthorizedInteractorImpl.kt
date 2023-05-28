@@ -4,8 +4,6 @@ package com.kekadoc.project.capybara.server.domain.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
-import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.Communication
@@ -13,12 +11,11 @@ import com.kekadoc.project.capybara.server.domain.model.Communications
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.*
 
 class ProfileAuthorizedInteractorImpl(
     private val userRepository: UsersRepository,
@@ -53,6 +50,22 @@ class ProfileAuthorizedInteractorImpl(
         }
         .map(ProfileDtoFactory::create)
         .map(::GetProfileResponse)
+        .single()
+
+    override suspend fun getProfiles(
+        accessToken: Token,
+        profileIds: List<Identifier>,
+    ): GetProfileListResponseDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
+        .flatMapLatest { user ->
+            userRepository.getAccessForUsers(user.id, profileIds)
+                .map { accessList -> accessList.all { access -> access.readProfile } }
+        }
+        .flatMapLatest { readProfile ->
+            if (readProfile) userRepository.getUsersByIds(profileIds)
+            else throw HttpException(HttpStatusCode.Forbidden)
+        }
+        .mapElements(ProfileDtoFactory::create)
+        .map(::GetProfileListResponseDto)
         .single()
 
     override suspend fun updateProfile(

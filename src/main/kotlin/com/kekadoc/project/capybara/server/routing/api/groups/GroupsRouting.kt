@@ -1,12 +1,15 @@
 package com.kekadoc.project.capybara.server.routing.api.groups
 
 import com.kekadoc.project.capybara.server.common.PipelineContext
+import com.kekadoc.project.capybara.server.common.authToken
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.intercator.groups.GroupsInteractor
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.api.groups.model.CreateGroupRequest
+import com.kekadoc.project.capybara.server.routing.api.groups.model.GetGroupListRequestDto
 import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupMembersRequest
 import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupNameRequest
+import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
 import com.kekadoc.project.capybara.server.routing.util.execution.patch
@@ -18,6 +21,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.core.component.get
+import java.util.*
 
 fun Route.groups() = route("/groups") {
 
@@ -25,6 +29,9 @@ fun Route.groups() = route("/groups") {
 
     //Создание группы
     post<CreateGroupRequest>(ApiKeyVerifier, AuthorizationVerifier) { request -> createGroup(request) }
+
+    //Создание группы
+    post<GetGroupListRequestDto>("/list") { request -> getGroupList(request) }
 
     route("/{id}") {
 
@@ -49,6 +56,10 @@ fun Route.groups() = route("/groups") {
         //Удаление группы
         delete(ApiKeyVerifier, AuthorizationVerifier) { deleteGroup(requirePathId()) }
 
+        get("/members") {
+            getGroupMembers(groupId = requirePathId())
+        }
+
     }
 
 }
@@ -67,6 +78,17 @@ private suspend fun PipelineContext.createGroup(
     val result = interactor.createGroup(
         authToken = authToken,
         request = request,
+    )
+    call.respond(result)
+}
+
+private suspend fun PipelineContext.getGroupList(
+    request: GetGroupListRequestDto,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    val interactor = Di.get<GroupsInteractor>()
+    val result = interactor.getGroups(
+        authToken = authToken,
+        groupIds = request.ids.map(UUID::fromString),
     )
     call.respond(result)
 }
@@ -125,7 +147,6 @@ private suspend fun PipelineContext.removeMembersFromGroup(
     call.respond(result)
 }
 
-
 private suspend fun PipelineContext.deleteGroup(
     groupId: Identifier,
 ) {
@@ -136,4 +157,13 @@ private suspend fun PipelineContext.deleteGroup(
         groupId = groupId,
     )
     call.respond(result)
+}
+
+private suspend fun PipelineContext.getGroupMembers(
+    groupId: Identifier,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    Di.get<GroupsInteractor>().getGroupMembers(
+        authToken = authToken,
+        groupId = groupId,
+    )
 }

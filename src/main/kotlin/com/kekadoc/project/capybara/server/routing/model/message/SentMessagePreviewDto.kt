@@ -19,7 +19,7 @@ data class SentMessagePreviewDto(
     @SerialName("date")
     val date: String,
     @SerialName("actions")
-    val actions: List<MessageActionDto>,
+    val actions: List<MessageActionSimpleStatisticDto>,
     @SerialName("is_multi_answer")
     val isMultiAnswer: Boolean,
     @SerialName("addressee_group_ids")

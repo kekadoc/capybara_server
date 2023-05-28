@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 data class MessageNotificationsDto(
     @SerialName("email")
     val email: Boolean = false,
-    @SerialName("sms")
-    val sms: Boolean = false,
     @SerialName("app")
     val app: Boolean = false,
     @SerialName("messengers")

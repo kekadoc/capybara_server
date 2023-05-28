@@ -12,15 +12,31 @@ object MessageForUserTable : UUIDTable("message_for_user") {
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE,
     )
+
     val userId = reference(
         name = "user_id",
         foreign = UsersTable,
         onDelete = ReferenceOption.CASCADE,
         onUpdate = ReferenceOption.CASCADE,
     )
-    val received = bool("received").default(false)
-    val read = bool("read").default(false)
-    val answerIndexes = textArray("answer_indexes").nullable().default(null)
-    val fromGroup = bool("fromGroup").default(false)
+
+    val received = bool("received")
+        .default(false)
+
+    val read = bool("read")
+        .default(false)
+
+    val answerIndexes = textArray("answer_indexes")
+        .nullable()
+        .default(null)
+
+    val asGroupMember = reference(
+        name = "as_group_member",
+        foreign = GroupsTable,
+        onDelete = ReferenceOption.CASCADE,
+        onUpdate = ReferenceOption.CASCADE,
+    )
+        .nullable()
+        .default(null)
 
 }
