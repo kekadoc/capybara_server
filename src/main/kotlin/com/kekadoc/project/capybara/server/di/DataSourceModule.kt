@@ -41,9 +41,7 @@ val dataSourceModule = module {
     }
 
     single<RegistrationDataSource> {
-        RegistrationDataSourceImpl(
-            config = get(),
-        )
+        RegistrationDataSourceImpl()
     }
 
     single<PublicContactsDataSource> { PublicContactsDataSourceImpl() }

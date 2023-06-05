@@ -81,6 +81,8 @@ val interactorsModule = module {
         ProfileAdminInteractorImpl(
             userRepository = get(),
             fetchUserByAccessTokenFunction = get(),
+            createUserFunction = get(),
+            emailDataService = get(),
         )
     }
 

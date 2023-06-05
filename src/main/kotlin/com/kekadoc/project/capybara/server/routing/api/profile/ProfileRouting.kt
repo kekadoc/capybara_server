@@ -7,6 +7,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdmi
 import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractor
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.model.RangeDto
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
@@ -39,6 +40,9 @@ fun Route.profile() = route("/profile") {
 
     //Получение профиля через токен авторизации
     post<GetProfileListRequestDto>("/list") { request -> getProfileList(request) }
+
+    //
+    post<RangeDto>("/list/full") { request -> getFullProfileList(request) }
 
     route("/{id}") {
 
@@ -206,6 +210,15 @@ private suspend fun PipelineContext.getProfileList(
     Di.get<ProfileAuthorizedInteractor>().getProfiles(
         accessToken = authToken,
         profileIds = request.ids.map(UUID::fromString),
+    )
+}
+
+private suspend fun PipelineContext.getFullProfileList(
+    request: RangeDto,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    Di.get<ProfileAuthorizedInteractor>().getExtendedProfilesWithRange(
+        accessToken = authToken,
+        range = request,
     )
 }
 

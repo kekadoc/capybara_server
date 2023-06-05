@@ -1,9 +1,6 @@
 package com.kekadoc.project.capybara.server.data.source.api.user
 
-import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Profile
-import com.kekadoc.project.capybara.server.domain.model.User
-import com.kekadoc.project.capybara.server.domain.model.UserStatus
+import com.kekadoc.project.capybara.server.domain.model.*
 
 interface UsersDataSource {
 
@@ -22,6 +19,8 @@ interface UsersDataSource {
     suspend fun findUsersByIds(ids: List<Identifier>): List<User>
 
     suspend fun findUserByLogin(login: String): User?
+
+    suspend fun getUsers(range: Range): List<User>
 
     suspend fun updateUserStatus(
         userId: Identifier,

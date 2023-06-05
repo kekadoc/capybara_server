@@ -16,7 +16,6 @@ object ProfileTypeDtoConverter : Converter.Bidirectional<ProfileTypeDto, Profile
         Profile.Type.USER -> ProfileTypeDto.USER
         Profile.Type.SPEAKER -> ProfileTypeDto.SPEAKER
         Profile.Type.ADMIN -> ProfileTypeDto.ADMIN
-        Profile.Type.DEFAULT -> ProfileTypeDto.USER
     }
 
 }

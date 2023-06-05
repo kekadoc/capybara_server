@@ -5,12 +5,12 @@ package com.kekadoc.project.capybara.server.domain.intercator.profile
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
+import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
-import com.kekadoc.project.capybara.server.domain.model.Communication
-import com.kekadoc.project.capybara.server.domain.model.Communications
-import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Token
+import com.kekadoc.project.capybara.server.domain.model.*
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.model.RangeDto
+import com.kekadoc.project.capybara.server.routing.model.converter.RangeDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import io.ktor.http.*
@@ -57,7 +57,8 @@ class ProfileAuthorizedInteractorImpl(
         profileIds: List<Identifier>,
     ): GetProfileListResponseDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
         .flatMapLatest { user ->
-            userRepository.getAccessForUsers(user.id, profileIds)
+            if (user.isAdmin()) flowOf(true)
+            else userRepository.getAccessForUsers(user.id, profileIds)
                 .map { accessList -> accessList.all { access -> access.readProfile } }
         }
         .flatMapLatest { readProfile ->
@@ -66,6 +67,16 @@ class ProfileAuthorizedInteractorImpl(
         }
         .mapElements(ProfileDtoFactory::create)
         .map(::GetProfileListResponseDto)
+        .single()
+
+    override suspend fun getExtendedProfilesWithRange(
+        accessToken: Token,
+        range: RangeDto
+    ): GetFullProfileListResponseDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
+        .requireAdminUser()
+        .flatMapLatest { userRepository.getUsers(RangeDtoConverter.convert(range)) }
+        .mapElements(ExtendedProfileDtoFactory::create)
+        .map(::GetFullProfileListResponseDto)
         .single()
 
     override suspend fun updateProfile(

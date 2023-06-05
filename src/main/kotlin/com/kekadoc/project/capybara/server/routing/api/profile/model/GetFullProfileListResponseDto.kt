@@ -5,9 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateProfileResponseDto(
-    @SerialName("profile")
-    val profile: ExtendedProfileDto,
-    @SerialName("temp_pass")
-    val tempPassword: String,
+data class GetFullProfileListResponseDto(
+    @SerialName("profiles")
+    val profiles: List<ExtendedProfileDto>,
 )

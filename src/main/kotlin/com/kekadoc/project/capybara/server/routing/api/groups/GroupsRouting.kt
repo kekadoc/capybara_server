@@ -5,10 +5,7 @@ import com.kekadoc.project.capybara.server.common.authToken
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.intercator.groups.GroupsInteractor
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.routing.api.groups.model.CreateGroupRequest
-import com.kekadoc.project.capybara.server.routing.api.groups.model.GetGroupListRequestDto
-import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupMembersRequest
-import com.kekadoc.project.capybara.server.routing.api.groups.model.UpdateGroupNameRequest
+import com.kekadoc.project.capybara.server.routing.api.groups.model.*
 import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
@@ -27,11 +24,16 @@ fun Route.groups() = route("/groups") {
 
     get { getAllGroups() }
 
+    get("/all") { getAllWithMembersGroups() }
+
     //Создание группы
     post<CreateGroupRequest>(ApiKeyVerifier, AuthorizationVerifier) { request -> createGroup(request) }
 
-    //Создание группы
+    //Получить список всех групп
     post<GetGroupListRequestDto>("/list") { request -> getGroupList(request) }
+
+    //Получить список всех групп
+    post<GetGroupWithMembersListRequestDto>("/list/extended") { request -> getGroupWithMembersList(request) }
 
     route("/{id}") {
 
@@ -70,6 +72,12 @@ private suspend fun PipelineContext.getAllGroups() {
     call.respond(result)
 }
 
+private suspend fun PipelineContext.getAllWithMembersGroups() {
+    val interactor = Di.get<GroupsInteractor>()
+    val result = interactor.getAllGroupsWithMembers()
+    call.respond(result)
+}
+
 private suspend fun PipelineContext.createGroup(
     request: CreateGroupRequest,
 ) {
@@ -87,6 +95,17 @@ private suspend fun PipelineContext.getGroupList(
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.getGroups(
+        authToken = authToken,
+        groupIds = request.ids.map(UUID::fromString),
+    )
+    call.respond(result)
+}
+
+private suspend fun PipelineContext.getGroupWithMembersList(
+    request: GetGroupWithMembersListRequestDto,
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    val interactor = Di.get<GroupsInteractor>()
+    val result = interactor.getGroupsWithMembers(
         authToken = authToken,
         groupIds = request.ids.map(UUID::fromString),
     )

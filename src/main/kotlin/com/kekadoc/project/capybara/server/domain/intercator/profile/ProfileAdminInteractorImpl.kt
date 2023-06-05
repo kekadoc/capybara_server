@@ -3,7 +3,9 @@
 package com.kekadoc.project.capybara.server.domain.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
+import com.kekadoc.project.capybara.server.data.function.create_user.CreateUserFunction
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
@@ -21,6 +23,8 @@ import kotlinx.coroutines.flow.*
 class ProfileAdminInteractorImpl(
     private val userRepository: UsersRepository,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
+    private val createUserFunction: CreateUserFunction,
+    private val emailDataService: EmailDataService,
 ) : ProfileAdminInteractor {
 
     override suspend fun createProfile(
@@ -29,29 +33,54 @@ class ProfileAdminInteractorImpl(
     ): CreateProfileResponseDto = fetchUserByAccessTokenFunction.fetchUser(adminAccessToken)
         .requireAuthorizedUser()
         .requireAdminUser()
-        .flatMapLatest { userRepository.findUserByLogin(request.login) }
-        .flatMapLatest { userByLogin ->
-            if (userByLogin != null) {
-                throw HttpException(
-                    statusCode = HttpStatusCode.Conflict,
-                    message = "User with login already exist",
-                )
+        .flatMapLatest {
+            if (request.login != null) {
+                userRepository.findUserByLogin(request.login)
+                    .onEach { userByLogin ->
+                        if (userByLogin != null) {
+                            throw HttpException(
+                                statusCode = HttpStatusCode.Conflict,
+                                message = "User with login already exist",
+                            )
+                        }
+                    }
+                    .map { Unit }
             } else {
-                userRepository.createUser(
-                    login = request.login,
-                    password = request.password,
-                    profile = Profile(
-                        type = ProfileTypeDtoConverter.convert(request.type),
-                        name = request.name,
-                        surname = request.surname,
-                        patronymic = request.patronymic,
-                        about = request.about,
-                    ),
+                flowOf(Unit)
+            }
+        }
+        .map {
+            createUserFunction.invoke(
+                Profile(
+                    type = ProfileTypeDtoConverter.convert(request.type),
+                    name = request.name,
+                    surname = request.surname,
+                    patronymic = request.patronymic,
+                    about = request.about,
+                ),
+                login = request.login,
+                password = request.password,
+            )
+        }
+        .onEach { (user, pass) ->
+            request.emailForInvite?.also { email ->
+                emailDataService.sentEmailWithLoginEndTempPassword(
+                    email = email,
+                    name = user.profile.name,
+                    patronymic = user.profile.patronymic,
+                    login = user.login,
+                    password = pass,
                 )
             }
         }
-        .map(ProfileDtoFactory::create)
-        .map(::CreateProfileResponseDto)
+        .map { (user, password) ->
+            CreateProfileResponseDto(
+                profile = ExtendedProfileDtoFactory.create(user),
+                tempPassword = password,
+            )
+        }
+        .onEach {
+        }
         .single()
 
     override suspend fun getExtendedProfile(

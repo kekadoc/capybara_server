@@ -20,7 +20,9 @@ object Di : KoinComponent, Component {
                 managersModule,
                 repositoryModule,
                 dataSourceModule,
+                dataServicesModule,
                 scheduleModule,
+                dataFunctionsModule,
                 jsonModule,
             )
         }

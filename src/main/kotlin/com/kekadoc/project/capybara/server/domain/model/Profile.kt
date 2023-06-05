@@ -12,7 +12,6 @@ data class Profile(
         USER,
         SPEAKER,
         ADMIN,
-        DEFAULT,
     }
 
 }

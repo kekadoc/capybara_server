@@ -49,7 +49,7 @@ class AuthorizationRepositoryImpl(
         )
     }
 
-    override suspend fun updateRegistrationStatus(
+    override fun updateRegistrationStatus(
         registrationId: Identifier,
         request: UpdateRegistrationStatusRequest,
     ): Flow<RegistrationRequestInfo> = flowOf {
@@ -59,9 +59,7 @@ class AuthorizationRepositoryImpl(
         )
     }
 
-    override suspend fun getAllRegistrationRequests(
-
-    ): Flow<GetAllRegistrationRequestsResponse> = flowOf {
+    override fun getAllRegistrationRequests(): Flow<GetAllRegistrationRequestsResponse> = flowOf {
         registrationDataSource.getAllRegistrationRequests()
     }
 

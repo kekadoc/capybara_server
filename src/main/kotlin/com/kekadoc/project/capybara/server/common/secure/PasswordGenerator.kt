@@ -6,6 +6,6 @@ object PasswordGenerator {
 
     private val test = true
 
-    fun generate(): String = if (test) "Test_Password" else UUID.randomUUID().toString().take(10)
+    fun generate(): String = if (test) "123" else UUID.randomUUID().toString().take(10)
 
 }

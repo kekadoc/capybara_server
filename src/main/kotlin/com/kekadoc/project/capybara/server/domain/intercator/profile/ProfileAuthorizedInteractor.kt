@@ -3,6 +3,7 @@ package com.kekadoc.project.capybara.server.domain.intercator.profile
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
+import com.kekadoc.project.capybara.server.routing.model.RangeDto
 
 interface ProfileAuthorizedInteractor {
 
@@ -19,6 +20,11 @@ interface ProfileAuthorizedInteractor {
         accessToken: Token,
         profileIds: List<Identifier>,
     ): GetProfileListResponseDto
+
+    suspend fun getExtendedProfilesWithRange(
+        accessToken: Token,
+        range: RangeDto,
+    ): GetFullProfileListResponseDto
 
     suspend fun updateProfile(
         accessToken: Token,

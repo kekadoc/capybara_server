@@ -9,11 +9,11 @@ import com.kekadoc.project.capybara.server.common.secure.UserSalt
 import com.kekadoc.project.capybara.server.data.source.database.entity.ProfileEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.UserEntityConverter
+import com.kekadoc.project.capybara.server.data.source.database.table.ProfilesTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UsersTable
-import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Profile
-import com.kekadoc.project.capybara.server.domain.model.User
-import com.kekadoc.project.capybara.server.domain.model.UserStatus
+import com.kekadoc.project.capybara.server.domain.model.*
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -28,7 +28,7 @@ class UsersDataSourceImpl : UsersDataSource {
             UserIdGenerator.generate()
         )
         UserEntity.new(id = userId) {
-            this.status = UserStatus.ACTIVE.name
+            this.status = UserStatus.NEED_UPDATE_PASSWORD.name
             this.login = login
             this.password = Hash.hash(
                 value = password,
@@ -75,6 +75,26 @@ class UsersDataSourceImpl : UsersDataSource {
         UserEntity.find { UsersTable.login eq login }
             .firstOrNull()
             ?.convert(UserEntityConverter)
+    }
+
+    override suspend fun getUsers(range: Range): List<User> = transaction {
+        val profiles = ProfileEntity.find {
+            val nameLike = ProfilesTable.name like "%${range.query.orEmpty()}%"
+            val surnameLike = ProfilesTable.surname like "%${range.query.orEmpty()}%"
+            val patronymicLike = ProfilesTable.patronymic like "%${range.query.orEmpty()}%"
+            val aboutLike = ProfilesTable.about like "%${range.query.orEmpty()}%"
+            nameLike or surnameLike or patronymicLike or aboutLike
+        }
+            .orderBy(ProfilesTable.type to SortOrder.DESC)
+            //.limit(n = range.count + 1 + range.from, offset = range.from.toLong())
+        val users = UserEntity.find {
+            val loginLike = UsersTable.login like range.query.orEmpty()
+            val profileEq = UsersTable.profile inList profiles.map(ProfileEntity::id)
+            loginLike or profileEq
+        }
+            .orderBy(UsersTable.login to SortOrder.ASC)
+            .limit(n = range.count + 1 + range.from, offset = range.from.toLong())
+        users.convertAll(UserEntityConverter)
     }
 
     override suspend fun updateUserStatus(

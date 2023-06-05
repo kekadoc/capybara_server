@@ -6,10 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateProfileRequestDto(
-    @SerialName("login")
-    val login: String,
-    @SerialName("password")
-    val password: String,
     @SerialName("type")
     val type: ProfileTypeDto,
     @SerialName("name")
@@ -20,4 +16,10 @@ data class CreateProfileRequestDto(
     val patronymic: String,
     @SerialName("about")
     val about: String,
+    @SerialName("login")
+    val login: String? = null,
+    @SerialName("password")
+    val password: String? = null,
+    @SerialName("email_for_invite")
+    val emailForInvite: String? = null,
 )

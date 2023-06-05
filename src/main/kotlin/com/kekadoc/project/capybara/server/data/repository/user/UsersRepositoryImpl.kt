@@ -37,6 +37,10 @@ class UsersRepositoryImpl(
         usersDataSource.getUsersByIds(ids)
     }
 
+    override fun getUsers(range: Range): Flow<List<User>> = flowOf {
+        usersDataSource.getUsers(range)
+    }
+
     override fun findUserByLogin(login: String): Flow<User?> = flowOf {
         usersDataSource.findUserByLogin(login)
     }

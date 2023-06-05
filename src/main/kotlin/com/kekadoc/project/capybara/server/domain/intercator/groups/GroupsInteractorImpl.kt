@@ -7,13 +7,11 @@ import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
-import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Profile
-import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.isAdmin
+import com.kekadoc.project.capybara.server.domain.model.*
 import com.kekadoc.project.capybara.server.routing.api.groups.model.*
 import com.kekadoc.project.capybara.server.routing.model.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
+import com.kekadoc.project.capybara.server.routing.model.group.GroupDto
 import com.kekadoc.project.capybara.server.routing.model.group.SimpleGroupDto
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +34,18 @@ class GroupsInteractorImpl(
         }
         .map(::GetAllGroupsResponseDto)
         .single()
+
+    override suspend fun getAllGroupsWithMembers(): GetAllGroupsWithMembersResponseDto =
+        groupsRepository.getAllGroups()
+            .mapElements { group ->
+                GroupDto(
+                    id = group.id,
+                    name = group.name,
+                    membersIds = group.members.map(User::id),
+                )
+            }
+            .map(::GetAllGroupsWithMembersResponseDto)
+            .single()
 
     override suspend fun createGroup(
         authToken: Token,
@@ -89,6 +99,26 @@ class GroupsInteractorImpl(
         .flatMapLatest { groupsRepository.getGroups(groupIds) }
         .mapElements { SimpleGroupDto(it.id, it.name) }
         .map(::GetGroupListResponseDto)
+        .single()
+
+    override suspend fun getGroupsWithMembers(
+        authToken: String,
+        groupIds: List<Identifier>,
+    ): GetGroupWithMembersListResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .flatMapConcat { user ->
+            usersRepository.getAccessForGroup(user.id, groupIds)
+                .map { listOfAccess ->
+                    user.profile.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
+                }
+        }
+        .onEach { isAvailable ->
+            if (!isAvailable) throw HttpException(HttpStatusCode.Forbidden)
+            else Unit
+        }
+        .flatMapLatest { groupsRepository.getGroups(groupIds) }
+        .mapElements { GroupDto(it.id, it.name, it.members.map(User::id)) }
+        .map(::GetGroupWithMembersListResponseDto)
         .single()
 
     override suspend fun updateGroupName(

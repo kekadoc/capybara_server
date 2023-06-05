@@ -15,6 +15,8 @@ interface UsersRepository {
 
     fun getUsersByIds(ids: List<Identifier>): Flow<List<User>>
 
+    fun getUsers(range: Range): Flow<List<User>>
+
     fun getUserById(id: Identifier): Flow<User>
 
     fun findUserByLogin(login: String): Flow<User?>

@@ -9,4 +9,6 @@ data class RangeDto(
     val from: Int,
     @SerialName("count")
     val count: Int,
+    @SerialName("query")
+    val query: String? = null
 )

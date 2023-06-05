@@ -7,6 +7,8 @@ interface GroupsInteractor {
 
     suspend fun getAllGroups(): GetAllGroupsResponseDto
 
+    suspend fun getAllGroupsWithMembers(): GetAllGroupsWithMembersResponseDto
+
     suspend fun createGroup(
         authToken: String,
         request: CreateGroupRequest,
@@ -21,6 +23,11 @@ interface GroupsInteractor {
         authToken: String,
         groupIds: List<Identifier>,
     ): GetGroupListResponseDto
+
+    suspend fun getGroupsWithMembers(
+        authToken: String,
+        groupIds: List<Identifier>,
+    ): GetGroupWithMembersListResponseDto
 
     suspend fun updateGroupName(
         authToken: String,
