@@ -63,7 +63,7 @@ class ProfileAdminInteractorImpl(
             )
         }
         .onEach { (user, pass) ->
-            request.emailForInvite?.also { email ->
+            request.emailForInvite?.takeIf { it.isNotBlank() }?.also { email ->
                 emailDataService.sentEmailWithLoginEndTempPassword(
                     email = email,
                     name = user.profile.name,

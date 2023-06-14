@@ -39,7 +39,7 @@ class AuthorizationDataSourceImpl(
         val decoded = JWT.decode(accessToken)
         val currentDate = Date(Server.getTime())
         val expiresAt = decoded.expiresAt
-        if (currentDate.after(expiresAt)) {
+        if (expiresAt != null && currentDate.after(expiresAt)) {
             AccessTokenValidation.Expired
         } else {
             val userId = UUID.fromString(decoded.subject)
@@ -58,7 +58,7 @@ class AuthorizationDataSourceImpl(
             val decoded = JWT.decode(refreshToken)
             val currentDate = Date(Server.getTime())
             val expiresAt = decoded.expiresAt
-            if (currentDate.after(expiresAt)) {
+            if (expiresAt != null && currentDate.after(expiresAt)) {
                 RefreshTokenValidation.Expired
             } else {
                 val userId = UUID.fromString(decoded.subject)
@@ -79,7 +79,10 @@ class AuthorizationDataSourceImpl(
         currentTimeMilliseconds: Long,
     ): String = JWT.create()
         .withSubject(userId.toString())
-        .withExpiresAt(Date(currentTimeMilliseconds.withOffset(config.accessLifetimeHours.hours)))
+        .apply {
+            if (config.accessLifetimeHours > 0)
+                withExpiresAt(Date(currentTimeMilliseconds.withOffset(config.accessLifetimeHours.hours)))
+        }
         .withIssuer(config.issuer)
         .withAudience(config.audience)
         .withClaim("login", login)
@@ -91,7 +94,10 @@ class AuthorizationDataSourceImpl(
         currentTimeMilliseconds: Long,
     ): String = JWT.create()
         .withSubject(userId.toString())
-        .withExpiresAt(Date(currentTimeMilliseconds.withOffset(config.refreshLifetimeHours.hours)))
+        .apply {
+            if (config.refreshLifetimeHours > 0)
+                withExpiresAt(Date(currentTimeMilliseconds.withOffset(config.refreshLifetimeHours.hours)))
+        }
         .withIssuer(config.issuer)
         .withAudience(config.audience)
         .withClaim("login", login)

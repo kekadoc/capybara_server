@@ -17,15 +17,14 @@ fun Application.configureRouting() = routing {
     schedule()
 
     route("/api/v1/") {
+        addressees()
         auth()
-        profile()
+        contacts()
         groups()
         messages()
         notifications()
-        contacts()
-        addressees()
+        profile()
         system()
     }
-
 
 }

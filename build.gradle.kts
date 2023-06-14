@@ -17,7 +17,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 application {
-    mainClass.set("com.kekadoc.project.capybara.server.ApplicationKt")
+    mainClass.set("com.kekadoc.project.capybara.server.MainKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -81,6 +81,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("junit:junit:4.13.1")
 
     val exposedVersion = "0.40.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
@@ -95,7 +96,7 @@ dependencies {
 
 ktor {
     fatJar {
-        archiveFileName.set("fat.jar")
+        archiveFileName.set("server.jar")
     }
 
     docker {

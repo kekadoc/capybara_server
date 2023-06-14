@@ -13,7 +13,6 @@ object Di : KoinComponent, Component {
             application(application)
             modules(
                 configModule,
-                serverModule,
                 firebaseModule,
                 interactorsModule,
                 interactorFunctionsModule,
