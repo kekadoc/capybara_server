@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.routing.model.converter
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
-import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.routing.model.RangeDto
 
 object RangeDtoConverter : Converter.Bidirectional<RangeDto, Range> {

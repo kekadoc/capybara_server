@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.data.source.database.entity.converte
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.common.converter.convert
 import com.kekadoc.project.capybara.server.data.source.database.entity.PublicContactEntity
-import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.user.Contact
 
 object PublicContactEntityConverter : Converter<PublicContactEntity, Contact> {
 

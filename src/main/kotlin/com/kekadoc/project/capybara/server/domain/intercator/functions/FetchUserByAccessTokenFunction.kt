@@ -6,7 +6,7 @@ import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValid
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest

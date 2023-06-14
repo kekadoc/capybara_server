@@ -1,6 +1,8 @@
 package com.kekadoc.project.capybara.server.data.repository.user
 
 import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.common.Range
+import com.kekadoc.project.capybara.server.domain.model.user.*
 import kotlinx.coroutines.flow.Flow
 
 interface UsersRepository {

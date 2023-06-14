@@ -3,8 +3,8 @@ package com.kekadoc.project.capybara.server.data.function.create_user
 import com.kekadoc.project.capybara.server.common.secure.PasswordGenerator
 import com.kekadoc.project.capybara.server.common.tools.LoginGenerator
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.domain.model.CreatedUser
-import com.kekadoc.project.capybara.server.domain.model.Profile
+import com.kekadoc.project.capybara.server.domain.model.user.CreatedUser
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 

@@ -5,7 +5,7 @@ import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepositor
 import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import io.ktor.server.application.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect

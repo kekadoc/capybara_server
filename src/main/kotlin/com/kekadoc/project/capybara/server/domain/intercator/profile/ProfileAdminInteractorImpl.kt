@@ -11,6 +11,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireUser
 import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.user.*
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.model.converter.ProfileTypeDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory

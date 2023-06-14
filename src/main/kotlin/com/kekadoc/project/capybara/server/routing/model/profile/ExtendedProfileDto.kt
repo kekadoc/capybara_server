@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.routing.model.profile
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.UserStatus
+import com.kekadoc.project.capybara.server.domain.model.user.UserStatus
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

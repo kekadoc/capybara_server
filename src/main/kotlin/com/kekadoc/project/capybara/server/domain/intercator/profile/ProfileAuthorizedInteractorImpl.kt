@@ -8,6 +8,9 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.user.Communication
+import com.kekadoc.project.capybara.server.domain.model.user.Communications
+import com.kekadoc.project.capybara.server.domain.model.user.isAdmin
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.model.RangeDto
 import com.kekadoc.project.capybara.server.routing.model.converter.RangeDtoConverter

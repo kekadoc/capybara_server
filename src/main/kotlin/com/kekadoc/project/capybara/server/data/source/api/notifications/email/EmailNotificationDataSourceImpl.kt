@@ -3,10 +3,10 @@ package com.kekadoc.project.capybara.server.data.source.api.notifications.email
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.kekadoc.project.capybara.server.Config
-import com.kekadoc.project.capybara.server.domain.model.Communication
+import com.kekadoc.project.capybara.server.domain.model.user.Communication
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.Message
 import io.ktor.utils.io.charsets.*
 import kotlinx.html.*

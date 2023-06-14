@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.routing.model.converter
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
-import com.kekadoc.project.capybara.server.domain.model.Profile
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.routing.model.profile.ProfileTypeDto
 
 object ProfileTypeDtoConverter : Converter.Bidirectional<ProfileTypeDto, Profile.Type> {

@@ -9,7 +9,7 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.PublicCon
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.PublicContactEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.PublicContactsTable
-import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.user.Contact
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import org.jetbrains.exposed.sql.transactions.transaction
 

@@ -4,7 +4,7 @@ import com.kekadoc.project.capybara.server.common.converter.revert
 import com.kekadoc.project.capybara.server.common.factory.Factory
 import com.kekadoc.project.capybara.server.routing.model.profile.ExtendedProfileDto
 import com.kekadoc.project.capybara.server.routing.model.converter.ProfileTypeDtoConverter
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 
 object ExtendedProfileDtoFactory : Factory.Single<User, ExtendedProfileDto> {
 

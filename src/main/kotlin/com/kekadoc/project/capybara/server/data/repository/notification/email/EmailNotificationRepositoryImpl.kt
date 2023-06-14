@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.data.repository.notification.email
 import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationAnswer
 import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationDataSource
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.Message
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

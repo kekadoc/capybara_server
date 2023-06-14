@@ -1,9 +1,9 @@
 package com.kekadoc.project.capybara.server.data.repository.auth
 
-import com.kekadoc.project.capybara.server.domain.model.Authorization
+import com.kekadoc.project.capybara.server.domain.model.auth.Authorization
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.GetAllRegistrationRequestsResponse
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationRequest
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationRequestInfo

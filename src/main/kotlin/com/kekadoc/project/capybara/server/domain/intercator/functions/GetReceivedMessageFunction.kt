@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.domain.intercator.functions
 
 import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.routing.model.message.ReceivedMessagePreviewDto
 import com.kekadoc.project.capybara.server.routing.model.factory.ReceivedMessagePreviewDtoFactory

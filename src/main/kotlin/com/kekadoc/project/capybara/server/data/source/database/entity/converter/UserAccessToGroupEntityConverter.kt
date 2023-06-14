@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.data.source.database.entity.converte
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserAccessToGroupEntity
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToGroup
 
 object UserAccessToGroupEntityConverter : Converter<UserAccessToGroupEntity, UserAccessToGroup> {
 

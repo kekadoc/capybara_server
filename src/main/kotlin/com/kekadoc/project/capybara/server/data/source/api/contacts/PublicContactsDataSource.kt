@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.data.source.api.contacts
 
-import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.user.Contact
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 interface PublicContactsDataSource {

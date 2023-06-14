@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.domain.model
+package com.kekadoc.project.capybara.server.domain.model.common
 
 data class Range(
     val from: Int,

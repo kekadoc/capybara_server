@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.model.converter
 
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.routing.model.group.GroupDto
-import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 
 object GroupDtoConverter : Converter<Group, GroupDto> {
 

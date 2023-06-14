@@ -1,4 +1,6 @@
-package com.kekadoc.project.capybara.server.domain.model
+package com.kekadoc.project.capybara.server.domain.model.user
+
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 data class UserAccessToGroup(
     val userId: Identifier,

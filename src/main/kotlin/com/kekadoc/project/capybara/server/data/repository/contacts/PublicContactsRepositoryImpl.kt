@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.repository.contacts
 
 import com.kekadoc.project.capybara.server.data.source.api.contacts.PublicContactsDataSource
-import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.user.Contact
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

@@ -6,8 +6,8 @@ import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepositor
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToUser
 import com.kekadoc.project.capybara.server.routing.api.addressees.model.GetAddresseesResponseDto
 import com.kekadoc.project.capybara.server.routing.model.converter.GroupDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory

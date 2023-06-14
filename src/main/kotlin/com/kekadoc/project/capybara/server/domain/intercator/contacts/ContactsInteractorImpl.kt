@@ -9,10 +9,10 @@ import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFacto
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
-import com.kekadoc.project.capybara.server.domain.model.Contact
+import com.kekadoc.project.capybara.server.domain.model.user.Contact
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToUser
 import com.kekadoc.project.capybara.server.routing.api.contacts.model.*
 import io.ktor.http.*
 import kotlinx.coroutines.flow.*

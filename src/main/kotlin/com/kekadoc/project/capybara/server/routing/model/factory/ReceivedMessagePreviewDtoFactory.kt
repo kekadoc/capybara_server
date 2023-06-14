@@ -2,7 +2,7 @@ package com.kekadoc.project.capybara.server.routing.model.factory
 
 import com.kekadoc.project.capybara.server.common.factory.Factory
 import com.kekadoc.project.capybara.server.common.time.Time
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.domain.model.message.MessageForUser
 import com.kekadoc.project.capybara.server.routing.model.converter.MessageActionDtoConverter

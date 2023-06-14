@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.domain.model
+package com.kekadoc.project.capybara.server.domain.model.user
 
 enum class UserStatus {
     ACTIVE,

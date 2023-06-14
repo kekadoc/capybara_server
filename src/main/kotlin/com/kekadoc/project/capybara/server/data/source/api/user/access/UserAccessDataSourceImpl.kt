@@ -12,8 +12,8 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.converter
 import com.kekadoc.project.capybara.server.data.source.database.table.UserAccessToGroupTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UserAccessToUserTable
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToUser
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 

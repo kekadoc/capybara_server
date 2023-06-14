@@ -6,7 +6,7 @@ import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepositor
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Profile
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

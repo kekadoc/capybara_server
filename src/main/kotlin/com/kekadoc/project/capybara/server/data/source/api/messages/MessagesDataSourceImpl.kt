@@ -12,7 +12,7 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.factory.M
 import com.kekadoc.project.capybara.server.data.source.database.table.MessageForUserTable
 import com.kekadoc.project.capybara.server.data.source.database.table.MessageTable
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.message.*
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and

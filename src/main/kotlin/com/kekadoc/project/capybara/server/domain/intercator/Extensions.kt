@@ -2,8 +2,8 @@ package com.kekadoc.project.capybara.server.domain.intercator
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.domain.model.message.Message
-import com.kekadoc.project.capybara.server.domain.model.Profile
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

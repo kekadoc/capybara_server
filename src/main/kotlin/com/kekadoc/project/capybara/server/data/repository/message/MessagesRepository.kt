@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.repository.message
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.message.*
 import kotlinx.coroutines.flow.Flow
 

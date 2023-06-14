@@ -9,7 +9,7 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroup
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.GroupEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.GroupsTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UsersGroupsTable
-import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import org.jetbrains.exposed.sql.transactions.transaction
 

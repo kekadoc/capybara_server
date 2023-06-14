@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.repository.group
 
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
-import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

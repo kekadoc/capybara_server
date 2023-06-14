@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.data.source.api.messages
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.Range
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.message.*
 
 interface MessagesDataSource {

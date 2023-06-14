@@ -1,8 +1,8 @@
 package com.kekadoc.project.capybara.server.data.source.api.user.access
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToGroup
-import com.kekadoc.project.capybara.server.domain.model.UserAccessToUser
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToUser
 
 interface UserAccessDataSource {
 

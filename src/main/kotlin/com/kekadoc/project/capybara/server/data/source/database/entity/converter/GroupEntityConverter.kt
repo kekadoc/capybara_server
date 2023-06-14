@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.data.source.database.entity.converte
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.data.source.database.entity.GroupEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroupEntity
-import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 
 object GroupEntityConverter : Converter<GroupEntity, Group> {
 

@@ -1,6 +1,6 @@
 package com.kekadoc.project.capybara.server.data.source.api.group
 
-import com.kekadoc.project.capybara.server.domain.model.Group
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 interface GroupDataSource {

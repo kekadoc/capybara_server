@@ -14,6 +14,9 @@ import com.kekadoc.project.capybara.server.domain.model.*
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationRequest
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationStatus
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.UpdateRegistrationStatusRequest
+import com.kekadoc.project.capybara.server.domain.model.user.Communication
+import com.kekadoc.project.capybara.server.domain.model.user.Communications
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.routing.api.auth.model.*
 import com.kekadoc.project.capybara.server.routing.api.auth.model.factory.RegistrationRequestInfoDtoFactory
 import io.ktor.http.*

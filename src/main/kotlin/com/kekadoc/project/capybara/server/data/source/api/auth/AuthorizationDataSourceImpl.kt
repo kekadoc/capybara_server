@@ -6,7 +6,7 @@ import com.kekadoc.project.capybara.server.Server
 import com.kekadoc.project.capybara.server.common.secure.JWTConfig
 import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValidation
 import com.kekadoc.project.capybara.server.data.repository.auth.RefreshTokenValidation
-import com.kekadoc.project.capybara.server.domain.model.Authorization
+import com.kekadoc.project.capybara.server.domain.model.auth.Authorization
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import java.util.*

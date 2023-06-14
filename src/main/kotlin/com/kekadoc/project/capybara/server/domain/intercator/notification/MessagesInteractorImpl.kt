@@ -10,7 +10,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.functions.GetReceivedMessageFunction
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.User
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
 import com.kekadoc.project.capybara.server.domain.model.message.MessageType

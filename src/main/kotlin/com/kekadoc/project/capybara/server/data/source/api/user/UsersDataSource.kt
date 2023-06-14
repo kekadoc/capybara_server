@@ -1,6 +1,10 @@
 package com.kekadoc.project.capybara.server.data.source.api.user
 
 import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.common.Range
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
+import com.kekadoc.project.capybara.server.domain.model.user.User
+import com.kekadoc.project.capybara.server.domain.model.user.UserStatus
 
 interface UsersDataSource {
 
