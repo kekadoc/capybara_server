@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetPublicContactResponseDto(
+data class GetContactResponseDto(
     @SerialName("contact")
     val contact: ContactDto,
 )

@@ -15,6 +15,7 @@ import com.kekadoc.project.capybara.server.domain.model.auth.registration.Regist
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationStatus
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.UpdateRegistrationStatusRequest
 import com.kekadoc.project.capybara.server.routing.api.auth.model.*
+import com.kekadoc.project.capybara.server.routing.api.auth.model.factory.RegistrationRequestInfoDtoFactory
 import io.ktor.http.*
 import kotlinx.coroutines.flow.*
 import java.util.*
@@ -26,8 +27,8 @@ class AuthInteractorImpl(
 ) : AuthInteractor {
 
     override suspend fun authorize(
-        request: AuthorizationRequest,
-    ): AuthorizationResponse {
+        request: AuthorizationRequestDto,
+    ): AuthorizationResponseDto {
         val user = usersRepository.findUserByLogin(
             login = request.login,
         ).requireUser().single()
@@ -42,15 +43,15 @@ class AuthInteractorImpl(
         }
         val tokens = authorizationRepository.authorizeUser(user).single()
 
-        return AuthorizationResponse(
+        return AuthorizationResponseDto(
             accessToken = tokens.accessToken,
             refreshToken = tokens.refreshToken,
         )
     }
 
     override suspend fun refreshToken(
-        request: RefreshTokensRequest,
-    ): AuthorizationResponse {
+        request: RefreshTokensRequestDto,
+    ): AuthorizationResponseDto {
         return when (val validation = authorizationRepository.validateRefreshToken(request.refreshToken)
             .single()) {
             is RefreshTokenValidation.Expired -> {
@@ -86,7 +87,7 @@ class AuthInteractorImpl(
                     }
                 }.requireUser().single()
                 val authorization = authorizationRepository.authorizeUser(user).single()
-                AuthorizationResponse(
+                AuthorizationResponseDto(
                     accessToken = authorization.accessToken,
                     refreshToken = authorization.refreshToken,
                 )
@@ -153,6 +154,7 @@ class AuthInteractorImpl(
             }
             .onEach { requestInfo ->
                 if (requestInfo.status == RegistrationStatus.COMPLETED) {
+                    // TODO: Шо за хуйня
                     val createdUser = usersRepository.createUser(
                         login = "Oleg1234",
                         password = "1234",
@@ -178,11 +180,8 @@ class AuthInteractorImpl(
                     ).collect()
                 }
             }
-            .map {
-                UpdateRegistrationStatusResponseDto(
-                    status = RegistrationStatusDto.valueOf(request.status.name)
-                )
-            }
+            .map(RegistrationRequestInfoDtoFactory::create)
+            .map(::UpdateRegistrationStatusResponseDto)
             .single()
     }
 

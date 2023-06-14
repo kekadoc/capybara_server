@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetGroupResponseDto(
+data class UpdateGroupResponseDto(
     @SerialName("group")
     val group: GroupDto,
 )

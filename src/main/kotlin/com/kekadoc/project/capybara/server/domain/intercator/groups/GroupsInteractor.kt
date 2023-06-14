@@ -11,8 +11,8 @@ interface GroupsInteractor {
 
     suspend fun createGroup(
         authToken: String,
-        request: CreateGroupRequest,
-    ): CreateGroupResponse
+        request: CreateGroupRequestDto,
+    ): CreateGroupResponseDto
 
     suspend fun getGroup(
         authToken: String,
@@ -32,20 +32,20 @@ interface GroupsInteractor {
     suspend fun updateGroupName(
         authToken: String,
         groupId: Identifier,
-        request: UpdateGroupNameRequest,
-    ): UpdateGroupResponse
+        request: UpdateGroupNameRequestDto,
+    ): UpdateGroupResponseDto
 
     suspend fun addMembersToGroup(
         authToken: String,
         groupId: Identifier,
-        request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse
+        request: UpdateGroupMembersRequestDto,
+    ): UpdateGroupResponseDto
 
     suspend fun removeMembersFromGroup(
         authToken: String,
         groupId: Identifier,
-        request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse
+        request: UpdateGroupMembersRequestDto,
+    ): UpdateGroupResponseDto
 
     suspend fun deleteGroup(
         authToken: String,

@@ -31,7 +31,7 @@ fun Route.contacts() = route("/contacts") {
         /**
          * Получить детализацию контакта
          * Request: contactId
-         * Response: [GetContactResponse]
+         * Response: [GetContactResponseDto]
          */
         get { execute { getContact(requirePathId()) } }
 

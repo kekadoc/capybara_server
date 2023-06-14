@@ -13,7 +13,7 @@ interface ContactsInteractor {
     suspend fun getContact(
         authToken: Token,
         contactId: Identifier,
-    ): GetContactResponse
+    ): GetContactResponseDto
 
     suspend fun getAllPublicContacts(
         authToken: Token,

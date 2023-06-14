@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.routing.model
+package com.kekadoc.project.capybara.server.routing.model.contact
 
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.model.profile.ProfileDto

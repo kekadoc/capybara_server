@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.routing.model.converter
 import com.kekadoc.project.capybara.server.common.converter.Converter
 import com.kekadoc.project.capybara.server.domain.model.Contact
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
-import com.kekadoc.project.capybara.server.routing.model.ContactDto
+import com.kekadoc.project.capybara.server.routing.model.contact.ContactDto
 
 object ContactDtoConverter : Converter<Contact, ContactDto> {
 

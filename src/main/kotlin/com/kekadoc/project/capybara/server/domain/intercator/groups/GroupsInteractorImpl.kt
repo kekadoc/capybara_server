@@ -49,8 +49,8 @@ class GroupsInteractorImpl(
 
     override suspend fun createGroup(
         authToken: Token,
-        request: CreateGroupRequest,
-    ): CreateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        request: CreateGroupRequestDto,
+    ): CreateGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -60,7 +60,7 @@ class GroupsInteractorImpl(
             )
         }
         .map(GroupDtoConverter::convert)
-        .map(::CreateGroupResponse)
+        .map(::CreateGroupResponseDto)
         .single()
 
     override suspend fun getGroup(
@@ -124,8 +124,8 @@ class GroupsInteractorImpl(
     override suspend fun updateGroupName(
         authToken: Token,
         groupId: Identifier,
-        request: UpdateGroupNameRequest,
-    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        request: UpdateGroupNameRequestDto,
+    ): UpdateGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -135,14 +135,14 @@ class GroupsInteractorImpl(
             )
         }
         .map(GroupDtoConverter::convert)
-        .map(::UpdateGroupResponse)
+        .map(::UpdateGroupResponseDto)
         .single()
 
     override suspend fun addMembersToGroup(
         authToken: Token,
         groupId: Identifier,
-        request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        request: UpdateGroupMembersRequestDto,
+    ): UpdateGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -152,14 +152,14 @@ class GroupsInteractorImpl(
             )
         }
         .map(GroupDtoConverter::convert)
-        .map(::UpdateGroupResponse)
+        .map(::UpdateGroupResponseDto)
         .single()
 
     override suspend fun removeMembersFromGroup(
         authToken: Token,
         groupId: Identifier,
-        request: UpdateGroupMembersRequest,
-    ): UpdateGroupResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        request: UpdateGroupMembersRequestDto,
+    ): UpdateGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .requireAdminUser()
         .flatMapLatest {
@@ -169,7 +169,7 @@ class GroupsInteractorImpl(
             )
         }
         .map(GroupDtoConverter::convert)
-        .map(::UpdateGroupResponse)
+        .map(::UpdateGroupResponseDto)
         .single()
 
     override suspend fun deleteGroup(

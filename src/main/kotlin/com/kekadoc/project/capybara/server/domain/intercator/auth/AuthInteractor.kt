@@ -6,9 +6,9 @@ import com.kekadoc.project.capybara.server.routing.api.auth.model.*
 
 interface AuthInteractor {
 
-    suspend fun authorize(request: AuthorizationRequest): AuthorizationResponse
+    suspend fun authorize(request: AuthorizationRequestDto): AuthorizationResponseDto
 
-    suspend fun refreshToken(request: RefreshTokensRequest): AuthorizationResponse
+    suspend fun refreshToken(request: RefreshTokensRequestDto): AuthorizationResponseDto
 
     suspend fun registration(request: RegistrationRequestDto): RegistrationStatusResponseDto
 

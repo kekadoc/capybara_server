@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.domain.intercator.contacts
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.repository.contacts.PublicContactsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
-import com.kekadoc.project.capybara.server.routing.model.ContactDto
+import com.kekadoc.project.capybara.server.routing.model.contact.ContactDto
 import com.kekadoc.project.capybara.server.routing.model.converter.ContactDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ProfileDtoFactory
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
@@ -54,7 +54,7 @@ class ContactsInteractorImpl(
     override suspend fun getContact(
         authToken: Token,
         contactId: Identifier,
-    ): GetContactResponse = fetchUserByAccessTokenFunction.fetchUser(authToken)
+    ): GetContactResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
         .requireAuthorizedUser()
         .flatMapConcat { user ->
             combine(
@@ -84,7 +84,7 @@ class ContactsInteractorImpl(
             }
         }
         .map(ContactDtoConverter::convert)
-        .map(::GetContactResponse)
+        .map(::GetContactResponseDto)
         .single()
 
     override suspend fun getAllPublicContacts(

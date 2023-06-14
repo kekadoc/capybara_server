@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UpdateRegistrationStatusResponseDto(
-    @SerialName("status")
-    val status: RegistrationStatusDto,
+    @SerialName("info")
+    val info: RegistrationRequestInfoDto,
 )

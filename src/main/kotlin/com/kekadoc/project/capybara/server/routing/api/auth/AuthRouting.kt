@@ -3,8 +3,8 @@ package com.kekadoc.project.capybara.server.routing.api.auth
 import com.kekadoc.project.capybara.server.common.PipelineContext
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.intercator.auth.AuthInteractor
-import com.kekadoc.project.capybara.server.routing.api.auth.model.AuthorizationRequest
-import com.kekadoc.project.capybara.server.routing.api.auth.model.RefreshTokensRequest
+import com.kekadoc.project.capybara.server.routing.api.auth.model.AuthorizationRequestDto
+import com.kekadoc.project.capybara.server.routing.api.auth.model.RefreshTokensRequestDto
 import com.kekadoc.project.capybara.server.routing.api.auth.model.RegistrationRequestDto
 import com.kekadoc.project.capybara.server.routing.api.auth.model.UpdateRegistrationStatusRequestDto
 import com.kekadoc.project.capybara.server.routing.util.execute
@@ -20,9 +20,9 @@ import org.koin.core.component.get
 
 fun Route.auth() = route("/auth") {
     //Авторизация пользователя
-    post<AuthorizationRequest> { request -> authorization(request) }
+    post<AuthorizationRequestDto> { request -> authorization(request) }
 
-    post<RefreshTokensRequest>("/refresh") { request -> refresh(request) }
+    post<RefreshTokensRequestDto>("/refresh") { request -> refresh(request) }
 
     route("/registration") {
 
@@ -49,13 +49,13 @@ fun Route.auth() = route("/auth") {
     }
 }
 
-suspend fun PipelineContext.authorization(request: AuthorizationRequest) = execute(ApiKeyVerifier) {
+suspend fun PipelineContext.authorization(request: AuthorizationRequestDto) = execute(ApiKeyVerifier) {
     val interactor = Di.get<AuthInteractor>()
     val result = interactor.authorize(request)
     call.respond(result)
 }
 
-suspend fun PipelineContext.refresh(request: RefreshTokensRequest) = execute(ApiKeyVerifier) {
+suspend fun PipelineContext.refresh(request: RefreshTokensRequestDto) = execute(ApiKeyVerifier) {
     val interactor = Di.get<AuthInteractor>()
     val result = interactor.refreshToken(request)
     call.respond(result)
