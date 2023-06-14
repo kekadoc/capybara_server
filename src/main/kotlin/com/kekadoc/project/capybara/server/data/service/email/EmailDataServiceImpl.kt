@@ -1,5 +1,6 @@
 package com.kekadoc.project.capybara.server.data.service.email
 
+import com.kekadoc.project.capybara.server.Config
 import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationConfig
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import io.ktor.utils.io.charsets.*
@@ -12,12 +13,6 @@ import java.nio.charset.StandardCharsets
 class EmailDataServiceImpl(
     private val config: EmailNotificationConfig,
 ) : EmailDataService {
-
-    private val host = if (com.kekadoc.project.capybara.server.Application.isDebug) {
-        "http://localhost:8080/api/v1/auth/registration"
-    } else {
-        "https://capybara-server.onrender.com/api/v1/auth/registration"
-    }
 
     override suspend fun sentEmailWithLoginEndTempPassword(
         email: String,
@@ -107,9 +102,7 @@ class EmailDataServiceImpl(
 
     private fun createConfirmRequestUrl(
         registrationId: Identifier,
-    ): String {
-        return "$host/$registrationId/confirm_email"
-    }
+    ): String = "${Config.publicApi}/api/v1/auth/registration/$registrationId/confirm_email"
 
     private fun buildConfirmEmailMessage(
         head: String,

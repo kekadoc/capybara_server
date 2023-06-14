@@ -9,8 +9,6 @@ import io.ktor.server.application.Application
 
 object Application : Component {
 
-    const val isDebug = true
-
     private val components: List<Component> = listOf(
         Di,
         Database,

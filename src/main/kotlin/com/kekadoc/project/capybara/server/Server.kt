@@ -26,15 +26,15 @@ object Server : Component {
         configureRouting()
     }
 
-    private fun startServer() {
-//        val port = System.getenv(Config.PORT_KEY)?.toInt() ?: Config.DEFAULT_PORT_CODE
+//    fun startServer() {
+//        //val port = System.getenv(Config.PORT_KEY)?.toInt() ?: Config.DEFAULT_PORT_CODE
 //        val engine = Netty
-//        embeddedServer(factory = engine, port = port) {
+//        embeddedServer(factory = engine, port = 8080) {
 //            install(Resources)
 //            configureApplication()
 //            configureRouting()
 //        }.start(wait = true)
-    }
+//    }
 
     private fun KtorApplication.configureApplication() {
         install(ContentNegotiation) {

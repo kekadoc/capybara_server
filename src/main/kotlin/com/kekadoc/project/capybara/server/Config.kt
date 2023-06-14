@@ -1,14 +1,19 @@
 package com.kekadoc.project.capybara.server
 
 import com.kekadoc.project.capybara.model.ScheduleSource
+import com.kekadoc.project.capybara.server.di.Di
+import io.ktor.server.application.Application
+import io.ktor.server.config.*
+import org.koin.core.component.get
 
 object Config {
 
     const val VERSION = "1.2.0"
-    const val PORT_KEY = "PORT"
-    const val DEFAULT_PORT_CODE = 8010
     const val API_KEY_HEADER = "ApiKey"
     const val API_KEY_QUERY = "apiKey"
+
+    val applicationConfig: ApplicationConfig
+        get() = Di.get<Application>().environment.config
 
     fun isSourceAvailable(source: ScheduleSource): Boolean {
         return when(source) {
@@ -16,4 +21,15 @@ object Config {
             else -> true
         }
     }
+
+    val publicApi: String
+        get() = applicationConfig.getString("ktor.deployment.publicApi")
+
+    val isDebug: Boolean
+        get() = applicationConfig.getBoolean("ktor.deployment.isDebug")
+
 }
+
+fun ApplicationConfig.getBoolean(path: String): Boolean = property(path).getString().toBooleanStrict()
+
+fun ApplicationConfig.getString(path: String): String = property(path).getString()

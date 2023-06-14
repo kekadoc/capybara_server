@@ -2,6 +2,7 @@ package com.kekadoc.project.capybara.server.data.source.api.notifications.email
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.kekadoc.project.capybara.server.Config
 import com.kekadoc.project.capybara.server.domain.model.Communication
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
@@ -20,11 +21,6 @@ class EmailNotificationDataSourceImpl(
 ) : EmailNotificationDataSource {
 
     private val algorithm = Algorithm.HMAC256(config.tokenSecret)
-    private val host = if (com.kekadoc.project.capybara.server.Application.isDebug) {
-        "http://localhost:8080/api/v1/notifications/email/answer"
-    } else {
-        "https://capybara-server.onrender.com/api/v1/notifications/email/answer"
-    }
 
     override suspend fun sentEmailNotification(
         message: Message,
@@ -100,7 +96,7 @@ class EmailNotificationDataSourceImpl(
         notificationId: Identifier,
         answerId: Long,
     ): String {
-        return host + "?at=${createAnswerToken(userId, notificationId, answerId)}"
+        return "${Config.publicApi}/api/v1/notifications/email/answer?at=${createAnswerToken(userId, notificationId, answerId)}"
     }
 
     private fun parseAnswerToken(answerToken: Token): EmailNotificationAnswer? {
