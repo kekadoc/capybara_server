@@ -14,10 +14,14 @@ object UserEntityConverter : Converter<UserEntity, User> {
 
     override fun convert(value: UserEntity): User = User(
         id = value.id.value,
-        status = UserStatus.valueOf(value.status),
-        profile = ProfileEntityConverter.convert(value.profile),
-        password = value.password,
         login = value.login,
+        password = value.password,
+        type = enumValueOf(value.type),
+        status = UserStatus.valueOf(value.status),
+        name = value.name,
+        surname = value.surname,
+        patronymic = value.patronymic,
+        about = value.about,
         communications = value.communications
             .map(CommunicationEntityConverter::convert)
             .let(::Communications),

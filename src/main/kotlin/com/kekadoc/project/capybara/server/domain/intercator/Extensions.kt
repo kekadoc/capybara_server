@@ -26,12 +26,12 @@ fun Flow<User?>.requireAuthorizedUser(): Flow<User> = map { user ->
 }
 
 fun Flow<User>.requireAdminUser(): Flow<User> = onEach { user ->
-    if (user.profile.type != Profile.Type.ADMIN)
+    if (user.type != Profile.Type.ADMIN)
         throw HttpException(HttpStatusCode.Forbidden)
 }
 
 fun Flow<User>.requireSpeakerUser(): Flow<User> = onEach { user ->
-    if (user.profile.type != Profile.Type.SPEAKER)
+    if (user.type != Profile.Type.SPEAKER)
         throw HttpException(HttpStatusCode.Forbidden)
 }
 

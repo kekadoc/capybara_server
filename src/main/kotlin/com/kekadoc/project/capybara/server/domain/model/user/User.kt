@@ -4,12 +4,25 @@ import com.kekadoc.project.capybara.server.domain.model.Identifier
 
 data class User(
     val id: Identifier,
-    val status: UserStatus,
     val login: String,
     val password: String,
-    val profile: Profile,
+    val type: Profile.Type,
+    val status: UserStatus,
+    val name: String,
+    val surname: String,
+    val patronymic: String,
+    val about: String?,
     val communications: Communications,
     val groupIds: List<Identifier>
 )
 
-fun User.isAdmin(): Boolean = profile.type == Profile.Type.ADMIN
+fun User.isAdmin(): Boolean = type == Profile.Type.ADMIN
+
+val User.profile: Profile
+    get() = Profile(
+        type = type,
+        name = name,
+        surname = surname,
+        patronymic = patronymic,
+        about = about,
+    )

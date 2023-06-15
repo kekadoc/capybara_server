@@ -33,7 +33,6 @@ object Database : Component {
                 MessageForGroupTable,
                 MessageForUserTable,
                 MessageTable,
-                ProfilesTable,
                 PublicContactsTable,
                 PushTokensTable,
                 UserAccessToGroupTable,

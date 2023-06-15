@@ -15,7 +15,11 @@ class UserEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var status by UsersTable.status
     var login by UsersTable.login
     var password by UsersTable.password
-    var profile by ProfileEntity referencedOn UsersTable.profile
+    var type by UsersTable.type
+    var name by UsersTable.name
+    var surname by UsersTable.surname
+    var patronymic by UsersTable.patronymic
+    var about by UsersTable.about
 
     val communications by CommunicationEntity referrersOn CommunicationsTable.user
     val groups by UserGroupEntity referrersOn UsersGroupsTable.user

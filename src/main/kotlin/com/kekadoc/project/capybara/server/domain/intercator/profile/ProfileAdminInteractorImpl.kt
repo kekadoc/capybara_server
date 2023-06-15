@@ -10,7 +10,8 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireUser
-import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.user.*
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.model.converter.ProfileTypeDtoConverter
@@ -67,8 +68,8 @@ class ProfileAdminInteractorImpl(
             request.emailForInvite?.takeIf { it.isNotBlank() }?.also { email ->
                 emailDataService.sentEmailWithLoginEndTempPassword(
                     email = email,
-                    name = user.profile.name,
-                    patronymic = user.profile.patronymic,
+                    name = user.name,
+                    patronymic = user.patronymic,
                     login = user.login,
                     password = pass,
                 )

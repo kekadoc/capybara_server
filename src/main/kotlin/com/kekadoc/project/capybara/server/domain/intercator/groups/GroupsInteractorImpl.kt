@@ -7,7 +7,8 @@ import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
-import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.user.isAdmin
@@ -73,7 +74,7 @@ class GroupsInteractorImpl(
         .requireAuthorizedUser()
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupId)
-                .map { it.readInfo && it.readMembers || user.profile.type == Profile.Type.ADMIN }
+                .map { it.readInfo && it.readMembers || user.type == Profile.Type.ADMIN }
         }
         .onEach { isAvailable ->
             if (!isAvailable) throw HttpException(HttpStatusCode.Forbidden)
@@ -92,7 +93,7 @@ class GroupsInteractorImpl(
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupIds)
                 .map { listOfAccess ->
-                    user.profile.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
+                    user.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
                 }
         }
         .onEach { isAvailable ->
@@ -112,7 +113,7 @@ class GroupsInteractorImpl(
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupIds)
                 .map { listOfAccess ->
-                    user.profile.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
+                    user.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
                 }
         }
         .onEach { isAvailable ->

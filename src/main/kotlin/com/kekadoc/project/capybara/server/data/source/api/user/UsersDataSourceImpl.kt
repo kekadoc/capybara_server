@@ -6,12 +6,10 @@ import com.kekadoc.project.capybara.server.common.exception.UserNotFound
 import com.kekadoc.project.capybara.server.common.secure.Hash
 import com.kekadoc.project.capybara.server.common.secure.UserIdGenerator
 import com.kekadoc.project.capybara.server.common.secure.UserSalt
-import com.kekadoc.project.capybara.server.data.source.database.entity.ProfileEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.UserEntityConverter
-import com.kekadoc.project.capybara.server.data.source.database.table.ProfilesTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UsersTable
-import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.domain.model.user.User
@@ -28,11 +26,9 @@ class UsersDataSourceImpl : UsersDataSource {
         password: String,
         profile: Profile,
     ): User = transaction {
-        val userId = UsersTable.id.defaultValueFun?.invoke()?.value ?: UUID.fromString(
-            UserIdGenerator.generate()
-        )
+        val userId = UsersTable.id.defaultValueFun?.invoke()?.value
+            ?: UUID.fromString(UserIdGenerator.generate())
         UserEntity.new(id = userId) {
-            this.status = UserStatus.NEED_UPDATE_PASSWORD.name
             this.login = login
             this.password = Hash.hash(
                 value = password,
@@ -41,13 +37,12 @@ class UsersDataSourceImpl : UsersDataSource {
                     login = login,
                 ),
             )
-            this.profile = ProfileEntity.new {
-                this.name = profile.name
-                this.surname = profile.surname
-                this.patronymic = profile.patronymic
-                this.type = profile.type.name
-                this.about = profile.about
-            }
+            this.type = profile.type.name
+            this.status = UserStatus.NEED_UPDATE_PASSWORD.name
+            this.name = profile.name
+            this.surname = profile.surname
+            this.patronymic = profile.patronymic
+            this.about = profile.about
         }.convert(UserEntityConverter)
     }
 
@@ -82,19 +77,13 @@ class UsersDataSourceImpl : UsersDataSource {
     }
 
     override suspend fun getUsers(range: Range): List<User> = transaction {
-        val profiles = ProfileEntity.find {
-            val nameLike = ProfilesTable.name like "%${range.query.orEmpty()}%"
-            val surnameLike = ProfilesTable.surname like "%${range.query.orEmpty()}%"
-            val patronymicLike = ProfilesTable.patronymic like "%${range.query.orEmpty()}%"
-            val aboutLike = ProfilesTable.about like "%${range.query.orEmpty()}%"
-            nameLike or surnameLike or patronymicLike or aboutLike
-        }
-            .orderBy(ProfilesTable.type to SortOrder.DESC)
-            //.limit(n = range.count + 1 + range.from, offset = range.from.toLong())
         val users = UserEntity.find {
             val loginLike = UsersTable.login like range.query.orEmpty()
-            val profileEq = UsersTable.profile inList profiles.map(ProfileEntity::id)
-            loginLike or profileEq
+            val nameLike = UsersTable.name like "%${range.query.orEmpty()}%"
+            val surnameLike = UsersTable.surname like "%${range.query.orEmpty()}%"
+            val patronymicLike = UsersTable.patronymic like "%${range.query.orEmpty()}%"
+            val aboutLike = UsersTable.about like "%${range.query.orEmpty()}%"
+            loginLike or nameLike or surnameLike or patronymicLike or aboutLike
         }
             .orderBy(UsersTable.login to SortOrder.ASC)
             .limit(n = range.count + 1 + range.from, offset = range.from.toLong())
@@ -136,13 +125,11 @@ class UsersDataSourceImpl : UsersDataSource {
     ): User = transaction {
         UserEntity.findById(userId)
             ?.apply {
-                this.profile.apply {
-                    this.type = profile.type.name
-                    this.name = profile.name
-                    this.surname = profile.surname
-                    this.patronymic = profile.patronymic
-                    this.about = profile.about
-                }
+                this.type = profile.type.name
+                this.name = profile.name
+                this.surname = profile.surname
+                this.patronymic = profile.patronymic
+                this.about = profile.about
             }
             ?.convert(UserEntityConverter)
             ?: throw UserNotFound(id = userId)
