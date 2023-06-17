@@ -11,4 +11,6 @@ data class CreateGroupRequestDto(
     val name: String,
     @SerialName("members")
     val members: List<@Contextual Identifier>,
+    @SerialName("type")
+    val type: String,
 )

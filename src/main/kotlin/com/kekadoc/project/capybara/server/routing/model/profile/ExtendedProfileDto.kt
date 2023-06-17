@@ -22,7 +22,7 @@ data class ExtendedProfileDto(
     @SerialName("surname")
     val surname: String,
     @SerialName("patronymic")
-    val patronymic: String,
+    val patronymic: String?,
     @SerialName("about")
     val about: String?,
     @SerialName("communications")

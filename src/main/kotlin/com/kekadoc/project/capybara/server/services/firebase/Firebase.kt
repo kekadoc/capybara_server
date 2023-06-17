@@ -8,7 +8,7 @@ import com.kekadoc.project.capybara.server.common.component.Component
 
 object Firebase : Component {
 
-    override fun init(application: io.ktor.server.application.Application) {
+    override suspend fun init(application: io.ktor.server.application.Application) {
         val serviceAccount = Application::class.java.getResourceAsStream("/file_01.json")
 
         val options = FirebaseOptions.builder()

@@ -4,8 +4,8 @@ data class Profile(
     val type: Type,
     val name: String,
     val surname: String,
-    val patronymic: String,
-    val about: String?,
+    val patronymic: String? = null,
+    val about: String? = null,
 ) {
 
     enum class Type {

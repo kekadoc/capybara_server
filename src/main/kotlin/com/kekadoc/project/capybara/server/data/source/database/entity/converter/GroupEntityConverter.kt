@@ -10,6 +10,7 @@ object GroupEntityConverter : Converter<GroupEntity, Group> {
     override fun convert(value: GroupEntity): Group = Group(
         id = value.id.value,
         name = value.name,
+        type = enumValueOf(value.type),
         members = value.members
             .map(UserGroupEntity::user)
             .map(UserEntityConverter::convert),

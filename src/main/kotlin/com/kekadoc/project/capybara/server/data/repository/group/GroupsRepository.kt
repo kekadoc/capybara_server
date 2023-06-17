@@ -1,10 +1,12 @@
 package com.kekadoc.project.capybara.server.data.repository.group
 
-import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import kotlinx.coroutines.flow.Flow
 
 interface GroupsRepository {
+
+    fun getStudentGroups(): Flow<List<Group>>
 
     fun getAllGroups(): Flow<List<Group>>
 
@@ -16,7 +18,7 @@ interface GroupsRepository {
 
     fun findGroups(groupIds: List<Identifier>): Flow<List<Group>>
 
-    fun createGroup(name: String, members: Set<Identifier>): Flow<Group>
+    fun createGroup(name: String, type: Group.Type, members: Set<Identifier>): Flow<Group>
 
     fun updateGroupName(groupId: Identifier, name: String): Flow<Group>
 

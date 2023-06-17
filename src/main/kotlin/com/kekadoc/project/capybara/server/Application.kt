@@ -1,6 +1,7 @@
 package com.kekadoc.project.capybara.server
 
 import com.kekadoc.project.capybara.server.common.component.Component
+import com.kekadoc.project.capybara.server.data.Data
 import com.kekadoc.project.capybara.server.data.source.database.Database
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.services.firebase.Firebase
@@ -14,10 +15,11 @@ object Application : Component {
         Database,
         Firebase,
         Test,
+        Data,
         Server,
     )
 
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
         components.forEach { it.init(application) }
     }
 

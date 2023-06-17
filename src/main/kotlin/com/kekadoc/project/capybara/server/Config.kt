@@ -26,7 +26,16 @@ object Config {
         get() = applicationConfig.getString("ktor.deployment.publicApi")
 
     val isDebug: Boolean
-        get() = applicationConfig.getBoolean("ktor.deployment.isDebug")
+        get() = applicationConfig.getBoolean("debug.isDebug")
+
+    val isDebugCreateMockData: Boolean
+        get() = applicationConfig.getBoolean("debug.isCreateMockData")
+
+    val isDebugDefaultSimplePassword: Boolean
+        get() = applicationConfig.getBoolean("debug.defaultSimplePassword")
+
+    val isDebugEncryptPassword: Boolean
+        get() = applicationConfig.getBoolean("debug.encryptPassword")
 
 }
 

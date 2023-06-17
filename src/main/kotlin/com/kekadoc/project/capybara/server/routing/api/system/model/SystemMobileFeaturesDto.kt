@@ -11,4 +11,6 @@ data class SystemMobileFeaturesDto(
     val resetPassword: Boolean,
     @SerialName("registration")
     val registration: Boolean,
+    @SerialName("available_communications")
+    val availableCommunications: List<String>,
 )

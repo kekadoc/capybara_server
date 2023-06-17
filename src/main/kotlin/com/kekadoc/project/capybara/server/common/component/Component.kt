@@ -4,6 +4,6 @@ import io.ktor.server.application.*
 
 interface Component {
 
-    fun init(application: Application)
+    suspend fun init(application: Application)
 
 }

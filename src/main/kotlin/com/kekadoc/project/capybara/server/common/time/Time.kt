@@ -32,7 +32,7 @@ object Time : Component {
         return simpleUIFormat.format(time)
     }
 
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
 
     }
 

@@ -15,7 +15,7 @@ data class ProfileDto(
     @SerialName("surname")
     val surname: String,
     @SerialName("patronymic")
-    val patronymic: String,
+    val patronymic: String?,
     @SerialName("about")
     val about: String?,
 )

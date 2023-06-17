@@ -4,6 +4,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.system.SystemMobileFeatures
+import com.kekadoc.project.capybara.server.domain.model.user.Communication
 import com.kekadoc.project.capybara.server.routing.api.system.model.SystemMobileFeaturesDto
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
@@ -28,6 +29,9 @@ class SystemInteractorImpl(
                 changeProfile = changeProfile,
                 resetPassword = resetPassword,
                 registration = registration,
+                availableCommunications = listOf(
+                    Communication.Type.Email.name,
+                ),
             )
         }
         .single()

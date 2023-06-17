@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 
 object Network : Component {
 
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
 
     }
 

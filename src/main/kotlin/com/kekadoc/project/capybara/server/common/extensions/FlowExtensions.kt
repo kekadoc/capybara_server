@@ -13,3 +13,10 @@ fun <T, R> Flow<Collection<T>>.mapElements(
 inline fun <reified T> Flow<List<Flow<T>>>.combineLatest(): Flow<List<T>> =
     flatMapLatest { combine(it) { it.toList() } }
 
+inline fun <reified T> Iterable<Flow<T>>.combine(): Flow<List<T>> {
+    return combine(this) { it.toList() }
+}
+
+fun <T> Flow<T>.nullable(): Flow<T?> = map<T, T?> { it }
+
+fun <T> Flow<T?>.onErrorEmitNull(): Flow<T?> = catch { emit(null) }

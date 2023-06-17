@@ -4,11 +4,11 @@ import com.kekadoc.project.capybara.server.Server
 
 object LoginGenerator {
 
-    fun generate(surname: String, name: String, patronymic: String): String {
+    fun generate(surname: String, name: String, patronymic: String?): String {
         return buildString {
             append(transliterate(surname))
             name.firstOrNull()?.let(::transliterate)?.also(::append)
-            patronymic.firstOrNull()?.let(::transliterate)?.also(::append)
+            patronymic?.firstOrNull()?.let(::transliterate)?.also(::append)
             append(Server.getTime().toString().takeLast(5))
         }
     }

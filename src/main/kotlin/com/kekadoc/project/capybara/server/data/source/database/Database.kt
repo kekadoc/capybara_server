@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.DatabaseConfig.Companion as ExposedDatabaseConf
 
 object Database : Component {
 
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
         val config = Di.get<DatabaseConfig>()
         val db = Database.connect(
             url = config.internalUrl,

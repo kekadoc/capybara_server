@@ -36,6 +36,10 @@ interface ProfileAuthorizedInteractor {
         request: UpdateProfilePasswordRequestDto,
     ): UpdateProfilePasswordResponseDto
 
+    suspend fun getAvailableCommunications(
+        accessToken: Token,
+    ): GetAvailableCommunicationsDto
+
     suspend fun updateCommunications(
         accessToken: Token,
         request: UpdateUserCommunicationsRequest,

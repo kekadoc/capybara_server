@@ -12,6 +12,7 @@ class GroupEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<GroupEntity>(GroupsTable)
 
     var name by GroupsTable.name
+    var type by GroupsTable.type
 
     val members by UserGroupEntity referrersOn UsersGroupsTable.group
 

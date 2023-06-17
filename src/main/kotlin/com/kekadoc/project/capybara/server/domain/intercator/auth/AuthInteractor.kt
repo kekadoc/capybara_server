@@ -27,7 +27,7 @@ interface AuthInteractor {
     ): GetAllRegistrationRequestsResponseDto
 
     suspend fun registrationConfirmEmail(
-        registrationId: Identifier,
-    ): Unit
+        token: Token,
+    ): String
 
 }

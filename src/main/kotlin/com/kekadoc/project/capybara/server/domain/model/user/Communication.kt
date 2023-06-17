@@ -3,7 +3,7 @@ package com.kekadoc.project.capybara.server.domain.model.user
 data class Communication(
     val type: Type,
     val value: String,
-    val approved: Boolean?,
+    val approved: Boolean? = null,
 ) {
 
     companion object {
@@ -11,7 +11,7 @@ data class Communication(
         operator fun invoke(
             type: String,
             value: String,
-            approved: Boolean?,
+            approved: Boolean? = null,
         ): Communication = Communication(
             type = Type.from(type),
             value = value,
@@ -22,6 +22,7 @@ data class Communication(
 
     sealed class Type(
         val name: String,
+        val requireApprove: Boolean,
     ) {
         companion object {
 
@@ -37,12 +38,12 @@ data class Communication(
 
         }
 
-        object Phone : Type("PHONE")
-        object Email : Type("EMAIL")
-        object Viber : Type("VIBER")
-        object WhatsApp : Type("WHATS_APP")
-        object Telegram : Type("TELEGRAM")
-        class Unknown(code: String) : Type(code)
+        object Email : Type("EMAIL", true)
+        object Phone : Type("PHONE", false)
+        object Viber : Type("VIBER", false)
+        object WhatsApp : Type("WHATS_APP", false)
+        object Telegram : Type("TELEGRAM", false)
+        class Unknown(code: String) : Type(code, false)
 
         override fun toString(): String = name
 

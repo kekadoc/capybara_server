@@ -4,13 +4,14 @@ package com.kekadoc.project.capybara.server.domain.intercator.profile
 
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
+import com.kekadoc.project.capybara.server.domain.intercator.functions.UpdateUserCommunicationsFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.user.Communication
-import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.user.isAdmin
 import com.kekadoc.project.capybara.server.domain.model.user.profile
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
@@ -24,7 +25,9 @@ import kotlinx.coroutines.flow.*
 
 class ProfileAuthorizedInteractorImpl(
     private val userRepository: UsersRepository,
+    private val emailDataService: EmailDataService,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
+    private val updateUserCommunicationsFunction: UpdateUserCommunicationsFunction,
 ) : ProfileAuthorizedInteractor {
 
     override suspend fun getProfile(
@@ -118,25 +121,28 @@ class ProfileAuthorizedInteractorImpl(
         .map(::UpdateProfilePasswordResponseDto)
         .single()
 
+    override suspend fun getAvailableCommunications(
+        accessToken: Token
+    ): GetAvailableCommunicationsDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
+        .requireAuthorizedUser()
+        .map { user ->
+            val available: List<Communication.Type> = listOf(
+                Communication.Type.Email,
+            )
+            val current: List<Communication.Type> = user.communications.values
+                .map(Communication::type)
+            available - current.toSet()
+        }
+        .mapElements(Communication.Type::name)
+        .map(::GetAvailableCommunicationsDto)
+        .single()
+
     override suspend fun updateCommunications(
         accessToken: Token,
         request: UpdateUserCommunicationsRequest,
     ): UpdateUserCommunicationsResponseDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
         .requireAuthorizedUser()
-        .flatMapLatest { user ->
-            userRepository.updateUserCommunications(
-                userId = user.id,
-                communications = Communications(
-                    values = request.values.map { (type, value) ->
-                        Communication(
-                            type = type,
-                            value = value,
-                            approved = false,
-                        )
-                    }
-                ),
-            )
-        }
+        .flatMapLatest { user -> updateUserCommunicationsFunction.update(user, request) }
         .map(ExtendedProfileDtoFactory::create)
         .map(::UpdateUserCommunicationsResponseDto)
         .single()

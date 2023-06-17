@@ -11,6 +11,7 @@ import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.post
 import com.kekadoc.project.capybara.server.routing.util.requirePathId
+import com.kekadoc.project.capybara.server.routing.util.requireQueryParameter
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier
 import io.ktor.server.application.*
@@ -28,11 +29,11 @@ fun Route.auth() = route("/auth") {
 
         post<RegistrationRequestDto> { request -> registration(request) }
 
+        get("/confirm_email") { registrationConfirmEmail() }
+
         route("/{id}") {
 
             get { getRegistrationStatus() }
-
-            get("/confirm_email") { registrationConfirmEmail() }
 
             patch<UpdateRegistrationStatusRequestDto> { request -> updateRegistrationStatus(request) }
 
@@ -81,7 +82,7 @@ suspend fun PipelineContext.cancelRegistrationRequest() = execute(ApiKeyVerifier
 
 suspend fun PipelineContext.registrationConfirmEmail() = execute {
     val interactor = Di.get<AuthInteractor>()
-    val result = interactor.registrationConfirmEmail(requirePathId())
+    val result = interactor.registrationConfirmEmail(requireQueryParameter("token"))
     call.respond(result)
 }
 

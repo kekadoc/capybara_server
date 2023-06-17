@@ -20,7 +20,7 @@ object Server : Component {
 
     fun getLocalDateTime(): LocalDateTime = LocalDateTime.now()
 
-    override fun init(application: Application): Unit = with(application) {
+    override suspend fun init(application: Application): Unit = with(application) {
         install(Resources)
         configureApplication()
         configureRouting()

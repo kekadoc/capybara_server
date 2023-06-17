@@ -10,7 +10,7 @@ data class User(
     val status: UserStatus,
     val name: String,
     val surname: String,
-    val patronymic: String,
+    val patronymic: String?,
     val about: String?,
     val communications: Communications,
     val groupIds: List<Identifier>

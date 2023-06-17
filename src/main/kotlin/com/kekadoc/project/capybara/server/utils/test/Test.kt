@@ -5,41 +5,39 @@ import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepositor
 import com.kekadoc.project.capybara.server.data.repository.message.MessagesRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.di.Di
-import com.kekadoc.project.capybara.server.domain.model.common.Range
+import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import io.ktor.server.application.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import org.koin.core.component.get
 
 object Test : Component {
 
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
         if (false) {
             GlobalScope.launch {
                 val usersRepository = Di.get<UsersRepository>()
                 val groupsRepository = Di.get<GroupsRepository>()
                 val messagesRepository = Di.get<MessagesRepository>()
 
-//                usersRepository.createUser(
-//                    login = "OlegAdmin",
-//                    password = "123",
-//                    profile = Profile(
-//                        type = Profile.Type.ADMIN,
-//                        name = "Oleg",
-//                        surname = "Korelin",
-//                        patronymic = "Sergeervich",
-//                        about = null,
-//                    ),
-//                ).collect()
+                usersRepository.createUser(
+                    login = "OlegAdmin",
+                    password = "123",
+                    profile = Profile(
+                        type = Profile.Type.ADMIN,
+                        name = "Oleg",
+                        surname = "Korelin",
+                        patronymic = "Sergeervich",
+                        about = null,
+                    ),
+                ).collect()
 
-                usersRepository.getUsers(Range(5, 500))
-                    .flatMapConcat {
-                        it.map { it.id }.map { usersRepository.deleteUser(it) }.merge()
-                    }
-                    .collect()
+//                usersRepository.getUsers(Range(5, 500))
+//                    .flatMapConcat {
+//                        it.map { it.id }.map { usersRepository.deleteUser(it) }.merge()
+//                    }
+//                    .collect()
 
 //                repeat(100) {
 //                    val profile = peopleList.random()
@@ -84,54 +82,6 @@ object Test : Component {
 
 }
 
-data class Person(val lastName: String, val firstName: String, val middleName: String)
-
-val peopleList = listOf(
-    Person("Иванов", "Иван", "Иванович"),
-    Person("Петров", "Петр", "Петрович"),
-    Person("Сидоров", "Сидор", "Сидорович"),
-    Person("Лебедева", "Чеслава", "Олеговна"),
-    Person("Доронина", "Августина", "Кимовна"),
-    Person("Суханова", "Роксалана", "Святославовна"),
-    Person("Кабанова", "Капитолина", "Демьяновна"),
-    Person("Устинова", "Светлана", "Германовна"),
-    Person("Русакова", "Гелена", "Ильяовна"),
-    Person("Петрова", "Арина", "Матвеевна"),
-    Person("Антонова", "Лигия", "Наумовна"),
-    Person("Иванкова", "Харитина", "Константиновна"),
-    Person("Титова", "Илена", "Альбертовна"),
-    Person("Сорокина", "Георгина", "Олеговна"),
-    Person("Кошелева", "Эмилия", "Романовна"),
-    Person("Харитонова", "Бронислава", "Наумовна"),
-    Person("Ермакова", "Мэри", "Лукьевна"),
-    Person("Зиновьева", "Алиса", "Авксентьевна"),
-    Person("Журавлёва", "Харитина", "Эльдаровна"),
-    Person("Якушева", "Эльвира", "Евсеевна"),
-    Person("Киселёва", "Эльвира", "Викторовна"),
-    Person("Котова", "Ярослава", "Михайловна"),
-    Person("Мартынова", "Юстина", "Тимуровна"),
-    Person("Никитин", "Мечеслав", "Артемович"),
-    Person("Семёнов", "Ибрагил", "Иринеевич"),
-    Person("Цветков", "Вальтер", "Аристархович"),
-    Person("Комиссаров", "Григорий", "Геннадиевич"),
-    Person("Никифоров", "Руслан", "Ефимович"),
-    Person("Орлов", "Гарри", "Улебович"),
-    Person("Морозов", "Святослав", "Парфеньевич"),
-    Person("Сафонов", "Фрол", "Гордеевич"),
-    Person("Зиновьев", "Людвиг", "Адольфович"),
-    Person("Авдеев", "Гордий", "Германнович"),
-    Person("Бобылёв", "Платон", "Михайлович"),
-    Person("Дементьев", "Лука", "Макарович"),
-    Person("Попов", "Альфред", "Натанович"),
-    Person("Калинин", "Эрик", "Кимович"),
-    Person("Фокин", "Май", "Алексеевич"),
-    Person("Мышкин", "Макар", "Максимович"),
-    Person("Князев", "Исаак", "Кириллович"),
-    Person("Евсеев", "Оскар", "Иосифович"),
-    Person("Федосеев", "Лукьян", "Рудольфович"),
-    Person("Коновалов", "Гаянэ", "Егорович"),
-    // и т.д.
-)
 
 
 

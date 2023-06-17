@@ -22,12 +22,12 @@ import java.util.*
 
 fun Route.groups() = route("/groups") {
 
-    get { getAllGroups() }
+    get("/students") { getStudentGroups() }
 
     get("/all") { getAllWithMembersGroups() }
 
     //Создание группы
-    post<CreateGroupRequestDto>(ApiKeyVerifier, AuthorizationVerifier) { request -> createGroup(request) }
+    post<CreateGroupRequestDto> { request -> createGroup(request) }
 
     //Получить список всех групп
     post<GetGroupListRequestDto>("/list") { request -> getGroupList(request) }
@@ -38,49 +38,51 @@ fun Route.groups() = route("/groups") {
     route("/{id}") {
 
         //Получить детализацию группы
-        get(ApiKeyVerifier, AuthorizationVerifier) { getContact(requirePathId()) }
+        get { getContact(requirePathId()) }
 
         //Обновление данных группы
-        patch<UpdateGroupNameRequestDto>("/name", ApiKeyVerifier, AuthorizationVerifier) { request ->
+        patch<UpdateGroupNameRequestDto>("/name") { request ->
             updateGroupName(requirePathId(), request)
         }
 
         //Добавление участников группы
-        patch<UpdateGroupMembersRequestDto>("/member/add", ApiKeyVerifier, AuthorizationVerifier) { request ->
+        patch<UpdateGroupMembersRequestDto>("/member/add") { request ->
             addMembersToGroup(requirePathId(), request)
         }
 
         //Удаление участников группы
-        patch<UpdateGroupMembersRequestDto>("/member/delete", ApiKeyVerifier, AuthorizationVerifier) { request ->
+        patch<UpdateGroupMembersRequestDto>("/member/delete") { request ->
             removeMembersFromGroup(requirePathId(), request)
         }
 
         //Удаление группы
-        delete(ApiKeyVerifier, AuthorizationVerifier) { deleteGroup(requirePathId()) }
+        delete { deleteGroup(requirePathId()) }
 
-        get("/members") {
-            getGroupMembers(groupId = requirePathId())
-        }
+        get("/members") { getGroupMembers(groupId = requirePathId()) }
 
     }
 
 }
 
-private suspend fun PipelineContext.getAllGroups() {
+private suspend fun PipelineContext.getStudentGroups(
+
+) = execute(ApiKeyVerifier) {
     val interactor = Di.get<GroupsInteractor>()
-    val result = interactor.getAllGroups()
+    val result = interactor.getStudentGroups()
     call.respond(result)
 }
 
-private suspend fun PipelineContext.getAllWithMembersGroups() {
+private suspend fun PipelineContext.getAllWithMembersGroups(
+
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val interactor = Di.get<GroupsInteractor>()
-    val result = interactor.getAllGroupsWithMembers()
+    val result = interactor.getAllGroupsWithMembers(authToken)
     call.respond(result)
 }
 
 private suspend fun PipelineContext.createGroup(
     request: CreateGroupRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.createGroup(
@@ -114,7 +116,7 @@ private suspend fun PipelineContext.getGroupWithMembersList(
 
 private suspend fun PipelineContext.getContact(
     groupId: Identifier,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.getGroup(
@@ -127,7 +129,7 @@ private suspend fun PipelineContext.getContact(
 private suspend fun PipelineContext.updateGroupName(
     groupId: Identifier,
     request: UpdateGroupNameRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.updateGroupName(
@@ -141,7 +143,7 @@ private suspend fun PipelineContext.updateGroupName(
 private suspend fun PipelineContext.addMembersToGroup(
     groupId: Identifier,
     request: UpdateGroupMembersRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.addMembersToGroup(
@@ -155,7 +157,7 @@ private suspend fun PipelineContext.addMembersToGroup(
 private suspend fun PipelineContext.removeMembersFromGroup(
     groupId: Identifier,
     request: UpdateGroupMembersRequestDto,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.removeMembersFromGroup(
@@ -168,7 +170,7 @@ private suspend fun PipelineContext.removeMembersFromGroup(
 
 private suspend fun PipelineContext.deleteGroup(
     groupId: Identifier,
-) {
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     val authToken = AuthorizationVerifier.requireAuthorizationToken()
     val interactor = Di.get<GroupsInteractor>()
     val result = interactor.deleteGroup(

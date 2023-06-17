@@ -6,8 +6,8 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.Communica
 import com.kekadoc.project.capybara.server.data.source.database.entity.UserEntity
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.UserEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.CommunicationsTable
-import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.user.User
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -30,7 +30,11 @@ class UserCommunicationsDataSourceImpl : UserCommunicationsDataSource {
                             if (entity.value != new.value) {
                                 entity.apply {
                                     value = new.value
-                                    approved = false
+                                    approved = if (new.type.requireApprove) false else null
+                                }
+                            } else if (new.approved != null) {
+                                entity.apply {
+                                    approved = new.approved
                                 }
                             }
                             types.remove(new)
@@ -41,7 +45,7 @@ class UserCommunicationsDataSourceImpl : UserCommunicationsDataSource {
                         this.user = userEntity
                         this.type = communication.type.name
                         this.value = communication.value
-                        this.approved = false
+                        this.approved = if (communication.type.requireApprove) false else null
                     }
                 }
             }

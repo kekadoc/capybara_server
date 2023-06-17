@@ -5,6 +5,7 @@ import com.kekadoc.project.capybara.server.common.authToken
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdminInteractor
 import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractor
+import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileInteractor
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.model.RangeDto
@@ -29,6 +30,8 @@ fun Route.profile() = route("/profile") {
     //Получение профиля через токен авторизации
     get { getProfileByAuthToken() }
 
+    get("/communications/available") { getAvailableCommunications() }
+
     //Обновление профиля через токен авторизации
     patch<UpdateProfileRequestDto>("/update/personal") { request -> updateProfileByAuthToken(request) }
 
@@ -37,6 +40,8 @@ fun Route.profile() = route("/profile") {
 
     //Обновить способы связи авторизованного пользователя
     patch<UpdateUserCommunicationsRequest>("/update/communications") { request -> updateCommunications(request) }
+
+    get("/confirm/email") { confirmEmail() }
 
     //Получение профиля через токен авторизации
     post<GetProfileListRequestDto>("/list") { request -> getProfileList(request) }
@@ -158,6 +163,12 @@ fun Route.profile() = route("/profile") {
 }
 
 
+private suspend fun PipelineContext.confirmEmail() = execute() {
+    Di.get<ProfileInteractor>().confirmEmail(
+        confirmationToken = requireParameter("token")
+    )
+}
+
 //By AccessToken
 
 private suspend fun PipelineContext.createProfile(
@@ -219,6 +230,14 @@ private suspend fun PipelineContext.getFullProfileList(
     Di.get<ProfileAuthorizedInteractor>().getExtendedProfilesWithRange(
         accessToken = authToken,
         range = request,
+    )
+}
+
+private suspend fun PipelineContext.getAvailableCommunications(
+
+) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    Di.get<ProfileAuthorizedInteractor>().getAvailableCommunications(
+        accessToken = authToken,
     )
 }
 

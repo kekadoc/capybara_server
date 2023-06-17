@@ -8,7 +8,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.scope.Scope
 
 object Di : KoinComponent, Component {
-    override fun init(application: Application) {
+    override suspend fun init(application: Application) {
         startKoin {
             application(application)
             modules(

@@ -5,9 +5,11 @@ import com.kekadoc.project.capybara.server.routing.api.groups.model.*
 
 interface GroupsInteractor {
 
-    suspend fun getAllGroups(): GetAllGroupsResponseDto
+    suspend fun getStudentGroups(): GetStudentGroupsResponseDto
 
-    suspend fun getAllGroupsWithMembers(): GetAllGroupsWithMembersResponseDto
+    suspend fun getAllGroupsWithMembers(
+        authToken: String,
+    ): GetAllGroupsWithMembersResponseDto
 
     suspend fun createGroup(
         authToken: String,

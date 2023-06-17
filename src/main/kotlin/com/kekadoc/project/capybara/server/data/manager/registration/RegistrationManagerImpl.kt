@@ -9,7 +9,6 @@ import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.*
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.single
 
@@ -42,7 +41,7 @@ class RegistrationManagerImpl(
         registrationId = registrationId,
         request = request,
     )
-        .map { regRequest ->
+        .onEach { regRequest ->
             if (regRequest.status == RegistrationStatus.COMPLETED) {
                 val about = if (regRequest.isStudent) {
                     val group = regRequest.groupId?.let(groupsRepository::getGroup)?.single()
@@ -53,14 +52,12 @@ class RegistrationManagerImpl(
                     }
                 } else null
                 val user = createUserFunction.invoke(
-                    profile = Profile(
-                        type = Profile.Type.USER,
-                        name = regRequest.name,
-                        surname = regRequest.surname,
-                        patronymic = regRequest.patronymic,
-                        about = about,
-                    )
-                )
+                    type = Profile.Type.USER,
+                    name = regRequest.name,
+                    surname = regRequest.surname,
+                    patronymic = regRequest.patronymic,
+                    about = about,
+                ).single()
                 if (regRequest.email.isNotBlank()) {
                     emailDataService.sentEmailWithLoginEndTempPassword(
                         email = regRequest.email,
@@ -71,7 +68,6 @@ class RegistrationManagerImpl(
                     )
                 }
             }
-            regRequest
         }
 
     override fun getAllRegistrationRequests(): Flow<GetAllRegistrationRequestsResponse> {

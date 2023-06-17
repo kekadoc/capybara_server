@@ -6,11 +6,13 @@ import com.kekadoc.project.capybara.server.common.secure.UserSalt
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.auth.RefreshTokenValidation
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireUser
-import com.kekadoc.project.capybara.server.domain.model.*
+import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationRequest
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationStatus
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.UpdateRegistrationStatusRequest
@@ -26,31 +28,42 @@ import java.util.*
 class AuthInteractorImpl(
     private val authorizationRepository: AuthorizationRepository,
     private val usersRepository: UsersRepository,
+    private val emailDataService: EmailDataService,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
 ) : AuthInteractor {
 
     override suspend fun authorize(
         request: AuthorizationRequestDto,
-    ): AuthorizationResponseDto {
-        val user = usersRepository.findUserByLogin(
-            login = request.login,
-        ).requireUser().single()
-        val hashedPassword = Hash.hash(
-            value = request.password, salt = UserSalt.get(
-                id = user.id,
-                login = user.login,
+    ): AuthorizationResponseDto = usersRepository.findUserByLogin(login = request.login)
+        .map { user ->
+            user ?: throw HttpException(
+                statusCode = HttpStatusCode.Unauthorized,
+                message = "Bad credentials",
             )
-        )
-        if (hashedPassword != user.password) {
-            throw HttpException(statusCode = HttpStatusCode.Unauthorized, "bad cred")
         }
-        val tokens = authorizationRepository.authorizeUser(user).single()
-
-        return AuthorizationResponseDto(
-            accessToken = tokens.accessToken,
-            refreshToken = tokens.refreshToken,
-        )
-    }
+        .onEach { user ->
+            val hashedPassword = Hash.hash(
+                value = request.password,
+                salt = UserSalt.get(
+                    id = user.id,
+                    login = user.login,
+                )
+            )
+            if (hashedPassword != user.password) {
+                throw HttpException(
+                    statusCode = HttpStatusCode.Unauthorized,
+                    message = "Bad credentials",
+                )
+            }
+        }
+        .flatMapConcat(authorizationRepository::authorizeUser)
+        .map { (accessToken, refreshToken) ->
+            AuthorizationResponseDto(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+            )
+        }
+        .single()
 
     override suspend fun refreshToken(
         request: RefreshTokensRequestDto,
@@ -210,13 +223,17 @@ class AuthInteractorImpl(
             }.single()
     }
 
-    override suspend fun registrationConfirmEmail(registrationId: Identifier) {
-        authorizationRepository.updateRegistrationStatus(
-            registrationId = registrationId,
+    override suspend fun registrationConfirmEmail(token: Token): String {
+        val confirmResult = emailDataService.checkEmailConfirmation(token)
+            ?: throw HttpException(HttpStatusCode.BadRequest)
+        return authorizationRepository.updateRegistrationStatus(
+            registrationId = confirmResult.id,
             request = UpdateRegistrationStatusRequest(
                 status = RegistrationStatus.WAIT_APPROVING,
             )
-        ).collect()
+        )
+            .map { "Электронная почта успешно подтверждена ✅.\nПожалуйста, ожидайте подтверждения заявки администратором." }
+            .single()
     }
 
 }

@@ -7,12 +7,16 @@ import com.kekadoc.project.capybara.server.data.function.create_user.CreateUserF
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
+import com.kekadoc.project.capybara.server.domain.intercator.functions.UpdateUserCommunicationsFunction
 import com.kekadoc.project.capybara.server.domain.intercator.requireAdminUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireAuthorizedUser
 import com.kekadoc.project.capybara.server.domain.intercator.requireUser
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.user.*
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToGroup
+import com.kekadoc.project.capybara.server.domain.model.user.UserAccessToUser
+import com.kekadoc.project.capybara.server.domain.model.user.UserStatus
+import com.kekadoc.project.capybara.server.domain.model.user.profile
 import com.kekadoc.project.capybara.server.routing.api.profile.model.*
 import com.kekadoc.project.capybara.server.routing.model.converter.ProfileTypeDtoConverter
 import com.kekadoc.project.capybara.server.routing.model.factory.ExtendedProfileDtoFactory
@@ -24,9 +28,10 @@ import kotlinx.coroutines.flow.*
 
 class ProfileAdminInteractorImpl(
     private val userRepository: UsersRepository,
-    private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
-    private val createUserFunction: CreateUserFunction,
     private val emailDataService: EmailDataService,
+    private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
+    private val updateUserCommunicationsFunction: UpdateUserCommunicationsFunction,
+    private val createUserFunction: CreateUserFunction,
 ) : ProfileAdminInteractor {
 
     override suspend fun createProfile(
@@ -51,15 +56,13 @@ class ProfileAdminInteractorImpl(
                 flowOf(Unit)
             }
         }
-        .map {
+        .flatMapConcat {
             createUserFunction.invoke(
-                Profile(
-                    type = ProfileTypeDtoConverter.convert(request.type),
-                    name = request.name,
-                    surname = request.surname,
-                    patronymic = request.patronymic,
-                    about = request.about,
-                ),
+                type = ProfileTypeDtoConverter.convert(request.type),
+                name = request.name,
+                surname = request.surname,
+                patronymic = request.patronymic,
+                about = request.about,
                 login = request.login,
                 password = request.password,
             )
@@ -295,20 +298,8 @@ class ProfileAdminInteractorImpl(
     ): UpdateUserCommunicationsResponseDto = fetchUserByAccessTokenFunction.fetchUser(adminAccessToken)
         .requireAuthorizedUser()
         .requireAdminUser()
-        .flatMapLatest {
-            userRepository.updateUserCommunications(
-                userId = profileId,
-                communications = Communications(
-                    values = request.values.map { (type, value) ->
-                        Communication(
-                            type = type,
-                            value = value,
-                            approved = false,
-                        )
-                    }
-                ),
-            )
-        }
+        .flatMapLatest { userRepository.getUserById(profileId) }
+        .flatMapLatest { user -> updateUserCommunicationsFunction.update(user, request) }
         .map(ExtendedProfileDtoFactory::create)
         .map(::UpdateUserCommunicationsResponseDto)
         .single()

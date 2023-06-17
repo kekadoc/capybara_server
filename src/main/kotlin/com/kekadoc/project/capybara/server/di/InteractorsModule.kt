@@ -14,10 +14,7 @@ import com.kekadoc.project.capybara.server.domain.intercator.mobile_push.MobileP
 import com.kekadoc.project.capybara.server.domain.intercator.mobile_push.MobilePushInteractorImpl
 import com.kekadoc.project.capybara.server.domain.intercator.notification.MessagesInteractor
 import com.kekadoc.project.capybara.server.domain.intercator.notification.MessagesInteractorImpl
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdminInteractor
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAdminInteractorImpl
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractor
-import com.kekadoc.project.capybara.server.domain.intercator.profile.ProfileAuthorizedInteractorImpl
+import com.kekadoc.project.capybara.server.domain.intercator.profile.*
 import com.kekadoc.project.capybara.server.domain.intercator.schedule.ScheduleInteractor
 import com.kekadoc.project.capybara.server.domain.intercator.schedule.ScheduleInteractorImpl
 import com.kekadoc.project.capybara.server.domain.intercator.system.SystemInteractor
@@ -38,6 +35,7 @@ val interactorsModule = module {
         AuthInteractorImpl(
             authorizationRepository = get(),
             usersRepository = get(),
+            emailDataService = get(),
             fetchUserByAccessTokenFunction = get(),
         )
     }
@@ -77,19 +75,29 @@ val interactorsModule = module {
         )
     }
 
+    single<ProfileInteractor> {
+        ProfileInteractorImpl(
+            emailDataService = get(),
+            usersRepository = get(),
+        )
+    }
+
     single<ProfileAdminInteractor> {
         ProfileAdminInteractorImpl(
             userRepository = get(),
-            fetchUserByAccessTokenFunction = get(),
-            createUserFunction = get(),
             emailDataService = get(),
+            fetchUserByAccessTokenFunction = get(),
+            updateUserCommunicationsFunction = get(),
+            createUserFunction = get(),
         )
     }
 
     single<ProfileAuthorizedInteractor> {
         ProfileAuthorizedInteractorImpl(
             userRepository = get(),
+            emailDataService = get(),
             fetchUserByAccessTokenFunction = get(),
+            updateUserCommunicationsFunction = get(),
         )
     }
 

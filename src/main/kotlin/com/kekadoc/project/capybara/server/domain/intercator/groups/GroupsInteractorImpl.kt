@@ -29,27 +29,34 @@ class GroupsInteractorImpl(
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
 ) : GroupsInteractor {
 
-    override suspend fun getAllGroups(): GetAllGroupsResponseDto = groupsRepository.getAllGroups()
-        .mapElements { group ->
-            SimpleGroupDto(
-                id = group.id,
-                name = group.name,
-            )
-        }
-        .map(::GetAllGroupsResponseDto)
-        .single()
-
-    override suspend fun getAllGroupsWithMembers(): GetAllGroupsWithMembersResponseDto =
-        groupsRepository.getAllGroups()
+    override suspend fun getStudentGroups(): GetStudentGroupsResponseDto =
+        groupsRepository.getStudentGroups()
             .mapElements { group ->
-                GroupDto(
+                SimpleGroupDto(
                     id = group.id,
                     name = group.name,
-                    membersIds = group.members.map(User::id),
-                )
+                    )
             }
-            .map(::GetAllGroupsWithMembersResponseDto)
+            .map(::GetStudentGroupsResponseDto)
             .single()
+
+    override suspend fun getAllGroupsWithMembers(
+        authToken: String,
+    ): GetAllGroupsWithMembersResponseDto = fetchUserByAccessTokenFunction.fetchUser(authToken)
+        .requireAuthorizedUser()
+        .requireAdminUser()
+        .flatMapLatest {
+            groupsRepository.getAllGroups()
+                .mapElements { group ->
+                    GroupDto(
+                        id = group.id,
+                        name = group.name,
+                        membersIds = group.members.map(User::id),
+                    )
+                }
+        }
+        .map(::GetAllGroupsWithMembersResponseDto)
+        .single()
 
     override suspend fun createGroup(
         authToken: Token,
@@ -59,8 +66,9 @@ class GroupsInteractorImpl(
         .requireAdminUser()
         .flatMapLatest {
             groupsRepository.createGroup(
-                request.name,
-                request.members.toSet(),
+                name = request.name,
+                type = enumValueOf(request.type),
+                members = request.members.toSet(),
             )
         }
         .map(GroupDtoConverter::convert)

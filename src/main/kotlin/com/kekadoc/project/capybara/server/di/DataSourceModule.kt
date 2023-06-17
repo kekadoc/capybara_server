@@ -24,6 +24,8 @@ import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAcces
 import com.kekadoc.project.capybara.server.data.source.api.user.access.UserAccessDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.user.communication.UserCommunicationsDataSource
 import com.kekadoc.project.capybara.server.data.source.api.user.communication.UserCommunicationsDataSourceImpl
+import com.kekadoc.project.capybara.server.data.source.local.LocalDataSource
+import com.kekadoc.project.capybara.server.data.source.local.LocalDataSourceImpl
 import org.koin.dsl.module
 
 val dataSourceModule = module {
@@ -32,6 +34,10 @@ val dataSourceModule = module {
         ApiKeyDataSourceImpl(
             database = get(),
         )
+    }
+
+    single<LocalDataSource> {
+        LocalDataSourceImpl()
     }
 
     single<AuthorizationDataSource> {

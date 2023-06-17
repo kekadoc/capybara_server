@@ -102,6 +102,11 @@ fun PipelineContext.requireParameter(name: String): String {
     return call.parameters[name] ?: throw HttpException(HttpStatusCode.BadRequest, "Parameter {$name} not found")
 }
 
+fun PipelineContext.requireQueryParameter(name: String): String {
+    return call.request.queryParameters[name] ?: throw HttpException(HttpStatusCode.BadRequest, "Query parameter {$name} not found")
+}
+
+
 fun PipelineContext.requirePathId(): Identifier {
     return requireParameter("id").runCatching {
         UUID.fromString(this)

@@ -2,6 +2,7 @@ package com.kekadoc.project.capybara.server.domain.intercator.functions
 
 import com.kekadoc.project.capybara.server.common.arch.annotation.BusinessLogic
 import com.kekadoc.project.capybara.server.common.exception.HttpException
+import com.kekadoc.project.capybara.server.common.exception.UserNotFound
 import com.kekadoc.project.capybara.server.data.repository.auth.AccessTokenValidation
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
@@ -9,11 +10,11 @@ import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.user.User
 import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 
 @BusinessLogic
-class FetchUserByAccessTokenFunction constructor(
+class FetchUserByAccessTokenFunction(
     private val authorizationRepository: AuthorizationRepository,
     private val userRepository: UsersRepository,
 ) {
@@ -37,11 +38,13 @@ class FetchUserByAccessTokenFunction constructor(
                     }
                     is AccessTokenValidation.Valid -> {
                         userRepository.getUserById(validation.userId)
-                            .map { user ->
-                                user ?: throw HttpException(
-                                    statusCode = HttpStatusCode.Unauthorized,
-                                    message = "User not found by this access token",
-                                )
+                            .catch { error ->
+                                if (error is UserNotFound) {
+                                    throw HttpException(
+                                        statusCode = HttpStatusCode.Unauthorized,
+                                        message = "User not found by this access token",
+                                    )
+                                }
                             }
                     }
                 }

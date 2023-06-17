@@ -1,14 +1,18 @@
 package com.kekadoc.project.capybara.server.data.repository.group
 
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
-import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class GroupsRepositoryImpl(
     private val dataSource: GroupDataSource,
 ) : GroupsRepository {
+
+    override fun getStudentGroups(): Flow<List<Group>> = flowOf {
+        dataSource.getStudentGroups()
+    }
 
     override fun getAllGroups(): Flow<List<Group>> = flowOf {
         dataSource.getAllGroups()
@@ -30,8 +34,8 @@ class GroupsRepositoryImpl(
         dataSource.findGroup(groupId)
     }
 
-    override fun createGroup(name: String, members: Set<Identifier>): Flow<Group> = flowOf {
-        dataSource.createGroup(name, members)
+    override fun createGroup(name: String, type: Group.Type, members: Set<Identifier>): Flow<Group> = flowOf {
+        dataSource.createGroup(name, type, members)
     }
 
     override fun updateGroupName(groupId: Identifier, name: String): Flow<Group> = flowOf {

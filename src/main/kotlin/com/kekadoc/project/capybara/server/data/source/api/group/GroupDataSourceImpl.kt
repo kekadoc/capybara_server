@@ -9,11 +9,16 @@ import com.kekadoc.project.capybara.server.data.source.database.entity.UserGroup
 import com.kekadoc.project.capybara.server.data.source.database.entity.converter.GroupEntityConverter
 import com.kekadoc.project.capybara.server.data.source.database.table.GroupsTable
 import com.kekadoc.project.capybara.server.data.source.database.table.UsersGroupsTable
-import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class GroupDataSourceImpl : GroupDataSource {
+
+    override suspend fun getStudentGroups(): List<Group> = transaction {
+        GroupEntity.find { GroupsTable.type eq Group.Type.STUDENT.name }
+            .map(GroupEntityConverter::convert)
+    }
 
     override suspend fun getAllGroups(): List<Group> = transaction {
         GroupEntity.all().map(GroupEntityConverter::convert)
@@ -47,10 +52,12 @@ class GroupDataSourceImpl : GroupDataSource {
 
     override suspend fun createGroup(
         name: String,
+        type: Group.Type,
         members: Set<Identifier>,
     ): Group = transaction {
         val groupEntity = GroupEntity.new {
             this.name = name
+            this.type = type.name
         }
         members.forEach { userId ->
             UserGroupEntity.new {
