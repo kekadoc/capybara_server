@@ -39,7 +39,7 @@ fun Route.profile() = route("/profile") {
     patch<UpdateProfilePasswordRequestDto>("/update/password") { request -> updateProfilePasswordByAuthToken(request) }
 
     //Обновить способы связи авторизованного пользователя
-    patch<UpdateUserCommunicationsRequest>("/update/communications") { request -> updateCommunications(request) }
+    patch<UpdateUserCommunicationsRequestDto>("/update/communications") { request -> updateCommunications(request) }
 
     get("/confirm/email") { confirmEmail() }
 
@@ -149,7 +149,7 @@ fun Route.profile() = route("/profile") {
         route("/communications") {
 
             //Обновить способы связи пользователя
-            patch<UpdateUserCommunicationsRequest> { request ->
+            patch<UpdateUserCommunicationsRequestDto> { request ->
                 updateCommunications(
                     profileId = requirePathId(),
                     request = request,
@@ -207,8 +207,9 @@ private suspend fun PipelineContext.updateProfilePasswordByAuthToken(
 }
 
 private suspend fun PipelineContext.updateCommunications(
-    request: UpdateUserCommunicationsRequest,
+    request: UpdateUserCommunicationsRequestDto,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
+    println("____LOG____UPD $request")
     Di.get<ProfileAuthorizedInteractor>().updateCommunications(
         accessToken = authToken,
         request = request,
@@ -365,7 +366,7 @@ private suspend fun PipelineContext.updateAccessGroup(
 
 private suspend fun PipelineContext.updateCommunications(
     profileId: Identifier,
-    request: UpdateUserCommunicationsRequest,
+    request: UpdateUserCommunicationsRequestDto,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
     Di.get<ProfileAdminInteractor>().updateProfileCommunications(
         adminAccessToken = authToken,

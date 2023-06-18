@@ -9,7 +9,6 @@ import com.kekadoc.project.capybara.server.routing.util.execute
 import com.kekadoc.project.capybara.server.routing.util.execution.delete
 import com.kekadoc.project.capybara.server.routing.util.execution.get
 import com.kekadoc.project.capybara.server.routing.util.execution.patch
-import com.kekadoc.project.capybara.server.routing.util.execution.post
 import com.kekadoc.project.capybara.server.routing.verifier.ApiKeyVerifier
 import com.kekadoc.project.capybara.server.routing.verifier.AuthorizationVerifier
 import io.ktor.server.application.*
@@ -24,13 +23,13 @@ fun Route.mobileNotifications() = route("/mobile") {
         get { getPushTokenByAuth() }
 
         //Обновление пуш токена через токен авторизации
-        post<UpdatePushTokenRequest> { request -> updatePushTokenByAuth(request) }
+        patch<UpdatePushTokenRequest> { request -> updatePushTokenByAuth(request) }
 
         //Удаление пуш токена через токен авторизации
         delete { deletePushTokenByAuth() }
 
         //Обновление пуштокена по идентификатору пользователя
-        patch<UpdatePushTokenByUserIdRequestDto> { request -> updatePushTokenByUserId(request) }
+        post<UpdatePushTokenByUserIdRequestDto> { request -> updatePushTokenByUserId(request) }
 
     }
 

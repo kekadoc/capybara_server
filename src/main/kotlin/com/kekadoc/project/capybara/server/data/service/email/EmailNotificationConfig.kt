@@ -1,4 +1,4 @@
-package com.kekadoc.project.capybara.server.data.source.api.notifications.email
+package com.kekadoc.project.capybara.server.data.service.email
 
 data class EmailNotificationConfig(
     val tokenSecret: String,

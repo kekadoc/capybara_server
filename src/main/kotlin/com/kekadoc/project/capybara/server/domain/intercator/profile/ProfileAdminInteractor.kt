@@ -74,7 +74,7 @@ interface ProfileAdminInteractor {
     suspend fun updateProfileCommunications(
         adminAccessToken: Token,
         profileId: Identifier,
-        request: UpdateUserCommunicationsRequest,
+        request: UpdateUserCommunicationsRequestDto,
     ): UpdateUserCommunicationsResponseDto
 
 }

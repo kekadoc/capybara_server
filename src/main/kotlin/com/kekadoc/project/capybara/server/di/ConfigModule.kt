@@ -1,7 +1,7 @@
 package com.kekadoc.project.capybara.server.di
 
 import com.kekadoc.project.capybara.server.common.secure.JWTConfig
-import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationConfig
+import com.kekadoc.project.capybara.server.data.service.email.EmailNotificationConfig
 import com.kekadoc.project.capybara.server.data.source.database.DatabaseConfig
 import io.ktor.server.config.*
 import org.koin.dsl.module

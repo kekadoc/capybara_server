@@ -27,7 +27,7 @@ class MessageWithNotificationManagerImpl(
 ) : MessageWithNotificationManager {
 
     override fun sentMessage(
-        authorId: Identifier,
+        author: User,
         type: MessageType,
         title: String?,
         text: String,
@@ -37,7 +37,7 @@ class MessageWithNotificationManagerImpl(
         addresseeGroups: Map<Identifier, List<Identifier>?>,
         notifications: MessageNotifications?
     ): Flow<Message> = messagesRepository.createMessage(
-        authorId = authorId,
+        authorId = author.id,
         type = type,
         title = title,
         text = text,
@@ -47,28 +47,38 @@ class MessageWithNotificationManagerImpl(
         addresseeGroups = addresseeGroups,
         notifications = notifications,
     )
-        .onEach(::handleMessageByNotifications)
+        .onEach { message ->
+            handleMessageByNotifications(
+                message = message,
+                author = author,
+            )
+        }
 
-    private suspend fun handleMessageByNotifications(message: Message) = coroutineScope {
+    private suspend fun handleMessageByNotifications(
+        message: Message,
+        author: User,
+    ) = coroutineScope {
         val allUserIds = getAllUsersForMessage(message)
         println("handleMessageByNotifications $allUserIds ${message.notifications}")
         with(message.notifications) {
-            if (this.email) sentEmailNotification(message, allUserIds)
-            if (this.app) sentAppNotification(message, allUserIds)
+            if (this.email) sentEmailNotification(message, author, allUserIds)
+            if (this.app) sentAppNotification(message, author, allUserIds)
             if (this.messengers) { Unit } // TODO: Messengers notifications
         }
     }
 
     private fun CoroutineScope.sentEmailNotification(
         message: Message,
+        author: User,
         allUserIds: List<Identifier>,
     ) = launch(Dispatchers.IO) {
         val users = usersRepository.getUsersByIds(allUserIds).single()
-        emailNotificationRepository.sentEmailNotification(message, users).collect()
+        emailNotificationRepository.sentEmailNotification(message, author, users).collect()
     }
 
     private fun CoroutineScope.sentAppNotification(
         message: Message,
+        author: User,
         allUserIds: List<Identifier>,
     ) = launch(Dispatchers.IO) {
         println("PUSH TOKENS $allUserIds")
@@ -83,6 +93,7 @@ class MessageWithNotificationManagerImpl(
                                     userId = userId,
                                     pushToken = token,
                                     message = message,
+                                    author = author,
                                     actions = message.actions,
                                 ).collect()
                             }

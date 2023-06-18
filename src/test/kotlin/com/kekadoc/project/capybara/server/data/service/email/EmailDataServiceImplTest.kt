@@ -1,6 +1,5 @@
 package com.kekadoc.project.capybara.server.data.service.email
 
-import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationConfig
 import org.junit.Test
 
 class EmailDataServiceImplTest {

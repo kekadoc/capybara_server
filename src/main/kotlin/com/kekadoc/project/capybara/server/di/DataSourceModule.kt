@@ -12,8 +12,6 @@ import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSource
 import com.kekadoc.project.capybara.server.data.source.api.group.GroupDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.messages.MessagesDataSource
 import com.kekadoc.project.capybara.server.data.source.api.messages.MessagesDataSourceImpl
-import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationDataSource
-import com.kekadoc.project.capybara.server.data.source.api.notifications.email.EmailNotificationDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSource
 import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.local.MobileNotificationsLocalDataSourceImpl
 import com.kekadoc.project.capybara.server.data.source.api.notifications.mobile.remote.MobileNotificationsRemoteDataSource
@@ -65,11 +63,5 @@ val dataSourceModule = module {
     single<UserAccessDataSource> { UserAccessDataSourceImpl() }
 
     single<UserCommunicationsDataSource> { UserCommunicationsDataSourceImpl() }
-
-    single<EmailNotificationDataSource> {
-        EmailNotificationDataSourceImpl(
-            config = get(),
-        )
-    }
 
 }

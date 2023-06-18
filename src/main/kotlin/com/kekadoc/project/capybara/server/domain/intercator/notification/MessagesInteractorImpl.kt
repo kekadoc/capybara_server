@@ -10,10 +10,10 @@ import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUser
 import com.kekadoc.project.capybara.server.domain.intercator.functions.GetReceivedMessageFunction
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
-import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
 import com.kekadoc.project.capybara.server.domain.model.message.MessageType
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.routing.api.messages.model.*
 import com.kekadoc.project.capybara.server.routing.model.RangeDto
 import com.kekadoc.project.capybara.server.routing.model.converter.RangeDtoConverter
@@ -62,8 +62,10 @@ class MessagesInteractorImpl(
         authToken: Token,
         request: CreateMessageRequestDto,
     ): CreateMessageResponseDto =
-        fetchUserByAccessTokenFunction.fetchUser(authToken).requireAuthorizedUser()
-            .requireSpeakerUser().flatMapLatest { user ->
+        fetchUserByAccessTokenFunction.fetchUser(authToken)
+            .requireAuthorizedUser()
+            .requireSpeakerUser()
+            .flatMapLatest { user ->
                 val isAllUsersAvailableForNotificationFlow = userRepository.getAccessForUsers(
                     userId = user.id,
                     forUserIds = request.addresseeUsers,
@@ -105,7 +107,7 @@ class MessagesInteractorImpl(
                 ) { _, _, _ -> }.flatMapLatest {
                     messageWithNotificationManager.sentMessage(
                         type = MessageType.valueOf(request.type.name),
-                        authorId = user.id,
+                        author = user,
                         addresseeGroups = request.addresseeGroups.associate { (groupId, membersIds) -> groupId to membersIds },
                         addresseeUsers = request.addresseeUsers,
                         title = request.title,
@@ -166,6 +168,7 @@ class MessagesInteractorImpl(
                     userId = user.id,
                     range = RangeDtoConverter.convert(range),
                 ).map { messages ->
+                    messages.map { it.authorId }.joinToString { it.toString() }.also { println("))____$it") }
                         coroutineScope {
                             messages.map { message ->
                                 async { getReceivedMessageFunction.get(message, user) }
@@ -197,7 +200,8 @@ class MessagesInteractorImpl(
                         userId = user.id,
                         answerIds = request.answerIds,
                     )
-                }.orNotFoundError()
+                }
+                .orNotFoundError()
         }.collect()
 
     override suspend fun setReceivedMessageNotify(

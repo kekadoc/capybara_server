@@ -5,12 +5,13 @@ import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
 import com.kekadoc.project.capybara.server.domain.model.message.MessageNotifications
 import com.kekadoc.project.capybara.server.domain.model.message.MessageType
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import kotlinx.coroutines.flow.Flow
 
 interface MessageWithNotificationManager {
 
     fun sentMessage(
-        authorId: Identifier,
+        author: User,
         type: MessageType,
         title: String?,
         text: String,

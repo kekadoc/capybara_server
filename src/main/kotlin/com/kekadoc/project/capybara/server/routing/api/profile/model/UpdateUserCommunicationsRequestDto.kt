@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UpdateUserCommunicationsRequest(
+data class UpdateUserCommunicationsRequestDto(
     @SerialName("values")
     val values: Map<String, String>,
 )

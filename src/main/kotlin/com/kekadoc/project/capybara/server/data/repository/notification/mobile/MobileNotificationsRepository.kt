@@ -4,6 +4,7 @@ import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.message.Message
 import com.kekadoc.project.capybara.server.domain.model.message.MessageAction
+import com.kekadoc.project.capybara.server.domain.model.user.User
 import kotlinx.coroutines.flow.Flow
 
 interface MobileNotificationsRepository {
@@ -29,6 +30,7 @@ interface MobileNotificationsRepository {
         userId: Identifier,
         pushToken: String,
         message: Message,
+        author: User,
         actions: List<MessageAction>,
     ): Flow<Unit>
 

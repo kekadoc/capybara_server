@@ -5,7 +5,7 @@ import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.model.user.Communication
 import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.user.User
-import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateUserCommunicationsRequest
+import com.kekadoc.project.capybara.server.routing.api.profile.model.UpdateUserCommunicationsRequestDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -18,7 +18,7 @@ class UpdateUserCommunicationsFunction(
 
     fun update(
         user: User,
-        request: UpdateUserCommunicationsRequest,
+        request: UpdateUserCommunicationsRequestDto,
     ): Flow<User> = flow {
         val currentCommunications = user.communications.values
         val newCommunications = request.values.map { (type, value) ->

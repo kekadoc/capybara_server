@@ -68,7 +68,7 @@ val repositoryModule = module {
 
     single<EmailNotificationRepository> {
         EmailNotificationRepositoryImpl(
-            emailNotificationDataSource = get(),
+            emailDataService = get(),
         )
     }
 

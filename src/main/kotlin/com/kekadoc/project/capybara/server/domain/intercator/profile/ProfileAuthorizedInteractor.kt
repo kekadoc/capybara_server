@@ -42,7 +42,7 @@ interface ProfileAuthorizedInteractor {
 
     suspend fun updateCommunications(
         accessToken: Token,
-        request: UpdateUserCommunicationsRequest,
+        request: UpdateUserCommunicationsRequestDto,
     ): UpdateUserCommunicationsResponseDto
 
 }

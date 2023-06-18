@@ -82,7 +82,11 @@ class GroupsInteractorImpl(
         .requireAuthorizedUser()
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupId)
-                .map { it.readInfo && it.readMembers || user.type == Profile.Type.ADMIN }
+                .map {
+                    user.groupIds.contains(groupId)
+                            || it.readInfo && it.readMembers
+                            || user.type == Profile.Type.ADMIN
+                }
         }
         .onEach { isAvailable ->
             if (!isAvailable) throw HttpException(HttpStatusCode.Forbidden)
@@ -101,7 +105,9 @@ class GroupsInteractorImpl(
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupIds)
                 .map { listOfAccess ->
-                    user.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
+                    user.type == Profile.Type.ADMIN || listOfAccess.all {
+                        it.readInfo || user.groupIds.contains(it.groupId)
+                    }
                 }
         }
         .onEach { isAvailable ->
@@ -121,7 +127,9 @@ class GroupsInteractorImpl(
         .flatMapConcat { user ->
             usersRepository.getAccessForGroup(user.id, groupIds)
                 .map { listOfAccess ->
-                    user.type == Profile.Type.ADMIN || listOfAccess.all { it.readInfo }
+                    user.type == Profile.Type.ADMIN || listOfAccess.all {
+                        it.readInfo || user.groupIds.contains(it.groupId)
+                    }
                 }
         }
         .onEach { isAvailable ->
@@ -205,7 +213,9 @@ class GroupsInteractorImpl(
         .flatMapLatest { user ->
             usersRepository.getAccessForGroup(userId = user.id, groupId = groupId)
                 .flatMapConcat { access ->
-                    if (!access.readMembers && !user.isAdmin()) throw HttpException(HttpStatusCode.Forbidden)
+                    if (!access.readMembers && !user.isAdmin() && !user.groupIds.contains(groupId)) {
+                        throw HttpException(HttpStatusCode.Forbidden)
+                    }
                     groupsRepository.getGroup(groupId)
                 }
                 .map { group -> group.members }

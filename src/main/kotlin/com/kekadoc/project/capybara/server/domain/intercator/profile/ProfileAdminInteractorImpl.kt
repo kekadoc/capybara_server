@@ -249,6 +249,7 @@ class ProfileAdminInteractorImpl(
         groupId: Identifier,
     ): GetAccessGroupResponseDto = fetchUserByAccessTokenFunction.fetchUser(adminAccessToken)
         .requireAuthorizedUser()
+        .requireAdminUser()
         .flatMapLatest {
             userRepository.getAccessForGroup(
                 userId = userId,
@@ -294,7 +295,7 @@ class ProfileAdminInteractorImpl(
     override suspend fun updateProfileCommunications(
         adminAccessToken: Token,
         profileId: Identifier,
-        request: UpdateUserCommunicationsRequest,
+        request: UpdateUserCommunicationsRequestDto,
     ): UpdateUserCommunicationsResponseDto = fetchUserByAccessTokenFunction.fetchUser(adminAccessToken)
         .requireAuthorizedUser()
         .requireAdminUser()

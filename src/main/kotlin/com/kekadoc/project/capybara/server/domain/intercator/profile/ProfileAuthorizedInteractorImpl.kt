@@ -139,7 +139,7 @@ class ProfileAuthorizedInteractorImpl(
 
     override suspend fun updateCommunications(
         accessToken: Token,
-        request: UpdateUserCommunicationsRequest,
+        request: UpdateUserCommunicationsRequestDto,
     ): UpdateUserCommunicationsResponseDto = fetchUserByAccessTokenFunction.fetchUser(accessToken)
         .requireAuthorizedUser()
         .flatMapLatest { user -> updateUserCommunicationsFunction.update(user, request) }

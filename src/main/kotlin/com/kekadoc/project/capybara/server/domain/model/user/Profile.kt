@@ -15,3 +15,13 @@ data class Profile(
     }
 
 }
+
+val Profile.officialName: String
+    get() = name + patronymic?.let { " $it" }
+
+val Profile.shortName: String
+    get() = buildString {
+        append(surname)
+        surname.take(1).takeIf { it.isNotEmpty() }?.let { append(" $it.") }
+        patronymic?.take(1)?.takeIf { it.isNotEmpty() }?.let { append(" $it.") }
+    }

@@ -17,7 +17,7 @@ object Time : Component {
     private val serverDateFormat = DateTimeFormatter.ISO_ZONED_DATE_TIME
 
     private val simpleUIFormat by lazy {
-        DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm", locale ?: Locale.ENGLISH)
+        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", locale ?: Locale.ENGLISH)
     }
 
     fun formatToServer(time: LocalDateTime): String {

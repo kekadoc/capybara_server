@@ -14,8 +14,7 @@ import com.kekadoc.project.capybara.server.data.source.database.table.MessageTab
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.message.*
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class MessagesDataSourceImpl : MessagesDataSource {
@@ -205,9 +204,27 @@ class MessagesDataSourceImpl : MessagesDataSource {
         userId: Identifier,
         range: Range,
     ): List<Message> = transaction {
-        MessageForUserEntity.find { MessageForUserTable.userId eq userId }
+        val messagesForUser = MessageForUserTable.join(
+            otherTable = MessageTable,
+            joinType = JoinType.INNER,
+            onColumn = MessageForUserTable.messageId,
+            otherColumn = MessageTable.id,
+        )
+            .selectAll()
+            .andWhere { MessageForUserTable.userId eq userId }
+            .orderBy(MessageTable.date, SortOrder.DESC)
             .limit(n = range.count, offset = range.from.toLong())
-            .map(MessageForUserEntity::message).map(MessageFactory::create)
+            .toList()
+            .map { row -> row[MessageTable.id].value }
+
+        MessageEntity.forIds(messagesForUser)
+            .orderBy(MessageTable.date to SortOrder.DESC)
+            .map(MessageFactory::create)
+
+//        MessageForUserEntity.find { MessageForUserTable.userId eq userId }
+//            .limit(n = range.count, offset = range.from.toLong())
+//            .map(MessageForUserEntity::message)
+//            .map(MessageFactory::create)
     }
 
     override suspend fun setReceivedMessageAnswer(
@@ -223,6 +240,8 @@ class MessagesDataSourceImpl : MessagesDataSource {
             .map { entity ->
                 entity.apply {
                     this.answerIds = answerIds.map(Long::toString).toTypedArray()
+                    this.received = true
+                    this.read = true
                 }
             }
             .firstOrNull()
