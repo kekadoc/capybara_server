@@ -47,14 +47,12 @@ class UpdateUserCommunicationsFunction(
             communications = Communications(newCommunications),
         )
             .onEach {
-                println("_LOG_$newEmail")
                 if (newEmail != null) {
                     emailDataService.sentConfirmEmail(
                         user = user,
                         email = newEmail,
                     )
                 }
-
             }
             .apply { emitAll(this) }
     }

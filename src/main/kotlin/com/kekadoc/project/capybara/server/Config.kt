@@ -25,6 +25,9 @@ object Config {
     val publicApi: String
         get() = applicationConfig.getString("ktor.deployment.publicApi")
 
+    val userSalt: String
+        get() = applicationConfig.getString("data.userSalt")
+
     val isDebug: Boolean
         get() = applicationConfig.getBoolean("debug.isDebug")
 

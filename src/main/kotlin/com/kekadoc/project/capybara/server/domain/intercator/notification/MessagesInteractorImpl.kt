@@ -167,15 +167,16 @@ class MessagesInteractorImpl(
                 messagesRepository.getMessagesByAddresseeUserId(
                     userId = user.id,
                     range = RangeDtoConverter.convert(range),
-                ).map { messages ->
-                    messages.map { it.authorId }.joinToString { it.toString() }.also { println("))____$it") }
+                )
+                    .map { messages ->
                         coroutineScope {
                             messages.map { message ->
                                 async { getReceivedMessageFunction.get(message, user) }
                             }.awaitAll()
                         }
                     }
-            }.map(::GetReceivedMessagesResponseDto).single()
+            }
+            .map(::GetReceivedMessagesResponseDto).single()
 
     override suspend fun getReceivedMessage(
         authToken: Token,

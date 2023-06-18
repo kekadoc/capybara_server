@@ -5,6 +5,7 @@ import com.kekadoc.project.capybara.server.data.Data
 import com.kekadoc.project.capybara.server.data.source.database.Database
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.services.firebase.Firebase
+import com.kekadoc.project.capybara.server.utils.logging.LoggerUtil
 import com.kekadoc.project.capybara.server.utils.test.Test
 import io.ktor.server.application.Application
 
@@ -20,6 +21,7 @@ object Application : Component {
     )
 
     override suspend fun init(application: Application) {
+        LoggerUtil.logApp(application)
         components.forEach { it.init(application) }
     }
 

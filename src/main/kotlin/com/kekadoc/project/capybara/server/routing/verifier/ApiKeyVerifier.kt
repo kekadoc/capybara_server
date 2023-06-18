@@ -14,7 +14,6 @@ object ApiKeyVerifier : Verifier {
 
     override suspend fun verify(call: ApplicationCall) {
         val apiKey = call.getApiKeyFromQuery() ?: call.getApiKeyFromHeader()
-        println("apiKey=$apiKey")
         if (apiKey.isNullOrEmpty()) {
             throw HttpException(
                 statusCode = HttpStatusCode.Forbidden,

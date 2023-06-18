@@ -209,7 +209,6 @@ private suspend fun PipelineContext.updateProfilePasswordByAuthToken(
 private suspend fun PipelineContext.updateCommunications(
     request: UpdateUserCommunicationsRequestDto,
 ) = execute(ApiKeyVerifier, AuthorizationVerifier) {
-    println("____LOG____UPD $request")
     Di.get<ProfileAuthorizedInteractor>().updateCommunications(
         accessToken = authToken,
         request = request,

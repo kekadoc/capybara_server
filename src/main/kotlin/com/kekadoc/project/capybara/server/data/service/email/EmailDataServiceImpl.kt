@@ -10,6 +10,7 @@ import com.kekadoc.project.capybara.server.domain.model.user.Communication
 import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.user.officialName
 import com.kekadoc.project.capybara.server.domain.model.user.profile
+import com.kekadoc.project.capybara.server.utils.logging.Logger
 import io.ktor.utils.io.charsets.*
 import kotlinx.html.*
 import kotlinx.html.stream.appendHTML
@@ -210,7 +211,6 @@ class EmailDataServiceImpl(
         text: String,
         subject: String = config.subject,
     ): HtmlEmail = HtmlEmail().apply {
-        println("_LOG_sentEMail $email $text")
         hostName = config.hostName
         setSmtpPort(465)
         setAuthenticator(DefaultAuthenticator(config.username, config.password))
@@ -232,6 +232,7 @@ class EmailDataServiceImpl(
             text = text,
             subject = subject,
         ).send()
+        Logger.log("Notification").info("Sent email to $email with subject($subject)")
     }
 
 
@@ -396,7 +397,6 @@ private object MessageBuilder {
                         attributes["cellspacing"] = "0"
                         tr {
                             val actions = listOfNotNull(action1, action2, action3)
-                            println("ACTIONS_$actions")
                             actions.forEachIndexed { index, (text, url) ->
                                 td {
                                     attributes["align"] = "center"
