@@ -23,3 +23,8 @@ interface Logger {
     }
 
 }
+
+fun Logger.Log.info(throwable: Throwable? = null, messageBuilder: StringBuilder.() -> Unit) {
+    val message = buildString(messageBuilder)
+    info(message, throwable)
+}

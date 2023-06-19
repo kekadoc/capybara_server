@@ -4,13 +4,18 @@ import com.kekadoc.project.capybara.server.Config
 import com.kekadoc.project.capybara.server.data.function.create_user.CreateUserFunction
 import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
+import com.kekadoc.project.capybara.server.data.source.api.user.UsersDataSource
 import com.kekadoc.project.capybara.server.data.source.local.LocalDataSource
 import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.model.Identifier
+import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.user.CreatedUser
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.domain.model.user.User
+import com.kekadoc.project.capybara.server.domain.model.user.isAdmin
+import com.kekadoc.project.capybara.server.utils.logging.Logger
+import com.kekadoc.project.capybara.server.utils.logging.info
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import org.koin.core.component.get
@@ -19,7 +24,20 @@ object AddingMockData : DataPreparation {
 
     override suspend fun condition(): Boolean {
         val localDataSource = Di.get<LocalDataSource>()
-        return Config.isDebugCreateMockData && !localDataSource.getDebugCreateMockData()
+        val usersDataSource = Di.get<UsersDataSource>()
+        val users = usersDataSource.getUsers(Range(0, 3))
+        val isOnlyAdminOrEmpty = users.isEmpty() || (users.size == 1 && (users.firstOrNull()?.isAdmin() == true))
+        val debugCreateMockData = localDataSource.getDebugCreateMockData()
+        val isDebugCreateMockData = Config.isDebugCreateMockData
+        val needAddingMockData = isDebugCreateMockData && !debugCreateMockData && isOnlyAdminOrEmpty
+        Logger.log("MockData").info {
+            appendLine()
+            append("isOnlyAdminOrEmpty=$isOnlyAdminOrEmpty").appendLine()
+            append("debugCreateMockData=$debugCreateMockData").appendLine()
+            append("isDebugCreateMockData=$isDebugCreateMockData").appendLine()
+            append("needAddingMockData=$needAddingMockData").appendLine()
+        }
+        return needAddingMockData
     }
 
     override suspend fun prepare() {
