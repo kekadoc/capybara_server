@@ -10,10 +10,7 @@ import com.kekadoc.project.capybara.server.di.Di
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.group.Group
-import com.kekadoc.project.capybara.server.domain.model.user.CreatedUser
-import com.kekadoc.project.capybara.server.domain.model.user.Profile
-import com.kekadoc.project.capybara.server.domain.model.user.User
-import com.kekadoc.project.capybara.server.domain.model.user.isAdmin
+import com.kekadoc.project.capybara.server.domain.model.user.*
 import com.kekadoc.project.capybara.server.utils.logging.Logger
 import com.kekadoc.project.capybara.server.utils.logging.info
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +44,8 @@ object AddingMockData : DataPreparation {
         val groupsRepository = Di.get<GroupsRepository>()
         val createUserFunction = Di.get<CreateUserFunction>()
 
+        var testTeacherId: Identifier? = null
+
         val testTeacherFlow = createUserFunction.invoke(
             login = "TesterTeacher",
             type = Profile.Type.SPEAKER,
@@ -55,6 +54,9 @@ object AddingMockData : DataPreparation {
             patronymic = "Преподаватель",
             about = randomTeacherRank(),
         )
+            .onEach { teacher ->
+                testTeacherId = teacher.user.id
+            }
 
         val testGroupFlow = createUserFunction.invoke(
             login = "TesterStudent",
@@ -71,7 +73,7 @@ object AddingMockData : DataPreparation {
             )
         }
 
-        val teachersFlow = List(10) {
+        val teachersFlow = List(7) {
             createUserFunction.invoke(
                 type = Profile.Type.SPEAKER,
                 name = randomName(),
@@ -92,7 +94,7 @@ object AddingMockData : DataPreparation {
         }
 
         groups.map { groupName ->
-            List(10) {
+            List(5) {
                 createUserFunction.invoke(
                     type = Profile.Type.USER,
                     name = randomName(),
@@ -119,15 +121,33 @@ object AddingMockData : DataPreparation {
             .flowOn(Dispatchers.IO)
             .collect()
 
+            testTeacherId?.let { id ->
+                groupsRepository.getStudentGroups()
+                    .flatMapConcat { groups ->
+                        groups.map { group ->
+                            usersRepository.updateAccessForGroup(
+                                userId = id,
+                                groupId = group.id,
+                                userAccessGroup = UserAccessToGroup.Updater(
+                                    readInfo = true,
+                                    readMembers = true,
+                                    sentNotification = true,
+                                )
+                            )
+                        }.merge()
+                    }
+                    .collect()
+            }
+
         localDataSource.setDebugCreateMockData(true)
     }
 
 }
 
 fun randomGroupName(): String = groups.random()
-fun randomName(): String = peopleList.random().firstName
-fun randomSurname(): String = peopleList.random().lastName
-fun randomPatronymic(): String = peopleList.random().middleName
+fun randomName(): String = if (kotlin.random.Random.nextBoolean()) maleList.random().firstName else femaleList.random().firstName
+fun randomSurname(): String = if (kotlin.random.Random.nextBoolean()) maleList.random().lastName else femaleList.random().lastName
+fun randomPatronymic(): String = if (kotlin.random.Random.nextBoolean()) maleList.random().middleName else femaleList.random().middleName
 fun randomTeacherRank(): String = teacherRanks.random()
 
 private data class Person(
@@ -188,29 +208,31 @@ val groups = listOf(
     "АТПП-18з",
 )
 
-private val peopleList = listOf(
-    Person("Иванов", "Иван", "Иванович"),
-    Person("Петров", "Петр", "Петрович"),
-    Person("Сидоров", "Сидор", "Сидорович"),
+private val femaleList = listOf(
     Person("Лебедева", "Чеслава", "Олеговна"),
-    Person("Доронина", "Августина", "Кимовна"),
-    Person("Суханова", "Роксалана", "Святославовна"),
-    Person("Кабанова", "Капитолина", "Демьяновна"),
     Person("Устинова", "Светлана", "Германовна"),
-    Person("Русакова", "Гелена", "Ильяовна"),
+    Person("Кабанова", "Капитолина", "Демьяновна"),
+    Person("Суханова", "Роксалана", "Святославовна"),
     Person("Петрова", "Арина", "Матвеевна"),
     Person("Антонова", "Лигия", "Наумовна"),
     Person("Иванкова", "Харитина", "Константиновна"),
     Person("Титова", "Илена", "Альбертовна"),
-    Person("Сорокина", "Георгина", "Олеговна"),
     Person("Кошелева", "Эмилия", "Романовна"),
+    Person("Зиновьева", "Алиса", "Авксентьевна"),
+    Person("Доронина", "Августина", "Кимовна"),
+    Person("Русакова", "Гелена", "Ильяовна"),
+    Person("Сорокина", "Георгина", "Олеговна"),
     Person("Харитонова", "Бронислава", "Наумовна"),
     Person("Ермакова", "Мэри", "Лукьевна"),
-    Person("Зиновьева", "Алиса", "Авксентьевна"),
     Person("Журавлёва", "Харитина", "Эльдаровна"),
     Person("Якушева", "Эльвира", "Евсеевна"),
     Person("Киселёва", "Эльвира", "Викторовна"),
     Person("Котова", "Ярослава", "Михайловна"),
+)
+private val maleList = listOf(
+    Person("Иванов", "Иван", "Иванович"),
+    Person("Петров", "Петр", "Петрович"),
+    Person("Сидоров", "Сидор", "Сидорович"),
     Person("Мартынова", "Юстина", "Тимуровна"),
     Person("Никитин", "Мечеслав", "Артемович"),
     Person("Семёнов", "Ибрагил", "Иринеевич"),

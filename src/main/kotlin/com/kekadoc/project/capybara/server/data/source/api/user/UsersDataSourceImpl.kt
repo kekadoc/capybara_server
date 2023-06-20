@@ -14,6 +14,7 @@ import com.kekadoc.project.capybara.server.domain.model.common.Range
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import com.kekadoc.project.capybara.server.domain.model.user.User
 import com.kekadoc.project.capybara.server.domain.model.user.UserStatus
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -78,12 +79,23 @@ class UsersDataSourceImpl : UsersDataSource {
 
     override suspend fun getUsers(range: Range): List<User> = transaction {
         val users = UserEntity.find {
+            val idLike: Op<Boolean>? = try {
+                range.query
+                    ?.let { UUID.fromString(it) }
+                    ?.let { UsersTable.id eq it }
+            } catch (e: Throwable) {
+                null
+            }
             val loginLike = UsersTable.login like range.query.orEmpty()
             val nameLike = UsersTable.name like "%${range.query.orEmpty()}%"
             val surnameLike = UsersTable.surname like "%${range.query.orEmpty()}%"
             val patronymicLike = UsersTable.patronymic like "%${range.query.orEmpty()}%"
             val aboutLike = UsersTable.about like "%${range.query.orEmpty()}%"
-            loginLike or nameLike or surnameLike or patronymicLike or aboutLike
+            if (idLike != null) {
+                idLike or loginLike or nameLike or surnameLike or patronymicLike or aboutLike
+            } else {
+                loginLike or nameLike or surnameLike or patronymicLike or aboutLike
+            }
         }
             .orderBy(UsersTable.login to SortOrder.ASC)
             .limit(n = range.count + 1 + range.from, offset = range.from.toLong())

@@ -162,7 +162,7 @@ class ProfileAdminInteractorImpl(
             )
         }
         .requireUser()
-        .map(ProfileDtoFactory::create)
+        .map(ExtendedProfileDtoFactory::create)
         .map(::UpdateProfileTypeResponseDto)
         .single()
 
