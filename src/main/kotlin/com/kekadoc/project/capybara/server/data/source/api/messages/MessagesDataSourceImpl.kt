@@ -41,6 +41,7 @@ class MessagesDataSourceImpl : MessagesDataSource {
             this.notificationEmail = notifications.email
             this.notificationApp = notifications.app
             this.notificationMessengers = notifications.messengers
+            this.isMultiAnswer = isMultiAction
         }
 
         val addresseeGroupsEntity: List<MessageForGroupEntity> = addresseeGroups.map { (groupId, membersIds) ->

@@ -7,8 +7,11 @@ import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.model.Identifier
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.*
+import com.kekadoc.project.capybara.server.domain.model.user.Communication
+import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.single
 
@@ -58,6 +61,12 @@ class RegistrationManagerImpl(
                     patronymic = regRequest.patronymic,
                     about = about,
                 ).single()
+                usersRepository.updateUserCommunications(
+                    userId = user.user.id,
+                    communications = Communications(
+                        listOf(Communication(Communication.Type.Email, regRequest.email, true))
+                    )
+                ).collect()
                 if (regRequest.email.isNotBlank()) {
                     emailDataService.sentEmailWithLoginEndTempPassword(
                         email = regRequest.email,

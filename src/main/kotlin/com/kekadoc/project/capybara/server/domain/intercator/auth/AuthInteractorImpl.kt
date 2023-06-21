@@ -3,8 +3,11 @@ package com.kekadoc.project.capybara.server.domain.intercator.auth
 import com.kekadoc.project.capybara.server.common.exception.HttpException
 import com.kekadoc.project.capybara.server.common.secure.Hash
 import com.kekadoc.project.capybara.server.common.secure.UserSalt
+import com.kekadoc.project.capybara.server.data.function.create_user.CreateUserFunction
+import com.kekadoc.project.capybara.server.data.manager.registration.RegistrationManager
 import com.kekadoc.project.capybara.server.data.repository.auth.AuthorizationRepository
 import com.kekadoc.project.capybara.server.data.repository.auth.RefreshTokenValidation
+import com.kekadoc.project.capybara.server.data.repository.group.GroupsRepository
 import com.kekadoc.project.capybara.server.data.repository.user.UsersRepository
 import com.kekadoc.project.capybara.server.data.service.email.EmailDataService
 import com.kekadoc.project.capybara.server.domain.intercator.functions.FetchUserByAccessTokenFunction
@@ -16,6 +19,7 @@ import com.kekadoc.project.capybara.server.domain.model.Token
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationRequest
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.RegistrationStatus
 import com.kekadoc.project.capybara.server.domain.model.auth.registration.UpdateRegistrationStatusRequest
+import com.kekadoc.project.capybara.server.domain.model.group.Group
 import com.kekadoc.project.capybara.server.domain.model.user.Communication
 import com.kekadoc.project.capybara.server.domain.model.user.Communications
 import com.kekadoc.project.capybara.server.domain.model.user.Profile
@@ -26,10 +30,13 @@ import kotlinx.coroutines.flow.*
 import java.util.*
 
 class AuthInteractorImpl(
+    private val registrationManager: RegistrationManager,
     private val authorizationRepository: AuthorizationRepository,
     private val usersRepository: UsersRepository,
+    private val groupsRepository: GroupsRepository,
     private val emailDataService: EmailDataService,
     private val fetchUserByAccessTokenFunction: FetchUserByAccessTokenFunction,
+    private val createUserFunction: CreateUserFunction,
 ) : AuthInteractor {
 
     override suspend fun authorize(
@@ -122,7 +129,7 @@ class AuthInteractorImpl(
             isStudent = request.isStudent,
             groupId = request.groupId
         )
-        val res = authorizationRepository.registration(req).single()
+        val res = registrationManager.registration(req).single()
         return RegistrationStatusResponseDto(
             id = res.id,
             status = RegistrationStatusDto.valueOf(res.status.name)
@@ -132,7 +139,7 @@ class AuthInteractorImpl(
     override suspend fun getRegistrationStatus(
         registrationId: Identifier,
     ): RegistrationStatusResponseDto {
-        val res = authorizationRepository.getRegistrationStatus(registrationId).single()
+        val res = registrationManager.getRegistrationStatus(registrationId).single()
         return RegistrationStatusResponseDto(
             id = res.id,
             status = RegistrationStatusDto.valueOf(res.status.name)
@@ -142,7 +149,7 @@ class AuthInteractorImpl(
     override suspend fun cancelRegistrationRequest(
         registrationId: Identifier,
     ): RegistrationStatusResponseDto {
-        val res = authorizationRepository.updateRegistrationStatus(
+        val res = registrationManager.updateRegistrationStatus(
             registrationId = registrationId,
             request = UpdateRegistrationStatusRequest(RegistrationStatus.CANCELLED),
         ).single()
@@ -161,7 +168,7 @@ class AuthInteractorImpl(
             .requireAuthorizedUser()
             .requireAdminUser()
             .flatMapConcat {
-                authorizationRepository.updateRegistrationStatus(
+                registrationManager.updateRegistrationStatus(
                     registrationId = registrationId,
                     request = UpdateRegistrationStatusRequest(
                         status = RegistrationStatus.valueOf(request.status.name)
@@ -170,20 +177,22 @@ class AuthInteractorImpl(
             }
             .onEach { requestInfo ->
                 if (requestInfo.status == RegistrationStatus.COMPLETED) {
-                    // TODO: Шо за хуйня
-                    val createdUser = usersRepository.createUser(
-                        login = "Oleg1234",
-                        password = "1234",
-                        profile = Profile(
-                            type = Profile.Type.USER,
-                            name = requestInfo.name,
-                            surname = requestInfo.surname,
-                            patronymic = requestInfo.patronymic,
-                            about = if (requestInfo.isStudent) "Студент" else null,
-                        ),
+                    val groupId = requestInfo.groupId
+                    val group: Group? = if (groupId == null) null else {
+                        groupsRepository.getGroup(groupId)
+                            .nullable()
+                            .catch { emit(null) }
+                            .singleOrNull()
+                    }
+                    val createdUser = createUserFunction.invoke(
+                        type = Profile.Type.USER,
+                        name = requestInfo.name,
+                        surname = requestInfo.surname,
+                        patronymic = requestInfo.patronymic,
+                        about = if (group != null) "Студент группы ${group.name}" else null,
                     ).single()
                     usersRepository.updateUserCommunications(
-                        userId = createdUser.id,
+                        userId = createdUser.user.id,
                         communications = Communications(
                             values = listOf(
                                 Communication(
@@ -205,7 +214,7 @@ class AuthInteractorImpl(
         authToken: Token,
     ): GetAllRegistrationRequestsResponseDto {
         return fetchUserByAccessTokenFunction.fetchUser(authToken).requireAdminUser()
-            .flatMapConcat { authorizationRepository.getAllRegistrationRequests() }.map {
+            .flatMapConcat { registrationManager.getAllRegistrationRequests() }.map {
                 GetAllRegistrationRequestsResponseDto(
                     items = it.items.map {
                         RegistrationRequestInfoDto(
@@ -226,7 +235,7 @@ class AuthInteractorImpl(
     override suspend fun registrationConfirmEmail(token: Token): String {
         val confirmResult = emailDataService.checkEmailConfirmation(token)
             ?: throw HttpException(HttpStatusCode.BadRequest)
-        return authorizationRepository.updateRegistrationStatus(
+        return registrationManager.updateRegistrationStatus(
             registrationId = confirmResult.id,
             request = UpdateRegistrationStatusRequest(
                 status = RegistrationStatus.WAIT_APPROVING,

@@ -33,10 +33,13 @@ val interactorsModule = module {
 
     single<AuthInteractor> {
         AuthInteractorImpl(
+            registrationManager = get(),
             authorizationRepository = get(),
             usersRepository = get(),
+            groupsRepository = get(),
             emailDataService = get(),
             fetchUserByAccessTokenFunction = get(),
+            createUserFunction = get(),
         )
     }
 

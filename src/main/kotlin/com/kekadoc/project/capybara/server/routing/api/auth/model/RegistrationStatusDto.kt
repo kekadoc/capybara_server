@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class RegistrationStatusDto {
-    @SerialName("refreshToken")
+    @SerialName("WAIT_EMAIL_CONFIRMING")
     WAIT_EMAIL_CONFIRMING,
     @SerialName("WAIT_APPROVING")
     WAIT_APPROVING,
